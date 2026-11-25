@@ -72,24 +72,13 @@ export class ZColumnSelector extends BaseElement {
 
   private _eventsBound = false;
   /**
-   * 刚被勾选的列 key —— 重渲染后要把焦点放回同一个复选框。
-   *
-   * [WHY 必须自己记、自己恢复] 勾选会调 `source.toggleColumn()`，宿主表格随即
-   * `requestUpdate`，本组件也跟着整体重建 shadow（BaseElement 换 innerHTML）——
-   * **焦点所在的 `<input>` 被换成新节点，焦点掉到 `<body>`**。
-   * 2026-11-16 真机实测：`shadowRoot.activeElement` 由 checkbox 变成 null，
-   * `document.activeElement` 变成 BODY。鼠标用户看不出（手还在原位），
-   * 键盘用户勾一列就要重新 Tab 回选择器 —— 而「连续勾几列」正是它的主要用法。
-   * 作者此前注意到这个现象（`_onDocKeydown` 的注释写了「勾选触发重渲染后 focus
-   * 落回 body」），但只把 Escape 改成了 document 级监听，没管焦点本身。
-   */
-  private _pendingFocusKey: string | null = null;
-  /**
    * Escape 关闭后要把焦点交还触发器。
    *
-   * [WHY 与 `_pendingFocusKey` 分开] 那个是「勾选后回到同一个复选框」，只在面板
-   * **还开着**时有意义；这个是「关掉面板」，面板已经没了，唯一的去处是打开它的按钮。
+   * [WHY 需要单独记] 关闭会整体重建 shadow，焦点所在的复选框被换掉，焦点掉到 body。
    * 2026-11-16 实测：焦点停在复选框上按 Escape，`deepActiveElement()` 变成 `body`。
+   *
+   * [注] 勾选路径不再需要「勾完把焦点放回同一个复选框」—— 勾选已经不重渲染了
+   * （2026-11-25，见 `_onShadowChange`），节点没被换掉，焦点本来就在原处。
    */
   private _pendingReturnFocus = false;
   private _uid = `z-colsel-${++COL_SEL_SEQ}`;
@@ -285,7 +274,6 @@ export class ZColumnSelector extends BaseElement {
   updated(): void {
     this._bindEvents();
     this._syncDropdownPosition();
-    this._restoreFocus();
     this._returnFocusToTrigger();
   }
 
@@ -326,20 +314,14 @@ export class ZColumnSelector extends BaseElement {
     this.shadowRoot?.querySelector<HTMLButtonElement>(".z-colsel__trigger")?.focus();
   }
 
-  /** 把焦点放回刚勾选的那个复选框（按 data-key 找回，不依赖节点引用）。 */
-  private _restoreFocus(): void {
-    const key = this._pendingFocusKey;
-    if (!key) return;
-    this._pendingFocusKey = null;
-    // 下拉已关（勾选后宿主关掉了它）时不用恢复：焦点本该回触发器
-    if (!this.open) return;
-    const boxes = this.shadowRoot?.querySelectorAll<HTMLInputElement>(".z-colsel__checkbox");
-    for (const cb of Array.from(boxes ?? [])) {
-      if (cb.dataset.key === key) {
-        cb.focus();
-        return;
-      }
-    }
+  /**
+   * 触发器被外部挪了位置后（宿主重绘、列增删）重算一次下拉位置。
+   *
+   * [WHY 需要外部调] 下拉的跟随只覆盖滚动与窗口 resize —— 表格重绘不产生这两个事件，
+   * 而它确实会改变表头的列集合。宿主在 `updated()` 里喊一声最省事。
+   */
+  reposition(): void {
+    this._dropPos?.update();
   }
 
   // ── Event binding ──────────────────────────────────────
@@ -378,11 +360,31 @@ export class ZColumnSelector extends BaseElement {
     if (!col || col.required) return;
     source.toggleColumn(key);
     this.emit("z-column-visibility-change", { key, visible: !col.hidden });
-    // [WHY] 外部直绑(非内嵌)时宿主表格重建不波及本组件, 需自行重渲染刷新勾选态
-    // 重渲染会换掉所有复选框节点 ⇒ 焦点掉到 body，记下 key 让 updated() 放回去
-    this._pendingFocusKey = key;
-    this.requestUpdate();
+    // [WHY 不再 requestUpdate] 勾选只改变这一行的 checked，浏览器已经改好了；重渲染会把
+    // 整棵列表换掉 —— 下拉滚动位置回到顶部、入场动画重播、定位器重算，用户看到的是
+    // 「每选一次都跳一下」（2026-11-25 反馈）。宿主那边的重绘也波及不到本组件：
+    // 它现在是表格 light DOM 的 slotted 元素，shadow 不随表格重建。
+    // 外部脚本改显隐（hideColumn / applyConfig）走 syncColumnState() 补勾选态。
   };
+
+  /**
+   * 外部改了列的显隐后，同步面板里的勾选态 —— **只改属性，不重建 DOM**。
+   *
+   * [WHY 需要这个入口] 去掉勾选后的整块重渲染之后，面板不再"顺带"刷新。
+   * 宿主用脚本隐藏一列、或换了个配置快照，面板里的勾必须跟上，否则用户看到的是
+   * 「表格已经变了，勾还停在原处」。这里逐项赋值，滚动位置与动画都不受影响。
+   */
+  syncColumnState(): void {
+    const source = this._getSource();
+    if (!source || !this.open) return;
+    const boxes = this.shadowRoot?.querySelectorAll<HTMLInputElement>(".z-colsel__checkbox") ?? [];
+    for (const cb of boxes) {
+      const col = source.columns.find((c) => c.key === cb.dataset.key);
+      if (!col) continue;
+      cb.checked = !col.hidden || !!col.required;
+      cb.disabled = !!col.required;
+    }
+  }
 
   // ── 列序调整：拖手柄，或复选框上 Alt+↑/↓ ────────────────
   //
@@ -466,11 +468,10 @@ export class ZColumnSelector extends BaseElement {
     const rows = Array.from(this.shadowRoot?.querySelectorAll<HTMLElement>(".z-colsel__row") ?? []);
     const keys = rows.map((r) => r.dataset.key).filter((k): k is string => !!k);
     if (keys.length < 2) return;
-    // [WHY 先 emit 再改宿主] 内嵌模式下改宿主会让本实例被重建，事件此时已经同步派发完毕
+    // [WHY 先 emit 再改宿主] 外部直绑时宿主离得远；内嵌时宿主重绘也波及不到本组件
+    // （light DOM + slot），所以顺序与 DOM 的一致性由本组件自己保证。
     this._emitOrderChange(keys);
     source.reorderColumns(keys);
-    // 外部直绑（selector 不在表格 shadow 内）时宿主重建波及不到本组件，自己刷新列表顺序
-    if (this.isConnected) this.requestUpdate();
   }
 
   /** 键盘等价操作：复选框上 Alt+↑/↓ 移动一格（拖拽的键盘可达路径）。 */
@@ -488,10 +489,16 @@ export class ZColumnSelector extends BaseElement {
     e.preventDefault();
     e.stopPropagation();
     [keys[from], keys[to]] = [keys[to], keys[from]];
-    this._pendingFocusKey = key;
-    this._emitOrderChange(keys);
-    source.reorderColumns(keys);
-    if (this.isConnected) this.requestUpdate();
+    // [WHY 挪节点而不是重渲染] 重建列表会丢滚动位置、重播动画；把这两行调个位置，
+    // 视觉与顺序同时到位，焦点也还在原来那个复选框上。
+    const rows = Array.from(this.shadowRoot?.querySelectorAll<HTMLElement>(".z-colsel__row") ?? []);
+    const fromRow = rows[from];
+    const toRow = rows[to];
+    if (fromRow && toRow) {
+      if (to < from) toRow.before(fromRow);
+      else toRow.after(fromRow);
+    }
+    this._commitOrder();
   };
 }
 

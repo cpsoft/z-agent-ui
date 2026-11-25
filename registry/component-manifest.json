@@ -12,7 +12,7 @@
     "properties": 962,
     "events": 213,
     "componentsWithEvents": 95,
-    "componentsWithNamedSlots": 27,
+    "componentsWithNamedSlots": 28,
     "propertiesWithValues": 72,
     "attributesOnly": 85
   },
@@ -9065,7 +9065,9 @@
         "z-selection-change",
         "z-sort"
       ],
-      "slots": [],
+      "slots": [
+        "tools"
+      ],
       "properties": [
         {
           "name": "selectedRowId",

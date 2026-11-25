@@ -76,7 +76,7 @@ describe("z-data-list", () => {
   // [WHY] 列选择器抽为独立 z-column-selector 内嵌于表格工具栏([[REQ-015-column-selector]]),
   // .z-colsel__* 位于其自身 shadow, 须再穿透一层
   function colSelOf(el: any): any {
-    return tableOf(el).shadowRoot.querySelector("z-column-selector");
+    return tableOf(el).querySelector("z-column-selector");
   }
 
   function inputOf(el: any, key: string, bound = ""): HTMLInputElement {

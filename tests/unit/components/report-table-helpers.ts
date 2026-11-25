@@ -41,7 +41,7 @@ export async function rendered(el: any): Promise<void> {
 // 内嵌于表格工具栏自动绑定宿主, 查询/交互须钻取子组件 shadow;
 // 表格每次重建都会新建子组件实例, 交互后必须重新查询
 export function colSel(el: any): any {
-  return el.shadowRoot!.querySelector("z-column-selector");
+  return el.querySelector("z-column-selector");
 }
 
 export function inColSel(el: any, sel: string): any {

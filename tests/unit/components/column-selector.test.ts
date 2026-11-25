@@ -296,7 +296,7 @@ describe("z-column-selector", () => {
       const visSpy = vi.fn();
       el.addEventListener("z-column-visibility-change", visSpy);
       await rendered(el);
-      const colSel = el.shadowRoot.querySelector("z-column-selector")!;
+      const colSel = el.querySelector("z-column-selector")!;
 
       triggerOf(colSel).click();
       await rendered(el);
@@ -305,7 +305,7 @@ describe("z-column-selector", () => {
       // 排序表头(表格重建 shadow, 内嵌实例被替换) → 重建后仍 open(columnSelectorOpen 镜像)
       el.shadowRoot.querySelector("th[data-key='name']")!.click();
       await rendered(el);
-      const colSel2 = el.shadowRoot.querySelector("z-column-selector")!;
+      const colSel2 = el.querySelector("z-column-selector")!;
       expect(colSel2.open).toBe(true);
       expect(colSel2.hasAttribute("open")).toBe(true);
 
@@ -313,7 +313,7 @@ describe("z-column-selector", () => {
       const cell = el.shadowRoot.querySelector(".z-rpt__row td") as HTMLElement;
       cell.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, composed: true }));
       await rendered(el);
-      expect(el.shadowRoot.querySelector("z-column-selector").open).toBe(true);
+      expect(el.querySelector("z-column-selector").open).toBe(true);
       document.body.removeChild(el);
     });
   });

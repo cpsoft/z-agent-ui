@@ -3,6 +3,7 @@ import { COPY, BaseElement, html, property, observeLegacyAttribute } from "../..
 // [WHY] 列选择器已抽为独立组件 z-column-selector(可外部摆放绑定), 内置工具栏复用该组件,
 // import 先于 define 保证注册; 内嵌实例经 open 属性由 columnSelectorOpen 镜像开局, 见 [[REQ-015-column-selector]]
 import "../column-selector/ColumnSelector.js";
+import type { ZColumnSelector } from "../column-selector/ColumnSelector.js";
 import reportTableCSS from "./report-table.css?raw";
 import reportTableGroupedCSS from "./report-table-grouped.css?raw";
 import cellSemanticCSS from "./cell-semantic.css?raw";
@@ -40,6 +41,7 @@ import {
   writePersistedColumnView,
 } from "./report-table-config.js";
 import { renderPager } from "./report-table-pager.js";
+import { ensureToolsSelector, syncToolsSelector } from "./report-table-tools.js";
 import { gridIntent, resolveCell, roveByKey, roveTo, sameCell, type CellPos, type GridBounds } from "../../primitives/index.js";
 import { esc, rowKeyOf, type ReportColFormat, type ReportColumn, type SortEntry, type TableConfig } from "./report-table-types.js";
 import { dataViewRows, groupViewRows, paginateViewRows, type PagedView, type ViewRow } from "./table-view-rows.js";
@@ -384,6 +386,8 @@ export class ZReportTable extends BaseElement {
     document.addEventListener("mousemove", this._onResizeMouseMove);
     document.addEventListener("mouseup", this._onResizeMouseUp);
     document.addEventListener("mousedown", this._onGlobalMouseDown);
+    // 工具栏的列选择器住在 light DOM（见 _ensureSelectorEl），挂载时补建一次
+    this._ensureSelectorEl();
   }
 
   disconnectedCallback(): void {
@@ -502,11 +506,7 @@ export class ZReportTable extends BaseElement {
     //
     // 这里只给**内层元素**：`<th>` 自己要不要 `rowspan=2`（分组表头）由 `renderHeadRows`
     // 统一决定 —— 两处各判一次，漏一处就是表头从那一格起右移。
-    const toolsHtml = showTools
-      ? html`<z-column-selector ${this.columnSelectorOpen ? "open" : ""}
-              columnstext="${esc(this.columnsText)}" requiredcolumntext="${esc(this.requiredColumnText)}"
-              reordertext="${esc(this.reorderColumnText)}"></z-column-selector>`
-      : "";
+    const toolsHtml = showTools ? html`<slot name="tools"></slot>` : "";
     const headRows = renderHeadRows({ vis, ctx: headerCtx, selectable: this.selectable, tools: toolsHtml });
 
     // [WHY 分组表头必须自带 colgroup] `table-layout: fixed` 只按**第一行**分配列宽。
@@ -557,6 +557,15 @@ export class ZReportTable extends BaseElement {
     `;
   }
 
+  // ── 工具栏里的列选择器（light DOM + slot，见 report-table-tools.ts）──
+  private _selectorEl: ZColumnSelector | null = null;
+
+  private _ensureSelectorEl(): void {
+    this._selectorEl = ensureToolsSelector(this, this._selectorEl, this._onColumnSelectorOpenEvent);
+  }
+
+  private _syncSelectorProps(): void { syncToolsSelector(this._selectorEl, this); }
+
   updated(): void {
     this._bindEvents();
     this._bindWrapperScroll();
@@ -588,6 +597,10 @@ export class ZReportTable extends BaseElement {
         selectAll.indeterminate = selCount > 0 && selCount < total;
       }
     }
+
+    // 表头重绘后工具列可能换了位置（列增删、分组层级），下拉跟着重算 —— 否则它会
+    // 停在上一帧的坐标上。选择器住 light DOM，这一步是它唯一能得知表格已重绘的信号。
+    this._selectorEl?.reposition();
   }
 
   // ── Config snapshot (external persistence) ─────────────
@@ -635,12 +648,15 @@ export class ZReportTable extends BaseElement {
     // [WHY] 统一配置变更事件: 任何列配置/排序变更都携带完整快照, 外部只需监听这一个事件做持久化
     this.emit("z-config-change", { config: this.getConfig() });
     writePersistedColumnView(this.persistKey, this);
+    // 脚本或配置快照改了显隐时，把面板里的勾同步过来（只改 checked，不重建列表）
+    this._selectorEl?.syncColumnState();
   }
 
   /** 渲染前叠上本机记住的顺序/显隐（放在 updated 会先画一帧默认顺序再跳）。 */
   willUpdate(): void {
     const view = readPersistedColumnView(this.persistKey);
     if (view) applyPersistedColumnView(this, view);
+    this._syncSelectorProps();
   }
 
   // ── Public helpers ─────────────────────────────────────
@@ -754,8 +770,9 @@ export class ZReportTable extends BaseElement {
     // [WHY] 内嵌 z-column-selector 的 open 镜像(组件自身处理 trigger/Escape/外部点击后经事件上报)
     // [WHY 用带前缀的事件名] 修复 Gitee IKRAOR：`z-open` / `z-close` 是通用名且冒泡，
     // 内嵌的 z-select / z-datepicker 开合也会触发这里，把列选择器状态改错。
-    shadow.addEventListener("z-column-selector-open", this._onColumnSelectorOpenEvent);
-    shadow.addEventListener("z-column-selector-close", this._onColumnSelectorOpenEvent);
+    // [WHY 监听在元素上而不是 shadow] 选择器现在在 light DOM（见 _ensureSelectorEl），
+    // 它的事件不再经过本组件的 shadow root，挂在 shadow 上收不到。
+    this._ensureSelectorEl();
     // [WHY 不再用 HTML5 DnD] 见 table-interactions#bindColumnReorder 顶部：
     // 同一库里编辑器早把 DnD 换成了 pointer（三条硬伤写在那份文件头），这里一直没跟。
     this._unbindColDrag = bindColumnReorder(this.shadowRoot!, this._interactionHost, () => this.editable);

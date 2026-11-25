@@ -34,13 +34,18 @@ describe("z-report-table · 工具列（列选择器进表头末格）", () => {
     document.body.removeChild(el);
   });
 
-  it("表头的末格就是工具列，里面装着 z-column-selector", async () => {
+  it("表头的末格就是工具列，承载 z-column-selector", async () => {
     const el = createTable();
     await rendered(el);
     const heads = el.shadowRoot!.querySelectorAll("thead th");
     const last = heads[heads.length - 1];
     expect(last.classList.contains("z-rpt__th--tools")).toBe(true);
-    expect(last.querySelector("z-column-selector")).toBeTruthy();
+    // [WHY 断言 slot 而不是 querySelector] 选择器住在 light DOM（表格整块重绘不能销毁它，
+    // 否则每次勾选下拉都会跳），末格通过 `<slot name="tools">` 把它投进来。
+    expect(last.querySelector("slot[name='tools']")).toBeTruthy();
+    const sel = el.querySelector("z-column-selector");
+    expect(sel).toBeTruthy();
+    expect(sel.getAttribute("slot")).toBe("tools");
     document.body.removeChild(el);
   });
 
