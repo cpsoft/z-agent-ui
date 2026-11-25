@@ -1,5 +1,5 @@
 import { COPY, BaseElement, composedContains, deepActiveElement, html, property, escapeAttr } from "../../core/index.js";
-import { PointerDragSession } from "../../primitives/index.js";
+import { FloatingPosition, PointerDragSession } from "../../primitives/index.js";
 import columnSelectorCSS from "./column-selector.css?raw";
 
 // ═══════════════════════════════════════════════════════════
@@ -98,6 +98,8 @@ export class ZColumnSelector extends BaseElement {
   /** 当前被拖动的列行（`.z-colsel__row`）。null = 没有进行中的拖拽。 */
   private _dragRow: HTMLElement | null = null;
   private _dragSession: PointerDragSession | null = null;
+  /** 下拉的定位器。下拉是 fixed 定位，位置由它按触发器实时算。 */
+  private _dropPos: FloatingPosition | null = null;
 
   connectedCallback(): void {
     super.connectedCallback();
@@ -113,6 +115,8 @@ export class ZColumnSelector extends BaseElement {
     this._dragSession?.dispose();
     this._dragSession = null;
     this._dragRow = null;
+    this._dropPos?.destroy();
+    this._dropPos = null;
     if (this._retryTimer) {
       clearTimeout(this._retryTimer);
       this._retryTimer = null;
@@ -280,8 +284,37 @@ export class ZColumnSelector extends BaseElement {
 
   updated(): void {
     this._bindEvents();
+    this._syncDropdownPosition();
     this._restoreFocus();
     this._returnFocusToTrigger();
+  }
+
+  /**
+   * 下拉改为 **fixed 定位**，位置交给 FloatingPosition 按触发器实时算。
+   *
+   * [WHY] 原来是 `position: absolute` 挂在表头末格里。表格容器 `.z-rpt__wrapper` 是
+   * `overflow-x: auto` —— 按 CSS 规范另一个方向也会被算成 auto，于是下拉一旦超出容器
+   * 高度就被裁掉（2026-11-25 实测：只露出第一行「物料编码」）。`fixed` 的包含块是视口，
+   * 不参与祖先的裁剪，这是唯一不改 DOM 位置就能跳出裁切的办法。
+   *
+   * [WHY 每次 updated 都重建] BaseElement 整块换 shadow innerHTML，下拉是**新节点**；
+   * 旧定位器还挂在已脱离的节点上，滚一次就会把旧节点的坐标写进空气。
+   * 滚动跟随由 FloatingPosition 自己监听（window + 逐层 shadowRoot），不在这里做。
+   */
+  private _syncDropdownPosition(): void {
+    this._dropPos?.destroy();
+    this._dropPos = null;
+    if (!this.open) return;
+    const dd = this.shadowRoot?.querySelector<HTMLElement>(".z-colsel__dropdown");
+    const trigger = this.shadowRoot?.querySelector<HTMLElement>(".z-colsel__trigger");
+    if (!dd || !trigger) return;
+    // bottom-end: 下拉右缘与触发器右缘对齐（表头末格靠右），与改造前的 `right: 0` 同侧
+    this._dropPos = new FloatingPosition({
+      anchor: trigger,
+      floating: dd,
+      placement: "bottom-end",
+      offset: 4,
+    });
   }
 
   /** Escape 关掉面板后把焦点交还触发器。 */

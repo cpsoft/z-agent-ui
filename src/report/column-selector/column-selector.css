@@ -62,10 +62,10 @@
 }
 
 .z-colsel__dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 4px;
+  /* [WHY fixed 而不是 absolute] 表格容器是 `overflow-x: auto`（另一个方向随之变成 auto），
+     absolute 下拉超出容器高度就会被裁掉。fixed 的包含块是视口，不受祖先裁剪。
+     left/top 由 FloatingPosition 内联写入，这里不写位置。 */
+  position: fixed;
   /* [WHY 单列列表] 列序调整需要一条**线性**顺序：多列网格里"拖到某个格子前面"
      没有唯一解释（进的是本列还是上一列？），所以下拉改成单列，字段多时纵向滚动。 */
   box-sizing: border-box;

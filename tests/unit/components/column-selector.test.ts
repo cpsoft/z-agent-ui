@@ -400,3 +400,35 @@ describe("触发器形态（图标钮）", () => {
     document.body.removeChild(table);
   });
 });
+
+// [WHY 单独一组] 2026-11-25 反馈「列表被遮挡了」：截图里下拉只露出一行就没了。
+// 根因不是高度不够，是 `.z-rpt__wrapper` 的 `overflow-x: auto` 让另一个方向也变成 auto，
+// absolute 定位的下拉被容器裁掉。改成 fixed + FloatingPosition。
+// happy-dom 没有布局，量不出「有没有被裁」，所以这里只锁**判据本身**：定位器必须真的
+// 接手了这个节点（它会写内联 position:fixed 与 left/top）。删掉定位调用这条就会红。
+describe("下拉不参与祖先裁剪（fixed 定位）", () => {
+  it("打开后由 FloatingPosition 接管：内联 position 为 fixed，且写入了坐标", async () => {
+    const table = createTable();
+    const sel = await createStandalone("for", table);
+    await open(sel);
+
+    const dd = sel.shadowRoot.querySelector(".z-colsel__dropdown") as HTMLElement;
+    expect(dd.style.position).toBe("fixed");
+    // 坐标是定位器算出来的（happy-dom 下也是 "0px" 这类合法值，不是空串）
+    expect(dd.style.top).toMatch(/px$/);
+    expect(dd.style.left).toMatch(/px$/);
+    document.body.removeChild(sel);
+    document.body.removeChild(table);
+  });
+
+  it("关闭后定位器被摘掉（不再跟随滚动重算）", async () => {
+    const table = createTable();
+    const sel = await createStandalone("for", table);
+    await open(sel);
+    triggerOf(sel).click();
+    await rendered(sel);
+    expect(sel.shadowRoot.querySelector(".z-colsel__dropdown")).toBeNull();
+    document.body.removeChild(sel);
+    document.body.removeChild(table);
+  });
+});
