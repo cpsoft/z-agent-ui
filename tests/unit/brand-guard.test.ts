@@ -237,16 +237,23 @@ describe("品牌名不得写进代码逻辑", () => {
 
 // ── ③ 名字只有一处真源 ────────────────────────────────────────
 describe("名字的真源只有 package.json", () => {
-  it("package.json 的 name 是 z-agent-ui", () => {
+  it("package.json 的 name 是 @cpsoft13/z-agent-ui", () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
     // 仓库名、npm 包名、import 路径三者同一个字符串。
     // 与品牌名 `zAgentUI` 是两个东西：那是给人看的标题，这是给包管理器看的标识。
-    expect(pkg.name).toBe("z-agent-ui");
+    //
+    // [WHY 带 scope] npm 判定 `z-agent-ui` 与已存在的 `zagentui` 太相似，非作用域名
+    // 无法发布（E403）。scope 是 npm 的命名空间，不是品牌的一部分 —— 标识本体仍是
+    // 后半段，产物名、样式入口、仓库地址都按它推导。
+    expect(pkg.name).toBe("@cpsoft13/z-agent-ui");
+    expect(pkg.name.replace(/^@[^/]+\//, "")).toBe("z-agent-ui");
   });
 
   it("构建产物名与 repo 地址跟着 package.json 走", () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
-    const { name } = pkg;
+    // [WHY 去 scope] `dist/<包名>.js` 在作用域包下会拼出 `dist/@scope/name.js` 这种
+    // 不存在的路径。产物名历来是不带 scope 的标识本体。
+    const name = pkg.name.replace(/^@[^/]+\//, "");
     // 产物以包名命名：dist/<name>.js。改了入口 key 而没改这里 = 产物名与 exports 对不上
     expect(pkg.main, "main 必须指向 dist/<包名>.js").toBe(`./dist/${name}.js`);
     expect(pkg.exports[`./${name}.css`], "样式入口 key 必须与包名一致").toBe(
