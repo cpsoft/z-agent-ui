@@ -84,6 +84,9 @@ export default defineConfig({
         "doc/editor": resolve(__dirname, "src/doc/DocTemplateEditor.ts"),
         "doc/preview": resolve(__dirname, "src/doc/DocPreview.ts"),
 
+        // L0 根 barrel：页面层统一从 `z-agent-ui/core` 取机制件（转义 / 模板 / 浮层定位）
+        core: resolve(__dirname, "src/core/index.ts"),
+
         // 域根 barrel（scanEntries 不扫根自己，漏一行不报错、只在消费方解析失败）
         doc: resolve(__dirname, "src/doc/index.ts"),
         content: resolve(__dirname, "src/content/index.ts"),
@@ -98,6 +101,11 @@ export default defineConfig({
         // 纯 TS 模块集合：exports 的 `./core/*` 与 `./report/core/*` 承诺了「每个文件都可 import」
         ...scanFiles("src/core", "core"),
         ...scanFiles("src/report/core", "report/core"),
+        // 页面层（z-agent-page）按文件直接取的两组模块：单元格取值与行视图、
+        // 甘特数据类型。不列成 entry 时 rollup 会把「本包内无人 import」的导出裁掉，
+        // 于是 dist 里有文件、导出却是空的 —— 消费方报 undefined 而不是解析失败。
+        ...scanFiles("src/report/table", "report/table"),
+        ...scanFiles("src/report/gantt", "report/gantt"),
       },
       formats: ["es"],
     },

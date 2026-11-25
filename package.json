@@ -87,6 +87,10 @@
       "types": "./dist/types/primitives/*/index.d.ts",
       "import": "./dist/primitives/*.js"
     },
+    "./core": {
+      "types": "./dist/types/core/index.d.ts",
+      "import": "./dist/core.js"
+    },
     "./core/*": {
       "types": "./dist/types/core/*.d.ts",
       "import": "./dist/core/*.js"
@@ -119,6 +123,22 @@
     "./report/core/*": {
       "types": "./dist/types/report/core/*.d.ts",
       "import": "./dist/report/core/*.js"
+    },
+    "./report/table/*": {
+      "types": "./dist/types/report/table/*.d.ts",
+      "import": "./dist/report/table/*.js"
+    },
+    "./report/table/*.js": {
+      "types": "./dist/types/report/table/*.d.ts",
+      "import": "./dist/report/table/*.js"
+    },
+    "./report/gantt/*": {
+      "types": "./dist/types/report/gantt/*.d.ts",
+      "import": "./dist/report/gantt/*.js"
+    },
+    "./report/gantt/*.js": {
+      "types": "./dist/types/report/gantt/*.d.ts",
+      "import": "./dist/report/gantt/*.js"
     },
     "./report/card": {
       "types": "./dist/types/report/elements/index.d.ts",
