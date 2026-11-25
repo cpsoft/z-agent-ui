@@ -1,6 +1,6 @@
 {
   "name": "z-agent-ui",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Framework-agnostic Web Components for business UIs — form, table, chart, flow, doc. No runtime dependencies.",
   "type": "module",
   "main": "./dist/z-agent-ui.js",
