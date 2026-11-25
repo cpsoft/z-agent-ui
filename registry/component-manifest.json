@@ -1,7 +1,7 @@
 {
   "$comment": "自动生成，勿手改。由 npm run manifest 从源码反射；改组件后没重新生成时，npm run manifest:check 会精确拦下（tag 级由 component-manifest-guard 在 npm test 里拦）。",
   "library": "z-agent-ui",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "stats": {
     "components": 134,
     "byLayer": {
