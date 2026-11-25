@@ -379,11 +379,14 @@ it("生成 registry/component-manifest.json", async () => {
 
   components.sort((a, b) => a.tag.localeCompare(b.tag));
 
+  const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
   const manifest = {
     $comment:
       "自动生成，勿手改。由 npm run manifest 从源码反射；改组件后没重新生成时，npm run manifest:check 会精确拦下（tag 级由 component-manifest-guard 在 npm test 里拦）。",
-    library: "z-agent-ui",
-    version: JSON.parse(fs.readFileSync("package.json", "utf8")).version,
+    // [WHY 读 package.json 而不是写字面量] 包改过名（`z-agent-ui` → 作用域包），
+    // 字面量会在下一次改名时静默漂移，而清单里的 library 正是消费方对包身份的引用。
+    library: pkg.name,
+    version: pkg.version,
     stats: {
       components: components.length,
       byLayer: components.reduce<Record<string, number>>((acc, c: any) => {

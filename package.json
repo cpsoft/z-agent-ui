@@ -1,5 +1,5 @@
 {
-  "name": "z-agent-ui",
+  "name": "@cpsoft13/z-agent-ui",
   "version": "0.1.0",
   "description": "Framework-agnostic Web Components for business UIs — form, table, chart, flow, doc. No runtime dependencies.",
   "type": "module",

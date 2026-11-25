@@ -122,7 +122,7 @@ export function exportGroups(): ExportGroup[] {
 }
 
 function sampleImport(group: string): string {
-  if (group === ROOT_LABEL) return `import { /* … */ } from "z-agent-ui";`;
-  if (group === "z-agent-ui.css") return `import "z-agent-ui/z-agent-ui.css";`;
-  return `import { /* … */ } from "z-agent-ui/${group}";`;
+  if (group === ROOT_LABEL) return `import { /* … */ } from "@cpsoft13/z-agent-ui";`;
+  if (group === "z-agent-ui.css") return `import "@cpsoft13/z-agent-ui/z-agent-ui.css";`;
+  return `import { /* … */ } from "@cpsoft13/z-agent-ui/${group}";`;
 }

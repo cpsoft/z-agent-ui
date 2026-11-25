@@ -2,7 +2,7 @@
 
 **Web Components 组件库 —— 134 个组件，零运行时依赖。**
 
-[English](README.md) · **[在线演示](https://zwebui.haoyongde.com)** · **[npm](https://www.npmjs.com/package/z-agent-ui)**
+[English](README.md) · **[在线演示](https://zwebui.haoyongde.com)** · **[npm](https://www.npmjs.com/package/@cpsoft13/z-agent-ui)**
 
 <img src="assets/screenshots/library.png" alt="用 zAgentUI 组件搭的后台" width="100%">
 
@@ -25,15 +25,15 @@
 ## 安装
 
 ```bash
-npm install z-agent-ui
+npm install @cpsoft13/z-agent-ui
 ```
 
 ```js
 // 样式入口：全部令牌、三档密度、暗色主题
-import "z-agent-ui/z-agent-ui.css";
+import "@cpsoft13/z-agent-ui/z-agent-ui.css";
 
 // 组件在 import 时自己注册 —— 一个组件一个目录入口
-import "z-agent-ui/components/button";
+import "@cpsoft13/z-agent-ui/components/button";
 ```
 
 ```html
@@ -43,10 +43,10 @@ import "z-agent-ui/components/button";
 想一次引入整域也可以：
 
 ```js
-import "z-agent-ui/report";     // 表格 + 图表 + 甘特 + 数据列表
-import "z-agent-ui/flow";       // 流程画布
-import "z-agent-ui/doc";        // 文档模板
-import "z-agent-ui/app";        // 应用外壳、登录、详情表单、打印
+import "@cpsoft13/z-agent-ui/report";     // 表格 + 图表 + 甘特 + 数据列表
+import "@cpsoft13/z-agent-ui/flow";       // 流程画布
+import "@cpsoft13/z-agent-ui/doc";        // 文档模板
+import "@cpsoft13/z-agent-ui/app";        // 应用外壳、登录、详情表单、打印
 ```
 
 ---
@@ -55,17 +55,17 @@ import "z-agent-ui/app";        // 应用外壳、登录、详情表单、打印
 
 | 引入 | 注册什么 |
 |---|---|
-| `z-agent-ui/components/<name>` | 单个控件（`button` / `select` / `table` / `tree` …） |
-| `z-agent-ui/primitives` | 浮层 / 传送门 / 焦点原语 |
-| `z-agent-ui/report` | `z-report-table`、`z-chart`、`z-gantt`、`z-data-list` |
-| `z-agent-ui/report/card` | 只要一张报表卡，不拖进看板容器 |
-| `z-agent-ui/report/core` | 纯 TS 内核：聚合、分组、格式化、布局 |
-| `z-agent-ui/flow` | `z-flow` 节点画布 |
-| `z-agent-ui/doc` | `z-doc-template` 编辑器 / 预览 / 管理 |
-| `z-agent-ui/content` | markdown / 代码编辑器 / 富内容渲染 |
-| `z-agent-ui/property` | 属性面板、分组、行 —— 检查器外壳 |
-| `z-agent-ui/app` | 应用外壳、导航、登录、详情表单、打印 |
-| `z-agent-ui/react` | 每个元素对应的类型化 React 包装器 |
+| `@cpsoft13/z-agent-ui/components/<name>` | 单个控件（`button` / `select` / `table` / `tree` …） |
+| `@cpsoft13/z-agent-ui/primitives` | 浮层 / 传送门 / 焦点原语 |
+| `@cpsoft13/z-agent-ui/report` | `z-report-table`、`z-chart`、`z-gantt`、`z-data-list` |
+| `@cpsoft13/z-agent-ui/report/card` | 只要一张报表卡，不拖进看板容器 |
+| `@cpsoft13/z-agent-ui/report/core` | 纯 TS 内核：聚合、分组、格式化、布局 |
+| `@cpsoft13/z-agent-ui/flow` | `z-flow` 节点画布 |
+| `@cpsoft13/z-agent-ui/doc` | `z-doc-template` 编辑器 / 预览 / 管理 |
+| `@cpsoft13/z-agent-ui/content` | markdown / 代码编辑器 / 富内容渲染 |
+| `@cpsoft13/z-agent-ui/property` | 属性面板、分组、行 —— 检查器外壳 |
+| `@cpsoft13/z-agent-ui/app` | 应用外壳、导航、登录、详情表单、打印 |
+| `@cpsoft13/z-agent-ui/react` | 每个元素对应的类型化 React 包装器 |
 
 ---
 

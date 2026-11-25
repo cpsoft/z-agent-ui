@@ -2,7 +2,7 @@
 
 **Web Components component library — 134 components, zero runtime dependencies.**
 
-[简体中文](README.zh-CN.md) · **[Live demo](https://zwebui.haoyongde.com)** · **[npm](https://www.npmjs.com/package/z-agent-ui)**
+[简体中文](README.zh-CN.md) · **[Live demo](https://zwebui.haoyongde.com)** · **[npm](https://www.npmjs.com/package/@cpsoft13/z-agent-ui)**
 
 <img src="assets/screenshots/library.png" alt="A dashboard built with zAgentUI components" width="100%">
 
@@ -26,15 +26,15 @@ see **[z-agent-page](https://gitee.com/cpsoft13/z-agent-page)**. It depends on t
 ## Install
 
 ```bash
-npm install z-agent-ui
+npm install @cpsoft13/z-agent-ui
 ```
 
 ```js
 // Style entry: every token, three densities, dark theme included
-import "z-agent-ui/z-agent-ui.css";
+import "@cpsoft13/z-agent-ui/z-agent-ui.css";
 
 // Components register themselves on import — one directory entry per component
-import "z-agent-ui/components/button";
+import "@cpsoft13/z-agent-ui/components/button";
 ```
 
 ```html
@@ -44,10 +44,10 @@ import "z-agent-ui/components/button";
 Each domain also has a barrel entry if you want the whole set at once:
 
 ```js
-import "z-agent-ui/report";     // table + chart + gantt + data-list
-import "z-agent-ui/flow";       // flow canvas
-import "z-agent-ui/doc";        // document templates
-import "z-agent-ui/app";        // app shell, login, detail form, print
+import "@cpsoft13/z-agent-ui/report";     // table + chart + gantt + data-list
+import "@cpsoft13/z-agent-ui/flow";       // flow canvas
+import "@cpsoft13/z-agent-ui/doc";        // document templates
+import "@cpsoft13/z-agent-ui/app";        // app shell, login, detail form, print
 ```
 
 ---
@@ -56,17 +56,17 @@ import "z-agent-ui/app";        // app shell, login, detail form, print
 
 | Import | Registers |
 |---|---|
-| `z-agent-ui/components/<name>` | one control (`button`, `select`, `table`, `tree`, …) |
-| `z-agent-ui/primitives` | overlay / portal / focus primitives |
-| `z-agent-ui/report` | `z-report-table`, `z-chart`, `z-gantt`, `z-data-list` |
-| `z-agent-ui/report/card` | a single report card (no board container) |
-| `z-agent-ui/report/core` | pure-TS kernel: aggregation, grouping, formatting, layout |
-| `z-agent-ui/flow` | `z-flow` node canvas |
-| `z-agent-ui/doc` | `z-doc-template` editor / preview / manager |
-| `z-agent-ui/content` | markdown / code editor / rich content renderers |
-| `z-agent-ui/property` | property panel, group, row — the inspector shell |
-| `z-agent-ui/app` | app shell, nav, login, detail form, print |
-| `z-agent-ui/react` | typed React wrappers over every element |
+| `@cpsoft13/z-agent-ui/components/<name>` | one control (`button`, `select`, `table`, `tree`, …) |
+| `@cpsoft13/z-agent-ui/primitives` | overlay / portal / focus primitives |
+| `@cpsoft13/z-agent-ui/report` | `z-report-table`, `z-chart`, `z-gantt`, `z-data-list` |
+| `@cpsoft13/z-agent-ui/report/card` | a single report card (no board container) |
+| `@cpsoft13/z-agent-ui/report/core` | pure-TS kernel: aggregation, grouping, formatting, layout |
+| `@cpsoft13/z-agent-ui/flow` | `z-flow` node canvas |
+| `@cpsoft13/z-agent-ui/doc` | `z-doc-template` editor / preview / manager |
+| `@cpsoft13/z-agent-ui/content` | markdown / code editor / rich content renderers |
+| `@cpsoft13/z-agent-ui/property` | property panel, group, row — the inspector shell |
+| `@cpsoft13/z-agent-ui/app` | app shell, nav, login, detail form, print |
+| `@cpsoft13/z-agent-ui/react` | typed React wrappers over every element |
 
 ---
 
