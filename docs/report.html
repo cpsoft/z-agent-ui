@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>L2 报表 — zAgentUI</title>
+  <script type="module" crossorigin src="/assets/report-DuP_WRwp.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/presets-CdaBrvJF.js">
+  <link rel="modulepreload" crossorigin href="/assets/a11y-DJ6wHu5s.js">
+  <link rel="modulepreload" crossorigin href="/assets/Button-6M0Me5pu.js">
+  <link rel="modulepreload" crossorigin href="/assets/shell-DwQ7nMfw.js">
+  <link rel="modulepreload" crossorigin href="/assets/cards-DUJc2ay8.js">
+  <link rel="modulepreload" crossorigin href="/assets/frame-CWDc7oMr.js">
+  <link rel="stylesheet" crossorigin href="/assets/a11y-D1tjoguM.css">
+  <link rel="stylesheet" crossorigin href="/assets/report-CBnzrAH1.css">
+  <link rel="stylesheet" crossorigin href="/assets/demo-BAF_qh2v.css">
+  <link rel="stylesheet" crossorigin href="/assets/report-table-BoiL-BvV.css">
+  <link rel="stylesheet" crossorigin href="/assets/charts-k6LKELNv.css">
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+
+  <!-- Sidebar：由 shell.ts 从 nav.ts 渲染（单一数据源） -->
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <main class="demo-main">
+
+    <section class="demo-hero">
+      <h1>L2 报表</h1>
+      <p>表格内核、图表、甘特、选列、数据列表。这一域是<b>自带数据契约</b>的复合件：有自己的行模型、排序与聚合口径，但仍然不取数、不管路由。</p>
+    </section>
+
+    <div class="demo-migrate">
+      <b>表格 / 甘特 / 图表都在本页，可直接操作</b>
+      <p>三段示例彼此独立：表格管行模型与聚合，甘特管时间轴，图表管趋势，要哪个抄哪个。
+      需要「筛选 + 报表 + 导出」的整页拼装，去 <a href="./page.html">L3 页面引擎</a>。</p>
+    </div>
+    <section class="demo-section">
+      <div class="demo-section__header">
+        <h2>这一域有哪些件</h2>
+        <p>这一域的组件都在 <code>src/report/</code> 下；列表与计数是自动生成的，新加组件会自己出现。</p>
+      </div>
+      <div class="card-grid" id="domain-cards"></div>
+    </section>
+
+    <h2 class="ex-family" id="ex-report-table">报表表格<span>1</span></h2>
+<div class="rpt-page">
+<!-- ==================== Full Demo ==================== -->
+
+  <div class="rpt-section">
+    <div class="rpt-section__header">
+      <h3 data-i18n="reportTable.salesReport">Sales Report</h3>
+      <span style="font-size:12px;color:var(--z-color-text-secondary);" data-i18n="reportTable.salesHint">Click headers to sort, drag edges to resize, use Columns button to show/hide fields</span>
+    </div>
+    <div class="rpt-section__body">
+      <z-report-table id="rpt-sales" showFooter maxHeight="320px"></z-report-table>
+      <div class="rpt-info-row">
+        <span id="rpt-sort-info"></span>
+        <span id="rpt-sel-info"></span>
+        <span id="rpt-col-info"></span>
+        <span id="rpt-row-info"></span>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
+        <z-button id="rpt-edit-toggle" appearance="ghost" size="sm" data-i18n="reportTable.enableEdit">Edit Columns</z-button>
+        <z-button id="rpt-sort-mode" appearance="ghost" size="sm" data-i18n="reportTable.serverSort">Server Sort</z-button>
+        <z-button id="rpt-sel-toggle" appearance="ghost" size="sm" data-i18n="reportTable.enableSelection">Enable Selection</z-button>
+        <z-button id="rpt-striped" appearance="ghost" size="sm" data-i18n="reportTable.toggleStriped">Toggle Striped</z-button>
+        <z-button id="rpt-bordered" appearance="ghost" size="sm" data-i18n="reportTable.toggleBordered">Toggle Bordered</z-button>
+        <z-button id="rpt-size" appearance="ghost" size="sm" data-i18n="reportTable.toggleSize">Toggle Size</z-button>
+        <z-button id="rpt-reset-config" appearance="ghost" size="sm" data-i18n="reportTable.resetConfig">Reset Config</z-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== Column Configurations ==================== -->
+
+  <div class="rpt-section">
+    <div class="rpt-section__header" style="align-items:flex-start;">
+      <h3 data-i18n="reportTable.fixedColumns">Fixed Columns & Selection</h3>
+      <span style="display:flex;align-items:flex-start;gap:16px;">
+        <span style="font-size:12px;color:var(--z-color-text-secondary);text-align:right;">
+          <span style="display:block;" data-i18n="reportTable.fixedHint">First two columns fixed left, last column fixed right, row selection enabled</span>
+          <span style="display:block;" data-i18n-html="reportTable.extSelectorHint">This table has no built-in selector (showColumnSelector=false). The standalone <code style="font-family:monospace;">&lt;z-column-selector for="rpt-fixed"&gt;</code> beside it binds externally and hides/show columns of this table.</span>
+          <span id="rpt-ext-col-info" style="display:block;font-size:12px;color:var(--z-color-primary);font-weight:600;"></span>
+        </span>
+        <z-column-selector for="rpt-fixed"></z-column-selector>
+      </span>
+    </div>
+    <div class="rpt-section__body">
+      <z-report-table id="rpt-fixed" selectable maxHeight="320px"></z-report-table>
+    </div>
+  </div>
+
+  <!-- ==================== Cell Slot ==================== -->
+
+  <div class="rpt-section">
+    <div class="rpt-section__header">
+      <h3 data-i18n="reportTable.cellSlot">Cell Slot</h3>
+      <span style="font-size:12px;color:var(--z-color-text-secondary);" data-i18n="reportTable.cellSlotHint">Status and progress cells are custom elements bound through cellTag; sort the table and they keep their instances</span>
+    </div>
+    <div class="rpt-section__body">
+      <z-report-table id="rpt-slots" maxHeight="260px"></z-report-table>
+    </div>
+  </div>
+
+  <!-- ==================== Chinese Financial Report ==================== -->
+
+  <div class="rpt-section">
+    <div class="rpt-section__header">
+      <h3 data-i18n="reportTable.cnReport">Chinese Financial Report</h3>
+      <span style="font-size:12px;color:var(--z-color-text-secondary);" data-i18n="reportTable.cnHint">Three-line table, centered headers, total row with label, RMB amounts</span>
+    </div>
+    <div class="rpt-section__body">
+      <z-report-table id="rpt-cn" lines showFooter></z-report-table>
+    </div>
+  </div>
+
+  <!-- ==================== API Reference ==================== -->
+
+  <div class="rpt-section">
+    <div class="rpt-section__header">
+      <h3 data-i18n="reportTable.apiReference">API Reference</h3>
+    </div>
+    <div class="rpt-section__body">
+
+      <h4 style="margin-bottom:12px;font-size:15px;font-weight:600;" data-i18n="reportTable.properties">Properties</h4>
+      <table class="rpt-api-table">
+        <thead>
+          <tr>
+            <th data-i18n="reportTable.property">Property</th>
+            <th data-i18n="reportTable.type">Type</th>
+            <th data-i18n="reportTable.default">Default</th>
+            <th data-i18n="reportTable.description">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>columns</code></td>
+            <td>ReportColumn[]</td>
+            <td>[]</td>
+            <td data-i18n-html="reportTable.propColumns">Column definitions. Each has: <code>key</code>, <code>title</code>, <code>sortable</code>, <code>width</code>, <code>minWidth</code>, <code>maxWidth</code>, <code>align</code>, <code>fixed</code>, <code>resizable</code>, <code>required</code>, <code>showFooter</code>, <code>hidden</code>, <code>render</code>, <code>footer</code>. <code>required</code> columns cannot be hidden from the selector. In edit mode the header dropdown can pin a column left/right</td>
+          </tr>
+          <tr>
+            <td><code>data</code></td>
+            <td>Record&lt;string, unknown&gt;[]</td>
+            <td>[]</td>
+            <td data-i18n="reportTable.propData">Array of row data objects</td>
+          </tr>
+          <tr>
+            <td><code>sortState</code></td>
+            <td>SortEntry[]</td>
+            <td>[]</td>
+            <td data-i18n-html="reportTable.propSortState">Current sort state, e.g. <code>[{key: "q1_rev", dir: "desc"}]</code>. Shift+click for multi-sort</td>
+          </tr>
+          <tr>
+            <td><code>sortMode</code></td>
+            <td>"client" | "server"</td>
+            <td>"client"</td>
+            <td data-i18n="reportTable.propSortMode"><code>client</code>: table sorts internally. <code>server</code>: fires <code>z-sort</code> only, data must be re-fetched by the caller</td>
+          </tr>
+          <tr>
+            <td><code>selectable</code></td>
+            <td>boolean</td>
+            <td>false</td>
+            <td data-i18n="reportTable.propSelectable">Enable row selection checkboxes</td>
+          </tr>
+          <tr>
+            <td><code>rowClickable</code></td>
+            <td>boolean</td>
+            <td>true</td>
+            <td data-i18n="reportTable.propRowClickable">Enable the whole-row <code>z-row-click</code> event. Clicks on interactive elements inside a cell (buttons, links, inputs, custom components) never trigger it</td>
+          </tr>
+          <tr>
+            <td><code>editable</code></td>
+            <td>boolean</td>
+            <td>false</td>
+            <td data-i18n="reportTable.propEditable">Edit mode: column resize handles, drag-to-reorder headers, and pin columns via the header dropdown. Column selection itself is available in display mode (see showColumnSelector)</td>
+          </tr>
+          <tr>
+            <td><code>maxHeight</code></td>
+            <td>string</td>
+            <td>""</td>
+            <td data-i18n="reportTable.propMaxHeight">Max height of the table area. When set, the header stays frozen (sticky) while the body scrolls vertically, e.g. <code>"320px"</code> or <code>"60vh"</code></td>
+          </tr>
+          <tr>
+            <td><code>selectedKeys</code></td>
+            <td>string[]</td>
+            <td>[]</td>
+            <td data-i18n="reportTable.propSelectedKeys">Currently selected row keys</td>
+          </tr>
+          <tr>
+            <td><code>rowKey</code></td>
+            <td>string</td>
+            <td>""</td>
+            <td data-i18n="reportTable.propRowKey">Field name to use as row identity (falls back to index)</td>
+          </tr>
+          <tr>
+            <td><code>showFooter</code></td>
+            <td>boolean</td>
+            <td>false</td>
+            <td data-i18n-html="reportTable.propShowFooter">Show footer row with per-column <code>footer</code> values</td>
+          </tr>
+          <tr>
+            <td><code>showColumnSelector</code></td>
+            <td>boolean</td>
+            <td>true</td>
+            <td data-i18n="reportTable.propShowColumnSelector">Show the "Columns" toggle button in toolbar (works in display mode, independent of editable)</td>
+          </tr>
+          <tr>
+            <td><code>striped</code></td>
+            <td>boolean</td>
+            <td>false</td>
+            <td data-i18n="reportTable.propStriped">Alternating row background</td>
+          </tr>
+          <tr>
+            <td><code>bordered</code></td>
+            <td>boolean</td>
+            <td>false</td>
+            <td data-i18n="reportTable.propBordered">Full cell borders</td>
+          </tr>
+          <tr>
+            <td><code>variant</code></td>
+            <td>"default" | "lines"</td>
+            <td>"default"</td>
+            <td data-i18n="reportTable.propVariant">Chinese three-line table style</td>
+          </tr>
+          <tr>
+            <td><code>footerLabel</code></td>
+            <td>string</td>
+            <td>"合计"</td>
+            <td data-i18n="reportTable.propFooterLabel">Total-row label in first footer cell</td>
+          </tr>
+          <tr>
+            <td><code>size</code></td>
+            <td>"sm" | "md"</td>
+            <td>"md"</td>
+            <td data-i18n="reportTable.propSize">Row density</td>
+          </tr>
+          <tr>
+            <td><code>loading</code></td>
+            <td>boolean</td>
+            <td>false</td>
+            <td data-i18n="reportTable.propLoading">Show loading overlay</td>
+          </tr>
+          <tr>
+            <td><code>emptyText</code></td>
+            <td>string</td>
+            <td>"暂无数据"</td>
+            <td data-i18n="reportTable.propEmptyText">Text shown when data is empty</td>
+          </tr>
+          <tr>
+            <td><code>requiredColumnText</code></td>
+            <td>string</td>
+            <td>"必选字段"</td>
+            <td data-i18n="reportTable.propRequiredColumnText">Tooltip text for required (non-hideable) columns in the selector</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 style="margin:24px 0 12px;font-size:15px;font-weight:600;" data-i18n="reportTable.methods">Methods</h4>
+      <table class="rpt-api-table">
+        <thead>
+          <tr><th data-i18n="reportTable.method">Method</th><th data-i18n="reportTable.description">Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>selectAll()</code></td><td data-i18n="reportTable.methodSelectAll">Select all rows</td></tr>
+          <tr><td><code>clearSelection()</code></td><td data-i18n="reportTable.methodClearSelection">Deselect all rows</td></tr>
+          <tr><td><code>showColumn(key)</code></td><td data-i18n="reportTable.methodShowColumn">Show a hidden column</td></tr>
+          <tr><td><code>hideColumn(key)</code></td><td data-i18n="reportTable.methodHideColumn">Hide a visible column</td></tr>
+          <tr><td><code>toggleColumn(key)</code></td><td data-i18n="reportTable.methodToggleColumn">Toggle column visibility</td></tr>
+          <tr><td><code>getConfig()</code></td><td data-i18n="reportTable.methodGetConfig">Export the full table config snapshot (columns order/width/align/hidden/footer/fixed, sort state). Persist it anywhere you like (localStorage, server)</td></tr>
+          <tr><td><code>applyConfig(cfg)</code></td><td data-i18n="reportTable.methodApplyConfig">Apply a previously exported config snapshot (see <code>getConfig()</code>). Unknown column keys are ignored</td></tr>
+        </tbody>
+      </table>
+
+      <h4 style="margin:24px 0 12px;font-size:15px;font-weight:600;" data-i18n="reportTable.events">Events</h4>
+      <table class="rpt-api-table">
+        <thead>
+          <tr><th data-i18n="reportTable.event">Event</th><th data-i18n="reportTable.detail">Detail</th><th data-i18n="reportTable.description">Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>z-sort</code></td><td><code>{ sortState }</code></td><td data-i18n="reportTable.eventZSort">Fired when sort state changes</td></tr>
+          <tr><td><code>z-selection-change</code></td><td><code>{ selectedKeys }</code></td><td data-i18n="reportTable.eventZSelectionChange">Fired when row selection changes</td></tr>
+          <tr><td><code>z-column-resize</code></td><td><code>{ key, width }</code></td><td data-i18n="reportTable.eventZColumnResize">Fired when a column is resized (editable mode)</td></tr>
+          <tr><td><code>z-column-order-change</code></td><td><code>{ keys }</code></td><td data-i18n="reportTable.eventZColumnOrderChange">Fired when a column is dragged to a new position (editable mode)</td></tr>
+          <tr><td><code>z-column-config-change</code></td><td><code>{ key, align, showFooter, fixed }</code></td><td data-i18n="reportTable.eventZColumnConfigChange">Fired when column alignment, footer toggle, or pin (fixed left/right) changes in the header dropdown (editable mode)</td></tr>
+          <tr><td><code>z-column-visibility-change</code></td><td><code>{ key, visible }</code></td><td data-i18n="reportTable.eventZColumnVisibilityChange">Fired when a column is shown/hidden via the selector</td></tr>
+          <tr><td><code>z-config-change</code></td><td><code>{ config }</code></td><td data-i18n="reportTable.eventZConfigChange">Fired on any config change with the full snapshot <code>{ config }</code>. Use it to persist the config externally (localStorage, server)</td></tr>
+          <tr><td><code>z-row-click</code></td><td><code>{ index, row }</code></td><td data-i18n="reportTable.eventZRowClick">Fired when a data row is clicked on a non-interactive area (buttons, links, inputs and custom z-* elements inside cells do not trigger). detail: <code>{ index, row }</code>, row is the object in current sorted order</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+    <h2 class="ex-family" id="ex-gantt">甘特图<span>1</span></h2>
+<div class="gt-layout">
+
+    <!-- ── 甘特图画布 ── -->
+    <div class="demo-canvas">
+      <!-- 不注入 today：走组件 todayStart() 取真实当天（写死 2026-09-15 导致红线错位一天以上） -->
+      <z-gantt id="gantt"></z-gantt>
+    </div>
+
+    <!-- ── Side panel ── -->
+    <aside class="demo-panel">
+      <section class="gt-section">
+        <h3 class="gt-section__title">视图</h3>
+        <div class="demo-row">
+          <z-button id="v-day" size="sm">日</z-button>
+          <z-button id="v-week" size="sm" appearance="outline">周</z-button>
+          <z-button id="v-month" size="sm" appearance="outline">月</z-button>
+          <z-button id="v-quarter" size="sm" appearance="outline">季</z-button>
+        </div>
+        <div class="demo-row">
+          <z-button id="zoom-in" size="sm" appearance="outline">放大</z-button>
+          <z-button id="zoom-out" size="sm" appearance="outline">缩小</z-button>
+          <z-button id="fit" size="sm" appearance="outline">适配</z-button>
+          <z-button id="today" size="sm" appearance="outline">今天</z-button>
+        </div>
+        <div class="gt-hint">Ctrl/⌘ + 滚轮以光标为锚缩放 · 方向键滚动/切换选中行</div>
+      </section>
+
+      <section class="gt-section">
+        <h3 class="gt-section__title">选项</h3>
+        <div class="demo-row"><label><z-checkbox id="opt-critical">关键路径高亮</z-checkbox></label></div>
+        <div class="demo-row"><label><z-checkbox id="opt-auto" checked>自动排程顺延</z-checkbox></label></div>
+        <div class="demo-row"><label><z-checkbox id="opt-weekends" checked>显示周末</z-checkbox></label></div>
+        <div class="demo-row"><label><z-checkbox id="opt-readonly">只读</z-checkbox></label></div>
+      </section>
+
+      <section class="gt-section">
+        <h3 class="gt-section__title">操作提示</h3>
+        <div class="gt-hint">
+          拖动条形改期 · 左右手柄改工期 · 条内深色区改进度 ·
+          hover 条缘圆点拖出依赖连线 · 右键任务行弹出菜单（新增/删除） ·
+          拖动前置任务的结束日期，后续任务自动顺延<br />
+          依赖四类型：FS 完成→开始 · SS 开始→开始（t3/t4 同日启动） ·
+          FF 完成→完成 · SF 开始→完成（上线部署开始时旧版本停用，反向回弯）
+        </div>
+      </section>
+
+      <section class="gt-section">
+        <h3 class="gt-section__title">事件日志</h3>
+        <div id="event-log" class="demo-log"></div>
+      </section>
+
+      <section class="gt-section">
+        <h3 class="gt-section__title">数据（getData）</h3>
+        <pre id="json-out" class="demo-json"></pre>
+      </section>
+    </aside>
+
+  </div>
+    <h2 class="ex-family" id="ex-charts">图表<span>7</span></h2>
+<!-- ==================== Bar ==================== -->
+
+    <section id="bar" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="chart.barTitle">Bar</h2>
+        <p data-i18n="chart.subtitleBar">Bar chart with legend toggle, hover tooltip, canvas rendering and mixed bar+line dual-axis series.</p>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <div class="demo-section__header"><h3 data-i18n="chart.categories">Categories</h3></div>
+        <div class="demo-preview">
+          <div class="demo-preview__live demo-preview__live--block">
+            <z-chart id="cht-bar" type="bar" title="Monthly Revenue" width="620" height="300">
+              <z-chart-axis position="bottom" type="category" title="Month"></z-chart-axis>
+              <z-chart-axis position="left" type="value" format="currency"></z-chart-axis>
+              <z-chart-series id="s-bar-online" name="Online"></z-chart-series>
+              <z-chart-series id="s-bar-retail" name="Retail"></z-chart-series>
+              <z-chart-series id="s-bar-wholesale" name="Wholesale"></z-chart-series>
+            </z-chart>
+            <div class="cht-info-row">
+              <span id="cht-bar-toggle-info"></span>
+            </div>
+          </div>
+          <div class="demo-preview__actions">
+            <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+          </div>
+          <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-chart</span> <span class="attr">type</span>=<span class="val">"bar"</span> <span class="attr">title</span>=<span class="val">"Monthly Revenue"</span> <span class="attr">width</span>=<span class="val">"620"</span> <span class="attr">height</span>=<span class="val">"300"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-chart-axis</span> <span class="attr">position</span>=<span class="val">"bottom"</span> <span class="attr">type</span>=<span class="val">"category"</span> <span class="attr">title</span>=<span class="val">"Month"</span><span class="tag">&gt;&lt;/z-chart-axis&gt;</span>
+  <span class="tag">&lt;z-chart-axis</span> <span class="attr">position</span>=<span class="val">"left"</span> <span class="attr">type</span>=<span class="val">"value"</span> <span class="attr">format</span>=<span class="val">"currency"</span><span class="tag">&gt;&lt;/z-chart-axis&gt;</span>
+  <span class="tag">&lt;z-chart-series</span> <span class="attr">name</span>=<span class="val">"Online"</span><span class="tag">&gt;&lt;/z-chart-series&gt;</span>
+  <span class="tag">&lt;z-chart-series</span> <span class="attr">name</span>=<span class="val">"Retail"</span><span class="tag">&gt;&lt;/z-chart-series&gt;</span>
+  <span class="tag">&lt;z-chart-series</span> <span class="attr">name</span>=<span class="val">"Wholesale"</span><span class="tag">&gt;&lt;/z-chart-series&gt;</span>
+<span class="tag">&lt;/z-chart&gt;</span>
+<span class="cmt">// data 是 DOM property（attribute 不生效），需 JS 设置：</span>
+<span class="txt">const series = document.querySelector("z-chart-series");</span>
+<span class="txt">series.data = [{ label: "Jan", value: 4200 }, { label: "Feb", value: 5100 }];</span></code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="demo-section__header"><h3 data-i18n="chart.mixed">Mixed Series & Dual Axis</h3></div>
+        <div class="demo-preview">
+          <div class="demo-preview__live demo-preview__live--block">
+            <z-chart id="cht-mixed" type="bar" title="Revenue vs Growth" width="620" height="300" renderer="canvas">
+              <z-chart-axis position="bottom" type="category" title="Quarter"></z-chart-axis>
+              <z-chart-axis position="left" type="value" title="Revenue" format="currency"></z-chart-axis>
+              <z-chart-axis position="right" type="value" title="Growth %" format="percent"></z-chart-axis>
+              <z-chart-series id="s-mixed-rev" name="Revenue" type="bar"></z-chart-series>
+              <z-chart-series id="s-mixed-growth" name="Growth" type="line" y-axis="right"></z-chart-series>
+            </z-chart>
+            <div class="cht-info-row">
+              <span data-i18n="chart.rendererCanvas">Rendered with the canvas engine</span>
+            </div>
+          </div>
+          <div class="demo-preview__actions">
+            <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+          </div>
+          <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-chart</span> <span class="attr">type</span>=<span class="val">"bar"</span> <span class="attr">title</span>=<span class="val">"Revenue vs Growth"</span> <span class="attr">width</span>=<span class="val">"620"</span> <span class="attr">height</span>=<span class="val">"300"</span> <span class="attr">renderer</span>=<span class="val">"canvas"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-chart-axis</span> <span class="attr">position</span>=<span class="val">"bottom"</span> <span class="attr">type</span>=<span class="val">"category"</span> <span class="attr">title</span>=<span class="val">"Quarter"</span><span class="tag">&gt;&lt;/z-chart-axis&gt;</span>
+  <span class="tag">&lt;z-chart-axis</span> <span class="attr">position</span>=<span class="val">"left"</span> <span class="attr">type</span>=<span class="val">"value"</span> <span class="attr">title</span>=<span class="val">"Revenue"</span> <span class="attr">format</span>=<span class="val">"currency"</span><span class="tag">&gt;&lt;/z-chart-axis&gt;</span>
+  <span class="tag">&lt;z-chart-axis</span> <span class="attr">position</span>=<span class="val">"right"</span> <span class="attr">type</span>=<span class="val">"value"</span> <span class="attr">title</span>=<span class="val">"Growth %"</span> <span class="attr">format</span>=<span class="val">"percent"</span><span class="tag">&gt;&lt;/z-chart-axis&gt;</span>
+  <span class="tag">&lt;z-chart-series</span> <span class="attr">name</span>=<span class="val">"Revenue"</span> <span class="attr">type</span>=<span class="val">"bar"</span><span class="tag">&gt;&lt;/z-chart-series&gt;</span>
+  <span class="tag">&lt;z-chart-series</span> <span class="attr">name</span>=<span class="val">"Growth"</span> <span class="attr">type</span>=<span class="val">"line"</span> <span class="attr">y-axis</span>=<span class="val">"right"</span><span class="tag">&gt;&lt;/z-chart-series&gt;</span>
+<span class="tag">&lt;/z-chart&gt;</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Line & Area ==================== -->
+
+    <section id="line-area" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="chart.lineAreaTitle">Line & Area</h2>
+        <p data-i18n="chart.subtitleLineArea">Trend charts with enter animation. Click the legend to hide series.</p>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-chart id="cht-line" type="line" title="Weekly Active Users" width="620" height="260">
+            <z-chart-axis position="bottom" type="category" title="Week"></z-chart-axis>
+            <z-chart-axis position="left" type="value"></z-chart-axis>
+            <z-chart-series id="s-line-desktop" name="Desktop"></z-chart-series>
+            <z-chart-series id="s-line-mobile" name="Mobile"></z-chart-series>
+          </z-chart>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-chart</span> <span class="attr">type</span>=<span class="val">"line"</span> <span class="attr">title</span>=<span class="val">"Weekly Active Users"</span> <span class="attr">width</span>=<span class="val">"620"</span> <span class="attr">height</span>=<span class="val">"260"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-chart-axis</span> <span class="attr">position</span>=<span class="val">"bottom"</span> <span class="attr">type</span>=<span class="val">"category"</span> <span class="attr">title</span>=<span class="val">"Week"</span><span class="tag">&gt;&lt;/z-chart-axis&gt;</span>
+  <span class="tag">&lt;z-chart-axis</span> <span class="attr">position</span>=<span class="val">"left"</span> <span class="attr">type</span>=<span class="val">"value"</span><span class="tag">&gt;&lt;/z-chart-axis&gt;</span>
+  <span class="tag">&lt;z-chart-series</span> <span class="attr">name</span>=<span class="val">"Desktop"</span><span class="tag">&gt;&lt;/z-chart-series&gt;</span>
+  <span class="tag">&lt;z-chart-series</span> <span class="attr">name</span>=<span class="val">"Mobile"</span><span class="tag">&gt;&lt;/z-chart-series&gt;</span>
+<span class="tag">&lt;/z-chart&gt;</span>
+<span class="cmt">// 数字数组也可直接作为 series.data：</span>
+<span class="txt">series.data = [12, 18, 16, 24, 22, 30, 28, 36];</span></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-chart id="cht-area" type="area" title="Downloads" width="620" height="260">
+            <z-chart-axis position="bottom" type="category"></z-chart-axis>
+            <z-chart-axis position="left" type="value"></z-chart-axis>
+            <z-chart-series id="s-area-store" name="App Store"></z-chart-series>
+            <z-chart-series id="s-area-play" name="Google Play"></z-chart-series>
+          </z-chart>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-chart</span> <span class="attr">type</span>=<span class="val">"area"</span> <span class="attr">title</span>=<span class="val">"Downloads"</span> <span class="attr">width</span>=<span class="val">"620"</span> <span class="attr">height</span>=<span class="val">"260"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-chart-series</span> <span class="attr">name</span>=<span class="val">"App Store"</span><span class="tag">&gt;&lt;/z-chart-series&gt;</span>
+  <span class="tag">&lt;z-chart-series</span> <span class="attr">name</span>=<span class="val">"Google Play"</span><span class="tag">&gt;&lt;/z-chart-series&gt;</span>
+<span class="tag">&lt;/z-chart&gt;</span>
+<span class="cmt">// 不写 z-chart-axis 时自动生成分类 x 轴与数值 y 轴</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Pie & Donut ==================== -->
+
+    <section id="pie-donut" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="chart.pieDonutTitle">Pie & Donut</h2>
+        <p data-i18n="chart.subtitlePieDonut">Share of total. Donut shows the total in the center; the canvas renderer falls back to SVG.</p>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-chart id="cht-pie" type="pie" title="Traffic Sources" width="340" height="300">
+            <z-chart-series id="s-pie" name="Traffic"></z-chart-series>
+          </z-chart>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-chart</span> <span class="attr">type</span>=<span class="val">"pie"</span> <span class="attr">title</span>=<span class="val">"Traffic Sources"</span> <span class="attr">width</span>=<span class="val">"340"</span> <span class="attr">height</span>=<span class="val">"300"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-chart-series</span> <span class="attr">name</span>=<span class="val">"Traffic"</span><span class="tag">&gt;&lt;/z-chart-series&gt;</span>
+<span class="tag">&lt;/z-chart&gt;</span>
+<span class="cmt">// 饼图仅支持 SVG 渲染（renderer="canvas" 自动回退）</span>
+<span class="txt">series.data = [{ label: "Organic", value: 45 }, { label: "Paid", value: 25 }];</span></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-chart id="cht-donut" type="donut" title="Budget Allocation" width="340" height="300">
+            <z-chart-series id="s-donut" name="Budget"></z-chart-series>
+          </z-chart>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-chart</span> <span class="attr">type</span>=<span class="val">"donut"</span> <span class="attr">title</span>=<span class="val">"Budget Allocation"</span> <span class="attr">width</span>=<span class="val">"340"</span> <span class="attr">height</span>=<span class="val">"300"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-chart-series</span> <span class="attr">name</span>=<span class="val">"Budget"</span><span class="tag">&gt;&lt;/z-chart-series&gt;</span>
+<span class="tag">&lt;/z-chart&gt;</span>
+<span class="cmt">// type="donut" 时中心显示合计；环形图仅支持 SVG 渲染（canvas 自动回退）</span>
+<span class="txt">series.data = [{ label: "Engineering", value: 320 }, { label: "Marketing", value: 180 }];</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Radar ==================== -->
+
+    <section id="radar" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="chart.radarTitle">Radar</h2>
+        <p data-i18n="chart.subtitleRadar">Multi-axis profile. Each axis is normalized by the largest value across series, so axes can carry different units (¥, cups, %). Series sharing an axis must be the same metric (store vs region average, this year vs last) — two different metrics in one radar squash the smaller one. Fewer than 3 axes is treated as no data.</p>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-chart id="cht-radar" type="radar" title="Store Profile: Binjiang vs Region Average" width="440" height="360">
+            <z-chart-series id="s-radar-shop" name="滨江店"></z-chart-series>
+            <z-chart-series id="s-radar-region" name="区域均值"></z-chart-series>
+          </z-chart>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-chart</span> <span class="attr">type</span>=<span class="val">"radar"</span> <span class="attr">title</span>=<span class="val">"Store Profile: Binjiang vs Region Average"</span> <span class="attr">width</span>=<span class="val">"440"</span> <span class="attr">height</span>=<span class="val">"360"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-chart-series</span> <span class="attr">name</span>=<span class="val">"滨江店"</span><span class="tag">&gt;&lt;/z-chart-series&gt;</span>
+  <span class="tag">&lt;z-chart-series</span> <span class="attr">name</span>=<span class="val">"区域均值"</span><span class="tag">&gt;&lt;/z-chart-series&gt;</span>
+<span class="tag">&lt;/z-chart&gt;</span>
+<span class="cmt">// 每个系列一组 {label, value}；label 即轴名，各系列顺序必须一致</span>
+<span class="txt">shop.data = [{ label: "营业额", value: 128000 }, { label: "出杯量", value: 820 }, { label: "客单价", value: 32.5 }, { label: "实收率", value: 0.86 }, { label: "复购率", value: 0.42 }, { label: "达成率", value: 1.08 }];</span>
+<span class="cmt">// 逐轴归一：每根轴的分母是「所有系列在该轴上的最大值」→ 顶点越靠外 = 该轴越强</span>
+<span class="cmt">// 系列必须是同一指标的不同主体（本店 vs 区域均值）；销售额与订单数混在一张雷达里，小的会被压到圆心</span></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-chart id="cht-radar-one" type="radar" title="Store Inspection Score" width="400" height="340">
+            <z-chart-series id="s-radar-score" name="巡检得分"></z-chart-series>
+          </z-chart>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-chart</span> <span class="attr">type</span>=<span class="val">"radar"</span> <span class="attr">title</span>=<span class="val">"Store Inspection Score"</span> <span class="attr">width</span>=<span class="val">"400"</span> <span class="attr">height</span>=<span class="val">"340"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-chart-series</span> <span class="attr">name</span>=<span class="val">"巡检得分"</span><span class="tag">&gt;&lt;/z-chart-series&gt;</span>
+<span class="tag">&lt;/z-chart&gt;</span>
+<span class="cmt">// 单系列：分母取「全图最大值」（此处 92）—— 最外圈是它，不是满分 100</span>
+<span class="txt">series.data = [{ label: "服务", value: 92 }, { label: "出杯速度", value: 78 }, { label: "卫生", value: 85 }, { label: "陈列", value: 66 }, { label: "客诉处理", value: 88 }];</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Sparkline ==================== -->
+
+    <section id="sparkline" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="chart.sparklineTitle">Sparkline</h2>
+        <p data-i18n="chart.subtitleSparkline">Compact single-series trend, ideal for CPU and latency monitoring.</p>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-chart id="cht-cpu" type="sparkline" title="CPU %" width="280" height="48" legend="false" show-grid="false">
+            <z-chart-series id="s-cpu" name="CPU"></z-chart-series>
+          </z-chart>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-chart</span> <span class="attr">type</span>=<span class="val">"sparkline"</span> <span class="attr">title</span>=<span class="val">"CPU %"</span> <span class="attr">width</span>=<span class="val">"280"</span> <span class="attr">height</span>=<span class="val">"48"</span> <span class="attr">legend</span>=<span class="val">"false"</span> <span class="attr">show-grid</span>=<span class="val">"false"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-chart-series</span> <span class="attr">name</span>=<span class="val">"CPU"</span><span class="tag">&gt;&lt;/z-chart-series&gt;</span>
+<span class="tag">&lt;/z-chart&gt;</span>
+<span class="cmt">// 迷你图默认高度 48px，单系列折线 + 渐变填充</span>
+<span class="txt">series.data = [22, 18, 25, 30, 28, 35, 32, 40];</span></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-chart id="cht-lat" type="sparkline" title="Latency (ms)" width="280" height="48" legend="false" show-grid="false">
+            <z-chart-series id="s-lat" name="Latency"></z-chart-series>
+          </z-chart>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-chart</span> <span class="attr">type</span>=<span class="val">"sparkline"</span> <span class="attr">title</span>=<span class="val">"Latency (ms)"</span> <span class="attr">width</span>=<span class="val">"280"</span> <span class="attr">height</span>=<span class="val">"48"</span> <span class="attr">legend</span>=<span class="val">"false"</span> <span class="attr">show-grid</span>=<span class="val">"false"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-chart-series</span> <span class="attr">name</span>=<span class="val">"Latency"</span><span class="tag">&gt;&lt;/z-chart-series&gt;</span>
+<span class="tag">&lt;/z-chart&gt;</span>
+<span class="cmt">// 迷你图只画单系列，适合 CPU/延迟等指标监控</span>
+<span class="txt">series.data = [120, 95, 110, 88, 130, 105, 92, 118];</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Map ==================== -->
+
+    <section id="map" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="chart.mapTitle">Map</h2>
+        <p data-i18n="chart.subtitleMap">GeoJSON choropleth: pass your own GeoJSON, region values drive the color scale.</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-chart id="cht-map" type="map" title="Regional Sales" width="620" height="360"></z-chart>
+          <div class="cht-info-row">
+            <span id="cht-map-info"></span>
+          </div>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-chart</span> <span class="attr">type</span>=<span class="val">"map"</span> <span class="attr">title</span>=<span class="val">"Regional Sales"</span> <span class="attr">width</span>=<span class="val">"620"</span> <span class="attr">height</span>=<span class="val">"360"</span><span class="tag">&gt;&lt;/z-chart&gt;</span>
+<span class="cmt">// geojson / values 是 DOM property（attribute 不生效），需 JS 设置：</span>
+<span class="txt">chart.geojson = { type: "FeatureCollection", features: [...] };</span>
+<span class="txt">chart.values = { north: 1200, east: 3400, south: 2100, west: 980, center: 2600 };</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== API Reference ==================== -->
+
+    <section id="api" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="chart.apiReference">API Reference</h2>
+      </div>
+
+      <h3 style="margin-bottom:12px;font-size:15px;font-weight:600;" data-i18n="chart.properties">Properties</h3>
+      <table class="cht-api-table">
+        <thead>
+          <tr>
+            <th data-i18n="chart.property">Property</th>
+            <th data-i18n="chart.type">Type</th>
+            <th data-i18n="chart.default">Default</th>
+            <th data-i18n="chart.description">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>type</code></td><td>string</td><td>"bar"</td><td data-i18n-html="chart.propType">Chart type: <code>bar</code>, <code>line</code>, <code>area</code>, <code>pie</code>, <code>donut</code>, <code>sparkline</code>, <code>map</code></td></tr>
+          <tr><td><code>renderer</code></td><td>string</td><td>"svg"</td><td data-i18n-html="chart.propRenderer">Render engine: <code>svg</code> or <code>canvas</code> (pie/donut/sparkline always SVG)</td></tr>
+          <tr><td><code>width / height</code></td><td>string</td><td>"auto"</td><td data-i18n-html="chart.propWidth">Size: <code>"auto"</code> or a pixel string like <code>"600"</code></td></tr>
+          <tr><td><code>title</code></td><td>string</td><td>""</td><td data-i18n="chart.propTitle">Chart title (also used as aria-label)</td></tr>
+          <tr><td><code>legend</code></td><td>boolean</td><td>true</td><td data-i18n="chart.propLegend">Show legend</td></tr>
+          <tr><td><code>tooltip</code></td><td>boolean</td><td>true</td><td data-i18n="chart.propTooltip">Enable hover tooltip</td></tr>
+          <tr><td><code>animation</code></td><td>boolean</td><td>true</td><td data-i18n="chart.propAnimation">Enter animation (respects prefers-reduced-motion)</td></tr>
+          <tr><td><code>show-grid</code></td><td>boolean</td><td>true</td><td data-i18n="chart.propShowGrid">Show grid lines</td></tr>
+          <tr><td><code>locale</code></td><td>string</td><td>"en-US"</td><td data-i18n="chart.propLocale">Locale for number and date formatting</td></tr>
+          <tr><td><code>colors</code></td><td>string[]</td><td>null</td><td data-i18n="chart.propColors">Custom categorical palette (hex array)</td></tr>
+          <tr><td><code>geojson</code></td><td>object</td><td>null</td><td data-i18n="chart.propGeojson">GeoJSON FeatureCollection for choropleth map</td></tr>
+          <tr><td><code>values</code></td><td>object | array</td><td>null</td><td data-i18n-html="chart.propValues">Region values: <code>{id: value}</code> or <code>[{id, value}]</code></td></tr>
+          <tr><td><code>projection</code></td><td>string</td><td>"auto"</td><td data-i18n-html="chart.propProjection">Map projection: <code>auto</code>, <code>equirectangular</code>, <code>mercator</code>, <code>none</code></td></tr>
+          <tr><td><code>map-id-key</code></td><td>string</td><td>"id"</td><td data-i18n="chart.propMapIdKey">Property key used to match region id with values</td></tr>
+          <tr><td><code>map-name-key</code></td><td>string</td><td>"name"</td><td data-i18n="chart.propMapNameKey">Property key used as region display name</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin:24px 0 12px;font-size:15px;font-weight:600;" data-i18n="chart.series">z-chart-series (child element)</h3>
+      <table class="cht-api-table">
+        <thead>
+          <tr>
+            <th data-i18n="chart.property">Property</th>
+            <th data-i18n="chart.type">Type</th>
+            <th data-i18n="chart.description">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>name</code></td><td>string</td><td data-i18n="chart.seriesName">Series display name (legend and tooltip)</td></tr>
+          <tr><td><code>type</code></td><td>string</td><td data-i18n-html="chart.seriesType">Series kind: <code>auto</code> (inherits chart type), <code>bar</code>, <code>line</code>, <code>area</code></td></tr>
+          <tr><td><code>data</code></td><td>array</td><td data-i18n-html="chart.seriesData">Series data: numbers, <code>{value}</code>, <code>{label, value}</code> or <code>{x, value}</code></td></tr>
+          <tr><td><code>color</code></td><td>string</td><td data-i18n="chart.seriesColor">Series color (defaults to the categorical palette)</td></tr>
+          <tr><td><code>y-axis</code></td><td>string</td><td data-i18n-html="chart.seriesYAxis">Bind to <code>left</code> or <code>right</code> axis</td></tr>
+          <tr><td><code>format</code></td><td>string</td><td data-i18n-html="chart.seriesFormat">Value format: <code>"auto"</code>, <code>"percent"</code>, <code>"currency"</code> or a template with <code>{value}</code></td></tr>
+          <tr><td><code>visible</code></td><td>boolean</td><td data-i18n="chart.seriesVisible">Series visibility (toggled by the legend)</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin:24px 0 12px;font-size:15px;font-weight:600;" data-i18n="chart.axis">z-chart-axis (child element)</h3>
+      <table class="cht-api-table">
+        <thead>
+          <tr>
+            <th data-i18n="chart.property">Property</th>
+            <th data-i18n="chart.type">Type</th>
+            <th data-i18n="chart.description">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>position</code></td><td>string</td><td data-i18n-html="chart.axisPosition">Axis position: <code>bottom</code> (x), <code>left</code> (y), <code>right</code> (secondary y)</td></tr>
+          <tr><td><code>type</code></td><td>string</td><td data-i18n-html="chart.axisType">Axis kind: <code>auto</code>, <code>category</code>, <code>value</code>, <code>time</code></td></tr>
+          <tr><td><code>title</code></td><td>string</td><td data-i18n="chart.axisTitle">Axis title</td></tr>
+          <tr><td><code>min / max</code></td><td>number</td><td data-i18n="chart.axisMinMax">Explicit <code>min</code> / <code>max</code> (only applied when the attribute is present)</td></tr>
+          <tr><td><code>tick-count</code></td><td>number</td><td data-i18n="chart.axisTickCount">Approximate tick count (0 = automatic)</td></tr>
+          <tr><td><code>grid</code></td><td>boolean</td><td data-i18n="chart.axisGrid">Override the chart <code>show-grid</code> for this axis</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin:24px 0 12px;font-size:15px;font-weight:600;" data-i18n="chart.events">Events</h3>
+      <table class="cht-api-table">
+        <thead>
+          <tr><th data-i18n="chart.event">Event</th><th data-i18n="chart.detail">Detail</th><th data-i18n="chart.description">Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>z-ready</code></td><td><code>{ type, width, height }</code></td><td data-i18n="chart.eventZReady">Fired once after first layout</td></tr>
+          <tr><td><code>z-resize</code></td><td><code>{ width, height }</code></td><td data-i18n="chart.eventZResize">Fired when the chart size changes</td></tr>
+          <tr><td><code>z-tooltip-change</code></td><td><code>{ visible, seriesIndex, dataIndex, label, values }</code></td><td data-i18n="chart.eventZTooltipChange">Fired when tooltip shows/hides</td></tr>
+          <tr><td><code>z-series-toggle</code></td><td><code>{ index, name, visible, hidden }</code></td><td data-i18n="chart.eventZSeriesToggle">Fired when a legend item is toggled</td></tr>
+          <tr><td><code>z-marker-click</code></td><td><code>{ seriesIndex, dataIndex, value, formatted }</code></td><td data-i18n="chart.eventZMarkerClick">Fired when a data marker is clicked</td></tr>
+          <tr><td><code>z-brush</code></td><td><code>{ x, y, w, h, points, indexRange }</code></td><td>框选结束（需 <code>brushable</code>）：points 为命中点，indexRange 为分类下标区间，无命中时后者为 null</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <h2 class="ex-family" id="ex-cards">卡片<span>2</span></h2>
+
+    <section id="report-card" class="demo-section">
+      <div class="demo-section__header">
+        <h2>Report card</h2>
+        <p>看板上的一张卡。给一份 <code>dataSource</code> 与一个 <code>chart</code> 配置，
+        卡自己负责查询、竞态、骨架屏、错误态、导出。</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div class="ex-cards" id="report-cards"></div>
+          <p class="ex-note">三张卡共用同一份 mock 数据源：指标卡 / 表格卡 / 明细卡。数字是真算出来的，不是写死的。</p>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code>/* chart 是 **Object 属性**（attribute: false），用 property 赋值 */
+const el = document.createElement("z-report-card");
+el.chart = {
+  id: "c-kpi", chartType: "kpi", title: "销售额（今日）",
+  datasetId: 1, rows: [], filters: [], limit: 1000,
+  measures: [{ field: "sales", agg: "sum", alias: "销售额" }],
+};
+el.dataSource = myDataSource;   // 四个必填方法：元数据 / 聚合 / 明细 / 值搜索
+host.appendChild(el);</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="report-group" class="demo-section">
+      <div class="demo-section__header">
+        <h2>Report group table（已废弃，保留兼容）</h2>
+        <p>分组 / 树状表格：层级缩进 + 父级小计 + 总计。它标了 <code>@deprecated</code> ——
+        分组能力已并入 <code>&lt;z-report-table group="store"&gt;</code>，新代码请用那个。
+        这里仍然演示，是因为已发布的 React 包装与宿主页面里还有手写标签：<b>把它藏起来，
+        那些人就无从对照「我现在看到的和文档里的是不是同一个东西」</b>。</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div id="report-group-host"></div>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code>/* 旧写法（仍可用，但不要在新代码里写） */
+const el = document.createElement("z-report-group-table");
+el.chart = { rows: ["store"], showSubtotal: true, showGrandTotal: true, measures: [...] };
+el.rows = [{ store: "上海静安嘉里", 销售额: 4820.5, 订单数: 61 }, ...];
+
+/* 新写法：能力在 z-report-table 上 */
+&lt;z-report-table group="store" subtotal grand-total&gt;&lt;/z-report-table&gt;</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="fullpage">
+      <div class="demo-section__header">
+        <h2>整页 demo</h2>
+        <p>画框里是真实页面；主题与密度会跟随上面的切换。</p>
+      </div>
+      <div id="frame-host"></div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>

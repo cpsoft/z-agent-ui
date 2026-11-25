@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>L2 应用件 — zAgentUI</title>
+  <script type="module" crossorigin src="/assets/app-ixjGzckJ.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/presets-CdaBrvJF.js">
+  <link rel="modulepreload" crossorigin href="/assets/a11y-DJ6wHu5s.js">
+  <link rel="modulepreload" crossorigin href="/assets/Button-6M0Me5pu.js">
+  <link rel="modulepreload" crossorigin href="/assets/shell-DwQ7nMfw.js">
+  <link rel="modulepreload" crossorigin href="/assets/cards-DUJc2ay8.js">
+  <link rel="modulepreload" crossorigin href="/assets/frame-CWDc7oMr.js">
+  <link rel="stylesheet" crossorigin href="/assets/a11y-D1tjoguM.css">
+  <link rel="stylesheet" crossorigin href="/assets/demo-BAF_qh2v.css">
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+
+  <!-- Sidebar：由 shell.ts 从 nav.ts 渲染（单一数据源） -->
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <main class="demo-main">
+
+    <section class="demo-hero">
+      <h1>L2 应用件</h1>
+      <p>应用壳、应用切换、详情表单、登录。它们是「一个后台长什么样」的最小集合 —— 装配关系本身就是这一域的模型。</p>
+    </section>
+
+    <div class="demo-migrate">
+      <b>下面这一块可以真的操作</b>
+      <p>画框里是真实运行的整页 demo：滚动、点击、打开弹层都生效，主题与密度跟随上面的切换。
+      想全屏试，点右上角「单独打开」。</p>
+    </div>
+    <section class="demo-section">
+      <div class="demo-section__header">
+        <h2>这一域有哪些件</h2>
+        <p>取自 <code>src/app/</code>：</p>
+      </div>
+      <div class="card-grid" id="domain-cards"></div>
+    </section>
+
+    <section id="app-switcher-demo" class="demo-section">
+      <div class="demo-section__header">
+        <h2>App switcher</h2>
+        <p>后台顶栏的品牌名 + 下拉：在多套系统之间跳。当前项置灰，点当前项不派发事件。</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-app-switcher id="app-switcher" label="好用得"></z-app-switcher>
+          <p class="ex-note" id="switcher-log">点品牌名展开菜单；点「数据看板」不会有反应（那是当前应用）。</p>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code>const el = document.querySelector("z-app-switcher");
+el.label = "好用得";
+el.apps = [                       // Array 属性（attribute: false），必须用 property
+  { app: "dashboard", name: "数据看板" },
+  { app: "etl", name: "数据集成" },
+];
+el.current = "dashboard";         // 当前项置灰，点击不派发
+
+el.addEventListener("z-switch", (e) => {
+  location.href = e.detail.item.url;   // 跳转由宿主决定
+});</code></pre>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="app-nav-demo" class="demo-section">
+      <div class="demo-section__header">
+        <h2>App nav</h2>
+        <p>侧栏导航：吃「有哪些页面」，出分组菜单 + 选中态 + 折叠。不路由、不判权限、不记选中态。</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__live" style="display: flex; gap: 16px; align-items: flex-start;">
+          <div style="width: 220px; border: 1px solid var(--z-color-border); border-radius: var(--z-radius-md); overflow: hidden;">
+            <z-app-nav id="app-nav"></z-app-nav>
+          </div>
+          <div style="flex: 1 1 auto;">
+            <z-button id="app-nav-collapse" appearance="outline" size="sm">收起</z-button>
+            <p class="ex-note" id="nav-log">
+              点条目会派发 <code>z-navigate</code>；「权限总览」是灰条（disabled，点了不派发）；
+              「未知图标」演示图标名不认识时回落标题首字。
+            </p>
+          </div>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code>const el = document.querySelector("z-app-nav");
+el.items = registry.list(can).map((d) =&gt; ({     // 权限裁剪归注册表，组件不判
+  path: d.path, title: d.title,
+  group: d.meta?.group, icon: d.meta?.icon, order: d.meta?.order,
+}));
+el.active = engine.current;                     // 只读输入：后退/前进时高亮跟着地址走
+
+el.addEventListener("z-navigate", (e) =&gt; {
+  engine.go(e.detail.path);                     // 路由归 L4，组件不碰 history
+  el.active = e.detail.path;                    // 宿主回灌，组件不自己记
+});</code></pre>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="detail-form-demo" class="demo-section">
+      <div class="demo-section__header">
+        <h2>Detail form</h2>
+        <p>一屏就是一个表单：字段结构由 <code>fields</code> 数组给（含分组、必填、下拉选项）。
+          小屏自动单列，<code>span</code> 让一个字段跨整行。</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-detail-form id="detail-form" mode="edit" required-message="这一项必填"></z-detail-form>
+          <p class="ex-note" id="detail-form-log">改任一字段会发 <code>z-change</code>；点保存发 <code>z-submit</code>。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="property-panel-demo-section" class="demo-section">
+      <div class="demo-section__header">
+        <h2>Property panel</h2>
+        <p>属性面板：<code>z-property-group</code> 分组、<code>z-property-row</code> 一行「标签 + 控件」。
+          控件由使用者放进 row 的默认 slot —— 面板不猜下面该编辑什么。</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-property-panel id="property-panel-demo">
+            <z-property-group title="尺寸" open>
+            </z-property-group>
+          </z-property-panel>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="fullpage">
+      <div class="demo-section__header">
+        <h2>整页 demo</h2>
+        <p>画框里是真实页面；主题与密度会跟随上面的切换。</p>
+      </div>
+      <div id="frame-host"></div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>

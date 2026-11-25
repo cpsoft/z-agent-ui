@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flow Editor — zAgentUI</title>
+  <style>
+    /* 顶部 80px 给 mountBackHome 悬浮按钮留位（同 report-table / doc-template）。 */
+    .demo-shell {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 80px 24px 64px;
+    }
+
+    /* ── Demo shell header ── */
+    .demo-shell-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+    .demo-shell-title {
+      font-size: var(--z-font-size-md);
+      font-weight: var(--z-font-weight-semibold);
+      color: var(--z-app-shell-text);
+    }
+    .demo-shell-spacer { flex: 1 1 auto; }
+
+    /* ── Page layout ── */
+    /* 类名用 fe- 前缀：构建后 vite 会把 demo.css 的 <link> 移到内联 <style> 之后，同名类会被
+       反超（display:flex 把画布压成 2px），dev 下顺序不变看不出问题。 */
+    .fe-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 16px;
+      margin-top: 16px;
+      align-items: start;
+    }
+    .demo-canvas {
+      border: 1px solid var(--z-color-border);
+      border-radius: var(--z-radius-lg);
+      overflow: hidden;
+      background: var(--z-color-bg);
+    }
+    .demo-canvas z-flow {
+      display: block;
+      width: 100%;
+      height: 620px;
+    }
+
+    .demo-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .fe-section {
+      border: 1px solid var(--z-color-border);
+      border-radius: var(--z-radius-lg);
+      background: var(--z-color-bg);
+      padding: 12px;
+    }
+    .fe-section__title {
+      font-size: var(--z-font-size-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--z-app-shell-text-secondary);
+      margin: 0 0 8px;
+    }
+    .demo-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: var(--z-font-size-sm);
+      color: var(--z-app-shell-text);
+    }
+    .demo-row:last-child { margin-bottom: 0; }
+    .demo-row label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+
+    /* ── Event log ── */
+    .demo-log {
+      height: 200px;
+      overflow: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      line-height: 1.7;
+      color: var(--z-app-shell-text-secondary);
+    }
+    .demo-log__line { white-space: nowrap; }
+    .demo-log__line--warn { color: var(--z-color-warning, #d97706); }
+
+    /* ── JSON export ── */
+    .demo-json {
+      max-height: 220px;
+      overflow: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      line-height: 1.6;
+      background: var(--z-color-bg-muted, rgba(0,0,0,0.03));
+      border: 1px solid var(--z-color-border);
+      border-radius: var(--z-radius-md);
+      padding: 8px;
+      margin: 8px 0 0;
+      white-space: pre;
+      color: var(--z-app-shell-text);
+    }
+
+    /* ── Node content (light DOM, slotted into z-flow-node) ── */
+    .flow-node {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 130px;
+      font-size: 13px;
+      color: var(--z-color-text);
+    }
+    .flow-node__icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      font-size: 13px;
+      flex: none;
+    }
+    .flow-node__icon--blue { background: rgba(59, 130, 246, 0.12); }
+    .flow-node__icon--amber { background: rgba(217, 119, 6, 0.12); }
+    .flow-node__icon--green { background: rgba(16, 185, 129, 0.12); }
+    .flow-node__label { white-space: nowrap; }
+    .flow-node__sub {
+      display: block;
+      font-size: 11px;
+      color: var(--z-app-shell-text-secondary);
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/flow-editor-oI62R39_.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/presets-CdaBrvJF.js">
+  <link rel="modulepreload" crossorigin href="/assets/a11y-DJ6wHu5s.js">
+  <link rel="modulepreload" crossorigin href="/assets/Position-D6zl9ryN.js">
+  <link rel="modulepreload" crossorigin href="/assets/PointerDragSession-D3R9IvJB.js">
+  <link rel="modulepreload" crossorigin href="/assets/Button-6M0Me5pu.js">
+  <link rel="modulepreload" crossorigin href="/assets/Checkbox-PuEiz19l.js">
+  <link rel="modulepreload" crossorigin href="/assets/shell-DwQ7nMfw.js">
+  <link rel="stylesheet" crossorigin href="/assets/a11y-D1tjoguM.css">
+  <link rel="stylesheet" crossorigin href="/assets/demo-BAF_qh2v.css">
+</head>
+<body>
+
+<div class="demo-shell">
+  <header class="demo-shell-header">
+    <span class="demo-shell-title">Flow Editor — 节点流程编辑器</span>
+    <span class="demo-shell-spacer"></span>
+    <!-- 返回主页 + 主题切换由 shell.ts mountBackHome 注入 -->
+  </header>
+
+  <div class="fe-layout">
+
+    <!-- ── Canvas ── -->
+    <div class="demo-canvas">
+      <z-flow id="flow" fit-view-on-init background="dots">
+        <z-flow-node id="n-start" position="40,210" type="input">
+          <div class="flow-node">
+            <span class="flow-node__icon flow-node__icon--green">▶</span>
+            <span class="flow-node__label">开始</span>
+          </div>
+          <z-flow-handle type="source"></z-flow-handle>
+        </z-flow-node>
+
+        <z-flow-node id="n-review" position="320,180">
+          <div class="flow-node">
+            <span class="flow-node__icon flow-node__icon--blue">✓</span>
+            <span class="flow-node__label">人工审核</span>
+          </div>
+          <z-flow-handle type="target" position="left"></z-flow-handle>
+          <z-flow-handle type="source"></z-flow-handle>
+          <z-flow-handle id="reject" type="source" position="bottom"></z-flow-handle>
+        </z-flow-node>
+
+        <z-flow-node id="n-approve" position="600,90">
+          <div class="flow-node">
+            <span class="flow-node__icon flow-node__icon--blue">⛁</span>
+            <span class="flow-node__label">审批通过</span>
+          </div>
+          <z-flow-handle type="target" position="left"></z-flow-handle>
+          <z-flow-handle type="source"></z-flow-handle>
+        </z-flow-node>
+
+        <z-flow-node id="n-notify" position="600,310">
+          <div class="flow-node">
+            <span class="flow-node__icon flow-node__icon--amber">✉</span>
+            <span class="flow-node__label">通知发送</span>
+          </div>
+          <z-flow-handle type="target" position="left"></z-flow-handle>
+        </z-flow-node>
+
+        <z-flow-node id="n-end" position="880,200" type="output">
+          <div class="flow-node">
+            <span class="flow-node__icon flow-node__icon--green">■</span>
+            <span class="flow-node__label">结束</span>
+          </div>
+          <z-flow-handle type="target" position="left"></z-flow-handle>
+        </z-flow-node>
+
+        <z-flow-minimap slot="minimap"></z-flow-minimap>
+        <z-flow-controls slot="controls"></z-flow-controls>
+      </z-flow>
+    </div>
+
+    <!-- ── Side panel ── -->
+    <aside class="demo-panel">
+      <section class="fe-section">
+        <h3 class="fe-section__title">节点库</h3>
+        <div class="demo-row">
+          <z-button id="add-default" size="sm">＋ 默认节点</z-button>
+          <z-button id="add-input" size="sm" appearance="outline">＋ 输入</z-button>
+          <z-button id="add-output" size="sm" appearance="outline">＋ 输出</z-button>
+        </div>
+        <div class="demo-row" style="font-size:12px; color:var(--z-app-shell-text-secondary);">
+          拖拽节点移动 · 从把手连线 · Shift+拖空白框选 · Delete 删除选中
+        </div>
+      </section>
+
+      <section class="fe-section">
+        <h3 class="fe-section__title">选项</h3>
+        <div class="demo-row"><label><z-checkbox id="opt-editable" checked>可编辑</z-checkbox></label></div>
+        <div class="demo-row"><label><z-checkbox id="opt-block">阻止连线（z-connect preventDefault）</z-checkbox></label></div>
+        <div class="demo-row">
+          <z-button id="fit-view" size="sm">⛶ 适配视图</z-button>
+          <z-button id="export" size="sm" appearance="outline">导出 JSON</z-button>
+        </div>
+      </section>
+
+      <section class="fe-section">
+        <h3 class="fe-section__title">事件日志</h3>
+        <div id="event-log" class="demo-log"></div>
+      </section>
+
+      <section class="fe-section">
+        <h3 class="fe-section__title">数据（getData）</h3>
+        <pre id="json-out" class="demo-json"></pre>
+      </section>
+    </aside>
+
+  </div>
+</div>
+
+
+</body>
+</html>

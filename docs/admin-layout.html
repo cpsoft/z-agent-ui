@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Layout — zAgentUI</title>
+  <style>
+    /* ── Demo shell header ── */
+    .demo-shell-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+    .demo-shell-title {
+      font-size: var(--z-font-size-md);
+      font-weight: var(--z-font-weight-semibold);
+      color: var(--z-app-shell-text);
+    }
+    .demo-shell-spacer { flex: 1 1 auto; }
+
+    /* ── Demo sidebar menu（手写菜单，[[REQ-012]] 范围外） ── */
+    .demo-menu { padding: 8px; }
+    .demo-menu__title {
+      font-size: var(--z-font-size-xs);
+      color: var(--z-app-shell-text-secondary);
+      margin: 12px 8px 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .demo-menu__link {
+      display: block;
+      padding: 7px 10px;
+      border-radius: var(--z-radius-md);
+      color: var(--z-app-shell-text);
+      text-decoration: none;
+      font-size: var(--z-font-size-sm);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background var(--z-transition-fast);
+    }
+    .demo-menu__link:hover { background: var(--z-color-border); }
+    .demo-menu__link.active {
+      background: var(--z-color-primary);
+      color: var(--z-color-primary-text);
+    }
+
+    /* ── Demo main content ── */
+    .demo-content { padding: 24px; max-width: 1200px; }
+    .demo-content h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 16px 0 20px;
+      color: var(--z-app-shell-text);
+    }
+    .demo-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .demo-stat { text-align: center; }
+    .demo-stat__value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--z-color-primary);
+    }
+    .demo-stat__label { color: var(--z-app-shell-text-secondary); font-size: var(--z-font-size-sm); }
+
+    .demo-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--z-font-size-sm);
+    }
+    .demo-table th, .demo-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--z-color-border);
+      text-align: left;
+    }
+    .demo-table th { color: var(--z-app-shell-text-secondary); font-weight: var(--z-font-weight-medium); }
+  </style>
+  <script type="module" crossorigin src="/assets/admin-layout-Cq00714u.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/presets-CdaBrvJF.js">
+  <link rel="modulepreload" crossorigin href="/assets/a11y-DJ6wHu5s.js">
+  <link rel="modulepreload" crossorigin href="/assets/Button-6M0Me5pu.js">
+  <link rel="modulepreload" crossorigin href="/assets/Card-D_PXomyA.js">
+  <link rel="modulepreload" crossorigin href="/assets/vocabulary-DLBU9tdh.js">
+  <link rel="modulepreload" crossorigin href="/assets/Badge-DbBfhcO2.js">
+  <link rel="modulepreload" crossorigin href="/assets/copy-DoHMT7Ic.js">
+  <link rel="modulepreload" crossorigin href="/assets/Position-D6zl9ryN.js">
+  <link rel="modulepreload" crossorigin href="/assets/roving-DMg3clv6.js">
+  <link rel="modulepreload" crossorigin href="/assets/shell-DwQ7nMfw.js">
+  <link rel="stylesheet" crossorigin href="/assets/a11y-D1tjoguM.css">
+  <link rel="stylesheet" crossorigin href="/assets/demo-BAF_qh2v.css">
+</head>
+<body>
+
+<z-app-shell id="shell">
+
+  <header slot="header" class="demo-shell-header">
+    <z-button id="collapse-btn" appearance="ghost" size="sm">菜单</z-button>
+    <span class="demo-shell-title">PLM 管理系统</span>
+    <span class="demo-shell-spacer"></span>
+    <!-- 返回主页 + 主题切换由 shell.ts mountBackHome 注入 -->
+  </header>
+
+  <z-sidebar slot="sidebar" id="sidebar">
+    <nav class="demo-menu">
+      <div class="demo-menu__title">工作台</div>
+      <a class="demo-menu__link active" href="#dashboard">仪表盘</a>
+      <div class="demo-menu__title">业务管理</div>
+      <a class="demo-menu__link" href="#bom">BOM 管理</a>
+      <a class="demo-menu__link" href="#parts">零部件</a>
+      <a class="demo-menu__link" href="#orders">订单管理</a>
+      <div class="demo-menu__title">系统</div>
+      <a class="demo-menu__link" href="#users">用户管理</a>
+      <a class="demo-menu__link" href="#roles">角色权限</a>
+    </nav>
+    <div slot="footer" class="demo-shell-footer">
+      <z-button id="collapse-btn-footer" appearance="ghost" size="sm">收起菜单</z-button>
+    </div>
+  </z-sidebar>
+
+  <main slot="main" class="demo-content">
+    <z-breadcrumb id="crumb"></z-breadcrumb>
+
+    <h1>仪表盘</h1>
+
+    <div class="demo-cards">
+      <z-card bordered>
+        <div class="demo-stat">
+          <div class="demo-stat__value">128</div>
+          <div class="demo-stat__label">本月订单</div>
+        </div>
+      </z-card>
+      <z-card bordered>
+        <div class="demo-stat">
+          <div class="demo-stat__value">46</div>
+          <div class="demo-stat__label">BOM 数量</div>
+        </div>
+      </z-card>
+      <z-card bordered>
+        <div class="demo-stat">
+          <div class="demo-stat__value">12</div>
+          <div class="demo-stat__label">待审零部件</div>
+        </div>
+      </z-card>
+      <z-card bordered>
+        <div class="demo-stat">
+          <div class="demo-stat__value">98.2%</div>
+          <div class="demo-stat__label">交付准时率</div>
+        </div>
+      </z-card>
+    </div>
+
+    <z-card bordered>
+      <div slot="header" style="font-weight:600;">最近订单</div>
+      <z-table id="orders-table"></z-table>
+    </z-card>
+  </main>
+
+  <footer slot="footer" style="color: var(--z-app-shell-text-secondary); font-size: var(--z-font-size-xs);">
+    © 2026 zAgentUI Admin Layout Demo
+  </footer>
+
+</z-app-shell>
+
+
+</body>
+</html>

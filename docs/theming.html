@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Theming — zAgentUI</title>
+  <style>
+    /* 本页专属：控制面板与 token 表（不进 demo.css，避免污染其他页） */
+    .theming-controls {
+      display: grid;
+      gap: var(--z-space-4);
+      padding: var(--z-space-5);
+      border: 1px solid var(--z-color-border);
+      border-radius: var(--demo-radius);
+      background: var(--z-color-bg-secondary);
+    }
+
+    .theming-field {
+      display: grid;
+      grid-template-columns: 140px minmax(0, 1fr);
+      align-items: center;
+      gap: var(--z-space-4);
+    }
+
+    .theming-field__label {
+      font-size: var(--z-font-size-sm);
+      font-weight: var(--z-font-weight-medium);
+      color: var(--z-color-text-secondary);
+    }
+
+    .theming-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--z-space-2);
+    }
+
+    .theming-swatch {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border: 0;
+      border-radius: var(--z-radius-md);
+      cursor: pointer;
+      background: var(--swatch);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+      transition: transform var(--z-transition-fast), box-shadow var(--z-transition-fast);
+    }
+
+    .theming-swatch:hover {
+      transform: translateY(-1px);
+    }
+
+    .theming-swatch[aria-pressed="true"] {
+      box-shadow: 0 0 0 2px var(--z-color-bg), 0 0 0 4px var(--z-color-text);
+    }
+
+    .theming-swatch[aria-pressed="true"]::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-6'/%3E%3C/svg%3E") center / 18px no-repeat;
+    }
+
+    .theming-segment {
+      display: inline-flex;
+      /* 作为 grid item 默认 align/justify 为 stretch，会被拉满整行宽度，
+         视觉上像输入框而不是分段控件。按内容宽并左对齐。 */
+      justify-self: start;
+      width: fit-content;
+      padding: 3px;
+      gap: 2px;
+      border: 1px solid var(--z-color-border);
+      border-radius: var(--z-radius-md);
+      background: var(--z-color-bg);
+    }
+
+    .theming-segment button {
+      padding: 5px var(--z-space-3);
+      border: 0;
+      border-radius: calc(var(--z-radius-md) - 2px);
+      background: transparent;
+      color: var(--z-color-text-secondary);
+      font: inherit;
+      font-size: var(--z-font-size-sm);
+      cursor: pointer;
+      transition: background var(--z-transition-fast), color var(--z-transition-fast);
+      white-space: nowrap;
+    }
+
+    .theming-segment button:hover {
+      color: var(--z-color-text);
+    }
+
+    .theming-segment button[aria-pressed="true"] {
+      background: var(--z-color-primary-soft);
+      color: var(--z-color-primary);
+      font-weight: var(--z-font-weight-medium);
+    }
+
+    .theming-preview {
+      display: grid;
+      gap: var(--z-space-4);
+      padding: var(--z-space-6);
+      border: 1px solid var(--z-color-border);
+      border-top: 0;
+      border-radius: 0 0 var(--demo-radius) var(--demo-radius);
+    }
+
+    .theming-preview__row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--z-space-3);
+    }
+
+    .theming-code {
+      font-family: var(--z-font-mono);
+      font-size: var(--z-font-size-xs);
+      color: var(--z-color-text-secondary);
+    }
+
+    /* token 名与值都是等宽长串且不换行，390px 窄屏下最小宽度超出视口 26px；
+       给它一个独立横向滚动区，而不是压缩字号或强制断行（断行会读不出 token 名）。 */
+    .theming-tokens-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .theming-tokens {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--z-font-size-sm);
+    }
+
+    .theming-tokens th {
+      text-align: left;
+      padding: var(--z-space-2) var(--z-space-3);
+      font-size: var(--z-font-size-xs);
+      font-weight: var(--z-font-weight-semibold);
+      color: var(--z-color-text-secondary);
+      border-bottom: 1px solid var(--z-color-border);
+    }
+
+    .theming-tokens td {
+      padding: var(--z-space-2) var(--z-space-3);
+      border-bottom: 1px solid var(--z-color-border);
+      vertical-align: middle;
+    }
+
+    .theming-tokens th:last-child,
+    .theming-tokens td:last-child {
+      width: 44px;
+      text-align: center;
+    }
+
+    .theming-tokens td:first-child {
+      font-family: var(--z-font-mono);
+      font-size: var(--z-font-size-xs);
+      color: var(--z-color-primary);
+      white-space: nowrap;
+    }
+
+    .theming-tokens td:nth-child(2) {
+      font-family: var(--z-font-mono);
+      font-size: var(--z-font-size-xs);
+      color: var(--z-color-text-secondary);
+    }
+
+    .theming-chip {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border-radius: var(--z-radius-sm);
+      vertical-align: middle;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    .theming-hint {
+      margin-top: var(--z-space-2);
+      font-size: var(--z-font-size-xs);
+      color: var(--z-color-text-secondary);
+    }
+
+    @media (max-width: 720px) {
+      .theming-field {
+        grid-template-columns: 1fr;
+        gap: var(--z-space-2);
+      }
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/theming-BNQ5ESPJ.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/presets-CdaBrvJF.js">
+  <link rel="modulepreload" crossorigin href="/assets/a11y-DJ6wHu5s.js">
+  <link rel="modulepreload" crossorigin href="/assets/Button-6M0Me5pu.js">
+  <link rel="modulepreload" crossorigin href="/assets/shell-DwQ7nMfw.js">
+  <link rel="modulepreload" crossorigin href="/assets/vocabulary-DLBU9tdh.js">
+  <link rel="modulepreload" crossorigin href="/assets/Badge-DbBfhcO2.js">
+  <link rel="modulepreload" crossorigin href="/assets/Card-D_PXomyA.js">
+  <link rel="modulepreload" crossorigin href="/assets/copy-DoHMT7Ic.js">
+  <link rel="modulepreload" crossorigin href="/assets/Input-wCelPXsT.js">
+  <link rel="modulepreload" crossorigin href="/assets/styleInjection-peqqYNO6.js">
+  <link rel="modulepreload" crossorigin href="/assets/Position-D6zl9ryN.js">
+  <link rel="modulepreload" crossorigin href="/assets/floatingPanel-BYE_1ufg.js">
+  <link rel="modulepreload" crossorigin href="/assets/roving-DMg3clv6.js">
+  <link rel="modulepreload" crossorigin href="/assets/Select-Dm4kbGWW.js">
+  <link rel="modulepreload" crossorigin href="/assets/Checkbox-PuEiz19l.js">
+  <link rel="modulepreload" crossorigin href="/assets/Switch-BDiqwL0_.js">
+  <link rel="modulepreload" crossorigin href="/assets/Tag-atLYLSZk.js">
+  <link rel="modulepreload" crossorigin href="/assets/Alert-D0aLMeQP.js">
+  <link rel="stylesheet" crossorigin href="/assets/a11y-D1tjoguM.css">
+  <link rel="stylesheet" crossorigin href="/assets/demo-BAF_qh2v.css">
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <main class="demo-main">
+    <section class="demo-section" id="theming">
+      <div class="demo-section__header">
+        <h1 data-i18n="theming.title">Theming</h1>
+        <p data-i18n="theming.desc">
+          Every visual decision in zAgentUI is a CSS custom property. Override a handful of tokens
+          on :root to rebrand the whole library — no rebuild, no theme compiler.
+        </p>
+      </div>
+
+      <!-- 控制面板 -->
+      <div class="theming-controls">
+        <div class="theming-field">
+          <span class="theming-field__label" data-i18n="theming.palette">Brand color</span>
+          <div class="theming-swatches" id="palette-group" role="group" aria-label="Brand color"></div>
+        </div>
+
+        <div class="theming-field">
+          <span class="theming-field__label" data-i18n="theming.radius">Corner radius</span>
+          <div class="theming-segment" id="radius-group" role="group" aria-label="Corner radius"></div>
+        </div>
+
+        <div class="theming-field">
+          <span class="theming-field__label" data-i18n="theming.density">Density</span>
+          <div class="theming-segment" id="density-group" role="group" aria-label="Density"></div>
+        </div>
+
+        <div class="theming-field">
+          <span class="theming-field__label" data-i18n="theming.appearance">Appearance</span>
+          <div class="theming-segment" id="appearance-group" role="group" aria-label="Appearance"></div>
+        </div>
+      </div>
+
+      <!-- 实时预览 -->
+      <div class="theming-preview">
+        <div class="theming-preview__row">
+          <z-button>Primary</z-button>
+          <z-button tone="default">Secondary</z-button>
+          <z-button appearance="outline">Outline</z-button>
+          <z-button appearance="ghost">Ghost</z-button>
+          <z-button tone="danger">Danger</z-button>
+          <z-button loading>Loading</z-button>
+        </div>
+
+        <div class="theming-preview__row">
+          <z-input placeholder="Placeholder" style="width:180px"></z-input>
+          <z-select placeholder="Select" style="width:150px">
+            <z-option value="a">Option A</z-option>
+            <z-option value="b">Option B</z-option>
+          </z-select>
+          <z-checkbox checked>Checked</z-checkbox>
+          <z-switch checked></z-switch>
+          <z-tag tone="primary" closable>Tag</z-tag>
+          <z-badge tone="primary">Badge</z-badge>
+          <z-badge tone="success">Success</z-badge>
+        </div>
+
+        <div class="theming-preview__row">
+          <z-progress value="62" show-label style="flex:1;min-width:200px"></z-progress>
+        </div>
+
+        <z-alert tone="info" title="Semantic colors">Alert follows the same token chain.</z-alert>
+
+        <div class="theming-preview__row">
+          <z-card bordered shadow style="flex:1;min-width:220px">
+            <span slot="header">Card</span>
+            <span style="color:var(--z-color-text-secondary)">
+              Radius, border and shadow all derive from tokens.
+            </span>
+          </z-card>
+          <z-card bordered shadow style="flex:1;min-width:220px">
+            <span slot="header">Nested density</span>
+            <span style="color:var(--z-color-text-secondary)">
+              Control height changes with the density setting.
+            </span>
+          </z-card>
+        </div>
+      </div>
+
+      <!-- 生效中的 token -->
+      <h2 style="margin-top:var(--z-space-8);font-size:var(--z-font-size-lg);font-weight:var(--z-font-weight-semibold)"
+          data-i18n="theming.tokens">Active tokens</h2>
+      <p class="theming-hint" data-i18n="theming.tokenHint">
+        These are read from the live DOM — change anything above and watch the values update.
+      </p>
+      <div class="theming-tokens-wrap">
+      <table class="theming-tokens">
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Computed value</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="token-rows"></tbody>
+      </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+</body>
+</html>

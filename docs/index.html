@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overview — zAgentUI</title>
+  <script type="module" crossorigin src="/assets/index-DbSwY1_R.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/presets-CdaBrvJF.js">
+  <link rel="modulepreload" crossorigin href="/assets/a11y-DJ6wHu5s.js">
+  <link rel="modulepreload" crossorigin href="/assets/Button-6M0Me5pu.js">
+  <link rel="modulepreload" crossorigin href="/assets/shell-DwQ7nMfw.js">
+  <link rel="modulepreload" crossorigin href="/assets/vocabulary-DLBU9tdh.js">
+  <link rel="modulepreload" crossorigin href="/assets/Badge-DbBfhcO2.js">
+  <link rel="stylesheet" crossorigin href="/assets/a11y-D1tjoguM.css">
+  <link rel="stylesheet" crossorigin href="/assets/demo-BAF_qh2v.css">
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+
+  <!-- Sidebar（由 shell.ts 渲染） -->
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <!-- Main Content -->
+  <main class="demo-main">
+
+    <!-- Hero -->
+    <section id="hero" class="demo-hero">
+      <h1 data-i18n="hero.title">zAgentUI</h1>
+      <p data-i18n="hero.desc">
+        A lightweight, framework-agnostic Web Component UI library.
+        Built with native Custom Elements, CSS Custom Properties theming,
+        and tree-shakeable ESM modules. Just import and use — no bundler
+        config required.
+      </p>
+      <div class="demo-hero__badges">
+        <z-badge tone="primary">Web Components</z-badge>
+        <z-badge tone="success">Tree-shakeable</z-badge>
+        <z-badge>WCAG 2.1 AA</z-badge>
+      </div>
+    </section>
+
+    <section class="demo-section" id="layers">
+      <div class="demo-section__header">
+        <h2>四层，从下往上</h2>
+        <p><b>L0 是地基，压在最底</b>；往上依次 L1 控件 → L2 复合 → L3 外壳，越往上越靠近使用方。
+        <b>依赖只向下</b>，反向依赖是错的。每个方块可点进对应页，数字取自组件清单。</p>
+      </div>
+      <div class="lmap" id="layer-map"></div>
+    </section>
+
+    <section class="demo-catalog">
+      <label class="demo-filter">
+        <input class="demo-filter__input" type="search" id="catalog-filter"
+               data-i18n-attr="placeholder,catalog.filter" placeholder="Filter components…"
+               autocomplete="off" aria-label="Filter components" />
+      </label>
+      <p class="demo-filter__empty" id="catalog-empty" data-i18n="catalog.empty">No components match your search.</p>
+      <div id="catalog-groups"></div>
+    </section>
+  </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doc Template — zAgentUI</title>
+  <style>
+    .demo-content { padding: 24px; max-width: 1400px; }
+    .demo-titlebar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0 8px; }
+    .demo-content h1 { font-size: 1.5rem; font-weight: 700; margin: 0; color: var(--z-color-text); }
+    .demo-section { margin: 24px 0; display: flex; flex-direction: column; gap: 12px; }
+    .demo-section h2 { font-size: 1rem; font-weight: 600; color: var(--z-color-text-secondary); }
+    .demo-panel { padding: 16px; border: 1px solid var(--z-color-border); border-radius: var(--z-radius-md); background: var(--z-color-bg); }
+    .demo-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .demo-log { font-family: var(--z-font-mono); font-size: 12px; color: var(--z-color-text-secondary); white-space: pre-wrap; }
+    .demo-log-area { max-height: 160px; overflow: auto; border: 1px solid var(--z-color-border); border-radius: 6px; padding: 8px; }
+    .demo-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+    .demo-fields label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--z-color-text-secondary); }
+    .demo-fields z-input { flex: 1; min-width: 0; }
+    /* 表格行录入：列结构随编辑器里该表配置的展示字段变化 */
+    .demo-table-cfg { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px; }
+    .demo-table-cfg > .demo-row { font-size: 13px; }
+    .demo-table-edit { border-collapse: collapse; font-size: 13px; }
+    .demo-table-edit th,
+    .demo-table-edit td { border: 1px solid var(--z-color-border); padding: 2px 4px; text-align: left; }
+    .demo-table-edit th { font-weight: 500; color: var(--z-color-text-secondary); }
+    .demo-table-edit th span { margin-left: 6px; font-size: 11px; font-family: var(--z-font-mono, monospace); }
+    .demo-table-edit z-input { width: 100%; min-width: 70px; }
+  </style>
+  <script type="module" crossorigin src="/assets/doc-template-CqcN37HV.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/presets-CdaBrvJF.js">
+  <link rel="modulepreload" crossorigin href="/assets/a11y-DJ6wHu5s.js">
+  <link rel="modulepreload" crossorigin href="/assets/Button-6M0Me5pu.js">
+  <link rel="modulepreload" crossorigin href="/assets/copy-DoHMT7Ic.js">
+  <link rel="modulepreload" crossorigin href="/assets/Input-wCelPXsT.js">
+  <link rel="modulepreload" crossorigin href="/assets/marked.esm-CfNX39EO.js">
+  <link rel="modulepreload" crossorigin href="/assets/shell-DwQ7nMfw.js">
+  <link rel="stylesheet" crossorigin href="/assets/a11y-D1tjoguM.css">
+  <link rel="stylesheet" crossorigin href="/assets/demo-BAF_qh2v.css">
+</head>
+<body>
+  <main class="demo-content">
+    <div class="demo-titlebar">
+      <h1>文档模板 z-doc-template</h1>
+      <!-- 主题切换由 shell.ts mountBackHome 注入 -->
+    </div>
+    <p class="demo-log">纯前端模块：数据源适配器注入（无后端实现） · 建模板 → 编辑 → 填数据 → 预览 → 打印 → 导出 docx · 文档纸张固定白底，不随主题翻转</p>
+
+    <section class="demo-section">
+      <h2>1. 模板管理（z-doc-template-manager，适配器注入）</h2>
+      <div class="demo-panel">
+        <z-doc-template-manager id="mgr" page-size="5" categories='["合同","通知函","报价单"]'></z-doc-template-manager>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>2. 模板编辑器（z-doc-template-editor，块结构 + 占位符 + 中文排版 + 表格配置）</h2>
+      <div class="demo-panel demo-row">
+        <z-button id="btn-save" size="sm">保存模板</z-button>
+        <z-button id="btn-keys" size="sm" appearance="outline">提取占位符 key</z-button>
+        <span id="edit-status" class="demo-log">未选择模板</span>
+      </div>
+      <div class="demo-panel">
+        <z-doc-template-editor id="editor"></z-doc-template-editor>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>3. 数据填充 + 预览 / 打印 / 导出（z-doc-preview）</h2>
+      <div class="demo-panel demo-row">
+        <z-button id="btn-sample" size="sm" appearance="outline">填充示例数据</z-button>
+        <z-button id="btn-clear" size="sm" appearance="ghost">清空数据</z-button>
+        <span class="demo-log">数据键由模板内容反向提取；表格行按模板里配置的展示字段录入</span>
+      </div>
+      <div class="demo-panel">
+        <div class="demo-fields" id="data-fields"></div>
+      </div>
+      <div class="demo-panel">
+        <z-doc-preview id="preview" export-name="合同模板示例"></z-doc-preview>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>事件日志</h2>
+      <div class="demo-panel demo-log-area"><div class="demo-log" id="log">—</div></div>
+    </section>
+  </main>
+
+</body>
+</html>

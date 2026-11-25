@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>L1 控件 — zAgentUI</title>
+  <script type="module" crossorigin src="/assets/components-fHaZPv4o.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/presets-CdaBrvJF.js">
+  <link rel="modulepreload" crossorigin href="/assets/a11y-DJ6wHu5s.js">
+  <link rel="modulepreload" crossorigin href="/assets/Button-6M0Me5pu.js">
+  <link rel="modulepreload" crossorigin href="/assets/shell-DwQ7nMfw.js">
+  <link rel="modulepreload" crossorigin href="/assets/cards-DUJc2ay8.js">
+  <link rel="stylesheet" crossorigin href="/assets/a11y-D1tjoguM.css">
+  <link rel="stylesheet" crossorigin href="/assets/demo-BAF_qh2v.css">
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+
+  <!-- Sidebar：由 shell.ts 从 nav.ts 渲染（单一数据源） -->
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <main class="demo-main">
+
+    <section class="demo-hero">
+      <h1>L1 控件</h1>
+      <p>数据录入、展示与操作的基础件：不带业务逻辑，不取数、不管路由。
+      按「你想干什么」分成 8 个家族 —— 录入表单、按钮命令、排版、展示、数据、导航、反馈、移动端。</p>
+    </section>
+
+    <div class="demo-migrate">
+      <b>先按场景找，再进详情页看参数</b>
+      <p>每个家族下面都有可直接操作的示例；点组件名进详情页，那里有完整的属性 / 事件 / 插槽表。
+      组合件（属性面板 / 详情表单 / 代码编辑器）在 <a href="./editor.html#ex-composite">L3 编辑器页</a>，
+      报表表格 / 甘特 / 图表在 <a href="./report.html">L2 报表页</a>。</p>
+    </div>
+    <section class="demo-section" id="families">
+      <div class="demo-section__header">
+        <h2>8 个家族</h2>
+        <p>点任意一个进详情页 —— 117 个组件共用同一套详情模板，属性 / 事件 / 插槽三张表由清单渲染。</p>
+      </div>
+      <div id="family-list"></div>
+    </section>
+  
+    <h2 class="ex-family" id="ex-form">表单录入<span>6</span></h2>
+
+    <!-- ← basics.html#input -->
+<section id="input" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="input.title">Input</h2>
+        <p data-i18n="input.desc">Text input with label, hint, error, clearable, prefix/suffix slots, and multiline (textarea) mode.</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block" style="max-width:400px;">
+          <z-input id="input-demo" label="Username" placeholder="Enter username" clearable>
+            <span slot="prefix">@</span>
+          </z-input>
+          <span id="input-value" style="font-size:12px;color:var(--z-color-text-secondary)"></span>
+          <z-input label="Password" type="password" placeholder="Enter password"></z-input>
+          <z-input label="Bio" multiline placeholder="Tell us about yourself..."></z-input>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-input</span> <span class="attr">label</span>=<span class="val">"Username"</span> <span class="attr">placeholder</span>=<span class="val">"Enter username"</span> <span class="attr">clearable</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;span</span> <span class="attr">slot</span>=<span class="val">"prefix"</span><span class="tag">&gt;</span><span class="txt">@</span><span class="tag">&lt;/span&gt;</span>
+<span class="tag">&lt;/z-input&gt;</span>
+<span class="tag">&lt;z-input</span> <span class="attr">label</span>=<span class="val">"Password"</span> <span class="attr">type</span>=<span class="val">"password"</span><span class="tag">&gt;&lt;/z-input&gt;</span>
+<span class="tag">&lt;z-input</span> <span class="attr">label</span>=<span class="val">"Bio"</span> <span class="attr">multiline</span><span class="tag">&gt;&lt;/z-input&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← form.html#search-bar -->
+<section id="search-bar" class="demo-section">
+      <div class="demo-section__header">
+        <h2>Search Bar 搜索框</h2>
+        <p>输入防抖后才发 <code>z-input</code>（默认 200ms），回车立即结算并发 <code>z-search</code>；Esc 或右侧按钮清空。</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-search-bar id="sb-demo" placeholder="搜索门店 / 编码"></z-search-bar>
+          <div class="demo-hint" style="margin:8px 0 16px">默认 size="sm"，与工具栏其它控件同高</div>
+
+          <z-search-bar id="sb-lg" placeholder="大号" size="lg" debounce="0"></z-search-bar>
+          <div class="demo-hint" style="margin:8px 0 0">debounce="0"：逐键上报，适合本地筛选；size 走统一档位</div>
+          <div id="sb-log" style="margin-top:12px;font-size:12px;color:var(--z-color-text-secondary)"></div>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-search-bar</span> <span class="attr">placeholder</span>=<span class="val">"搜索门店 / 编码"</span><span class="tag">&gt;&lt;/z-search-bar&gt;</span>
+
+<span class="c">// 防抖后才发，别在宿主里再写一遍 setTimeout</span>
+bar.addEventListener("z-input", (e) =&gt; filter(e.detail.value));
+bar.addEventListener("z-search", (e) =&gt; submit(e.detail.value));  <span class="c">// 回车</span>
+bar.addEventListener("z-clear", () =&gt; reset());</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← basics.html#select -->
+<section id="select" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="select.title">Select</h2>
+        <p data-i18n="select.desc">Dropdown select with keyboard navigation. Uses FloatingPosition + FocusTrap primitives.</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live">
+          <z-select id="select-demo" placeholder="Choose a fruit...">
+            <z-option value="apple">Apple</z-option>
+            <z-option value="banana">Banana</z-option>
+            <z-option value="cherry">Cherry</z-option>
+            <z-option value="durian" disabled>Durian (disabled)</z-option>
+          </z-select>
+          <span id="select-value" style="font-size:12px;color:var(--z-color-text-secondary)"></span>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-select</span> <span class="attr">placeholder</span>=<span class="val">"Choose a fruit..."</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-option</span> <span class="attr">value</span>=<span class="val">"apple"</span><span class="tag">&gt;</span><span class="txt">Apple</span><span class="tag">&lt;/z-option&gt;</span>
+  <span class="tag">&lt;z-option</span> <span class="attr">value</span>=<span class="val">"banana"</span><span class="tag">&gt;</span><span class="txt">Banana</span><span class="tag">&lt;/z-option&gt;</span>
+<span class="tag">&lt;/z-select&gt;</span></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live" style="flex-direction:column;align-items:flex-start;gap:12px;">
+          <div style="display:flex;gap:16px;flex-wrap:wrap;width:100%;">
+            <z-select id="select-search-demo" searchable placeholder="Search a country...">
+              <z-option value="cn">China</z-option>
+              <z-option value="us">United States</z-option>
+              <z-option value="jp">Japan</z-option>
+              <z-option value="de">Germany</z-option>
+              <z-option value="fr">France</z-option>
+              <z-option value="uk">United Kingdom</z-option>
+              <z-option value="kr">South Korea</z-option>
+              <z-option value="au">Australia</z-option>
+            </z-select>
+            <z-select id="select-remote-demo" searchable search-mode="backend" placeholder="Type to search (remote)..."></z-select>
+          </div>
+          <span id="select-search-value" style="font-size:12px;color:var(--z-color-text-secondary)"></span>
+          <span id="select-remote-value" style="font-size:12px;color:var(--z-color-text-secondary)"></span>
+          <span id="select-remote-query" style="font-size:12px;color:var(--z-color-text-secondary)"></span>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="comment">&lt;!-- 前端搜索：searchable 即可 --&gt;</span>
+<span class="tag">&lt;z-select</span> <span class="attr">searchable</span> <span class="attr">placeholder</span>=<span class="val">"Search a country..."</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-option</span> <span class="attr">value</span>=<span class="val">"cn"</span><span class="tag">&gt;</span><span class="txt">China</span><span class="tag">&lt;/z-option&gt;</span>
+  <span class="tag">&lt;z-option</span> <span class="attr">value</span>=<span class="val">"us"</span><span class="tag">&gt;</span><span class="txt">United States</span><span class="tag">&lt;/z-option&gt;</span>
+<span class="tag">&lt;/z-select&gt;</span>
+
+<span class="comment">&lt;!-- 后端搜索：search-mode="backend"，监听 z-search 自行 fetch，替换 z-option --&gt;</span>
+<span class="tag">&lt;z-select</span> <span class="attr">searchable</span> <span class="attr">search-mode</span>=<span class="val">"backend"</span><span class="tag">&gt;&lt;/z-select&gt;</span>
+
+<span class="comment">// 或使用回调（property，返回 Promise 时自动重建选项并管理 loading）</span>
+<span class="txt">select</span><span class="tag">.</span><span class="txt">remoteMethod</span> = <span class="txt">async</span> (q) =&gt; <span class="txt">fetch</span>(<span class="val">`/api/options?q=${q}`</span>).json()</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← basics.html#checkbox -->
+<section id="checkbox" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="checkbox.title">Checkbox</h2>
+        <p data-i18n="checkbox.desc">Standard checkbox with indeterminate state support.</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live" style="flex-direction:column;align-items:flex-start;">
+          <z-checkbox id="checkbox-demo" value="agree">I agree to the terms</z-checkbox>
+          <span id="checkbox-value" style="font-size:12px;color:var(--z-color-text-secondary)"></span>
+          <z-divider></z-divider>
+          <z-checkbox checked>Pre-checked</z-checkbox>
+          <z-checkbox disabled>Disabled</z-checkbox>
+          <z-checkbox id="checkbox-indeterminate-demo">Indeterminate</z-checkbox>
+          <z-button id="toggle-indeterminate" appearance="outline" size="sm">Toggle Indeterminate</z-button>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-checkbox</span> <span class="attr">value</span>=<span class="val">"agree"</span><span class="tag">&gt;</span><span class="txt">I agree</span><span class="tag">&lt;/z-checkbox&gt;</span>
+<span class="tag">&lt;z-checkbox</span> <span class="attr">checked</span><span class="tag">&gt;</span><span class="txt">Pre-checked</span><span class="tag">&lt;/z-checkbox&gt;</span>
+<span class="tag">&lt;z-checkbox</span> <span class="attr">disabled</span><span class="tag">&gt;</span><span class="txt">Disabled</span><span class="tag">&lt;/z-checkbox&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← basics.html#radio -->
+<section id="radio" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="radio.title">Radio / RadioGroup</h2>
+        <p data-i18n="radio.desc">Radio buttons managed by a RadioGroup container. Supports vertical and horizontal layouts, keyboard navigation.</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live">
+          <div>
+            <p style="font-size:12px;color:var(--z-color-text-secondary);margin-bottom:8px;">Vertical (default)</p>
+            <z-radio-group id="radio-group-vertical" name="fruit" value="apple">
+              <z-radio value="apple">Apple</z-radio>
+              <z-radio value="banana">Banana</z-radio>
+              <z-radio value="cherry">Cherry</z-radio>
+              <z-radio value="durian" disabled>Durian</z-radio>
+            </z-radio-group>
+            <span id="radio-value-vertical" style="font-size:12px;color:var(--z-color-text-secondary);margin-top:4px;display:inline-block;"></span>
+          </div>
+          <z-divider orientation="vertical"></z-divider>
+          <div>
+            <p style="font-size:12px;color:var(--z-color-text-secondary);margin-bottom:8px;">Horizontal</p>
+            <z-radio-group id="radio-group-horizontal" name="size" value="md" orientation="horizontal">
+              <z-radio value="sm">Small</z-radio>
+              <z-radio value="md">Medium</z-radio>
+              <z-radio value="lg">Large</z-radio>
+            </z-radio-group>
+            <span id="radio-value-horizontal" style="font-size:12px;color:var(--z-color-text-secondary);margin-top:4px;display:inline-block;"></span>
+          </div>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-radio-group</span> <span class="attr">name</span>=<span class="val">"fruit"</span> <span class="attr">value</span>=<span class="val">"apple"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-radio</span> <span class="attr">value</span>=<span class="val">"apple"</span><span class="tag">&gt;</span><span class="txt">Apple</span><span class="tag">&lt;/z-radio&gt;</span>
+  <span class="tag">&lt;z-radio</span> <span class="attr">value</span>=<span class="val">"banana"</span><span class="tag">&gt;</span><span class="txt">Banana</span><span class="tag">&lt;/z-radio&gt;</span>
+<span class="tag">&lt;/z-radio-group&gt;</span>
+<span class="cmt">&lt;!-- horizontal layout --&gt;</span>
+<span class="tag">&lt;z-radio-group</span> <span class="attr">orientation</span>=<span class="val">"horizontal"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/z-radio-group&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← basics.html#switch -->
+<section id="switch" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="switch.title">Switch</h2>
+        <p data-i18n="switch.desc">Toggle switch with smooth thumb animation. Two sizes, supports form participation via hidden native input.</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live" style="flex-direction:column;align-items:flex-start;">
+          <z-switch id="switch-demo">Wi-Fi</z-switch>
+          <span id="switch-value" style="font-size:12px;color:var(--z-color-text-secondary)"></span>
+          <z-divider></z-divider>
+          <z-switch size="sm">Small switch</z-switch>
+          <z-switch checked disabled>Disabled on</z-switch>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-switch&gt;</span><span class="txt">Wi-Fi</span><span class="tag">&lt;/z-switch&gt;</span>
+<span class="tag">&lt;z-switch</span> <span class="attr">size</span>=<span class="val">"sm"</span><span class="tag">&gt;</span><span class="txt">Small switch</span><span class="tag">&lt;/z-switch&gt;</span>
+<span class="tag">&lt;z-switch</span> <span class="attr">checked</span> <span class="attr">disabled</span><span class="tag">&gt;</span><span class="txt">Disabled on</span><span class="tag">&lt;/z-switch&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← overlays.html#datepicker -->
+<section id="datepicker" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="datepicker.title">Datepicker</h2>
+        <p data-i18n="datepicker.desc">Calendar date picker with single and range modes, min/max constraints, locale-aware month and weekday names, and full keyboard navigation.</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__live">
+          <z-datepicker id="datepicker-single" value="2026-08-06">
+            <z-button slot="trigger" appearance="outline" size="sm">Pick a date</z-button>
+          </z-datepicker>
+          <z-datepicker id="datepicker-range" mode="range" min="2026-01-01" max="2026-12-31">
+            <z-button slot="trigger" appearance="outline" size="sm">Pick a range</z-button>
+          </z-datepicker>
+          <span id="datepicker-value" style="font-size:12px;color:var(--z-color-text-secondary)"></span>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-datepicker</span> <span class="attr">mode</span>=<span class="val">"range"</span> <span class="attr">min</span>=<span class="val">"2026-01-01"</span> <span class="attr">max</span>=<span class="val">"2026-12-31"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-button</span> <span class="attr">slot</span>=<span class="val">"trigger"</span><span class="tag">&gt;</span><span class="txt">Pick a range</span><span class="tag">&lt;/z-button&gt;</span>
+<span class="tag">&lt;/z-datepicker&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+
+    <h2 class="ex-family" id="ex-action">按钮与命令<span>1</span></h2>
+
+    <!-- ← basics.html#button -->
+<section id="button" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="button.title">Button</h2>
+        <p data-i18n="button.desc">5 variants, 3 sizes, loading and disabled states. Supports prefix/suffix slots for icons.</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live">
+          <z-button>Primary</z-button>
+          <z-button tone="default">Secondary</z-button>
+          <z-button appearance="outline">Outline</z-button>
+          <z-button appearance="ghost">Ghost</z-button>
+          <z-button tone="danger">Danger</z-button>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-button</span> <span class="attr">variant</span>=<span class="val">"primary"</span><span class="tag">&gt;</span><span class="txt">Primary</span><span class="tag">&lt;/z-button&gt;</span>
+<span class="tag">&lt;z-button</span> <span class="attr">variant</span>=<span class="val">"secondary"</span><span class="tag">&gt;</span><span class="txt">Secondary</span><span class="tag">&lt;/z-button&gt;</span>
+<span class="tag">&lt;z-button</span> <span class="attr">variant</span>=<span class="val">"outline"</span><span class="tag">&gt;</span><span class="txt">Outline</span><span class="tag">&lt;/z-button&gt;</span>
+<span class="tag">&lt;z-button</span> <span class="attr">variant</span>=<span class="val">"ghost"</span><span class="tag">&gt;</span><span class="txt">Ghost</span><span class="tag">&lt;/z-button&gt;</span>
+<span class="tag">&lt;z-button</span> <span class="attr">variant</span>=<span class="val">"danger"</span><span class="tag">&gt;</span><span class="txt">Danger</span><span class="tag">&lt;/z-button&gt;</span></code></pre>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <div class="demo-section__header"><h3 data-i18n="button.sizesTitle">Sizes & States</h3></div>
+        <div class="demo-preview">
+          <div class="demo-preview__live">
+            <z-button size="sm">Small</z-button>
+            <z-button size="md">Medium</z-button>
+            <z-button size="lg">Large</z-button>
+            <z-button disabled>Disabled</z-button>
+            <z-button loading>Loading</z-button>
+            <z-button id="click-demo">Click Me</z-button>
+            <span id="click-count" style="font-size:12px;color:var(--z-color-text-secondary)"></span>
+          </div>
+          <div class="demo-preview__actions">
+            <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+          </div>
+          <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-button</span> <span class="attr">size</span>=<span class="val">"sm"</span><span class="tag">&gt;</span><span class="txt">Small</span><span class="tag">&lt;/z-button&gt;</span>
+<span class="tag">&lt;z-button</span> <span class="attr">size</span>=<span class="val">"lg"</span><span class="tag">&gt;</span><span class="txt">Large</span><span class="tag">&lt;/z-button&gt;</span>
+<span class="tag">&lt;z-button</span> <span class="attr">disabled</span><span class="tag">&gt;</span><span class="txt">Disabled</span><span class="tag">&lt;/z-button&gt;</span>
+<span class="tag">&lt;z-button</span> <span class="attr">loading</span><span class="tag">&gt;</span><span class="txt">Loading</span><span class="tag">&lt;/z-button&gt;</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <h2 class="ex-family" id="ex-display">展示<span>6</span></h2>
+
+    <!-- ← data-display.html#badge -->
+<section id="badge" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="badge.title">Badge</h2>
+        <p data-i18n="badge.desc">Small inline label for statuses, categories, or counts. 5 variants, 2 sizes.</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live" style="flex-direction:column;align-items:flex-start;gap:16px;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <z-badge>Default</z-badge>
+            <z-badge tone="primary">Primary</z-badge>
+            <z-badge tone="success">Success</z-badge>
+            <z-badge tone="warning">Warning</z-badge>
+            <z-badge tone="danger">Danger</z-badge>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <z-badge size="sm">Small</z-badge>
+            <z-badge size="sm" tone="primary">Small</z-badge>
+            <z-badge size="sm" tone="success">Small</z-badge>
+          </div>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-badge</span> <span class="attr">variant</span>=<span class="val">"primary"</span><span class="tag">&gt;</span><span class="txt">Primary</span><span class="tag">&lt;/z-badge&gt;</span>
+<span class="tag">&lt;z-badge</span> <span class="attr">variant</span>=<span class="val">"success"</span><span class="tag">&gt;</span><span class="txt">Success</span><span class="tag">&lt;/z-badge&gt;</span>
+<span class="tag">&lt;z-badge</span> <span class="attr">size</span>=<span class="val">"sm"</span><span class="tag">&gt;</span><span class="txt">Small</span><span class="tag">&lt;/z-badge&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← data-display.html#card -->
+<section id="card" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="card.title">Card</h2>
+        <p data-i18n="card.desc">Content container with optional header, footer, cover image, border, and shadow slots.</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__live">
+          <z-card style="width:260px">
+            <div slot="header">Card Title</div>
+            <p style="margin:0">This is the card body content.</p>
+            <div slot="footer">Footer actions</div>
+          </z-card>
+          <z-card bordered style="width:260px">
+            <div slot="header">Bordered Card</div>
+            <p style="margin:0">A card with a visible border.</p>
+          </z-card>
+          <z-card shadow style="width:260px">
+            <div slot="header">Shadow Card</div>
+            <p style="margin:0">A card with shadow elevation.</p>
+          </z-card>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-card&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">slot</span>=<span class="val">"header"</span><span class="tag">&gt;</span><span class="txt">Title</span><span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;p&gt;</span><span class="txt">Body</span><span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">slot</span>=<span class="val">"footer"</span><span class="tag">&gt;</span><span class="txt">Footer</span><span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/z-card&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← data-display.html#tag -->
+<section id="tag" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="tag.title">Tag</h2>
+        <p data-i18n="tag.desc">Label with optional close button. 5 color variants, 2 sizes, disabled state.</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__live" style="flex-direction:column;align-items:flex-start;gap:12px;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <z-tag>Default</z-tag>
+            <z-tag tone="primary">Primary</z-tag>
+            <z-tag tone="success">Success</z-tag>
+            <z-tag tone="warning">Warning</z-tag>
+            <z-tag tone="danger">Danger</z-tag>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <z-tag size="sm">Small</z-tag>
+            <z-tag size="sm" tone="primary">Small</z-tag>
+            <z-tag closable id="tag-closable-demo">Closable</z-tag>
+            <z-tag closable disabled>Disabled</z-tag>
+          </div>
+          <span id="tag-value" style="font-size:12px;color:var(--z-color-text-secondary)"></span>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-tag</span> <span class="attr">variant</span>=<span class="val">"primary"</span><span class="tag">&gt;</span><span class="txt">Primary</span><span class="tag">&lt;/z-tag&gt;</span>
+<span class="tag">&lt;z-tag</span> <span class="attr">closable</span><span class="tag">&gt;</span><span class="txt">Closable</span><span class="tag">&lt;/z-tag&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← data-display.html#avatar -->
+<section id="avatar" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="avatar.title">Avatar</h2>
+        <p data-i18n="avatar.desc">User avatar with image, initials fallback, and custom fallback slot. 5 sizes, circle/square shapes.</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__live" style="flex-direction:column;align-items:flex-start;gap:12px;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <z-avatar size="xs" initials="JD"></z-avatar>
+            <z-avatar size="sm" initials="AB"></z-avatar>
+            <z-avatar size="md" initials="MK"></z-avatar>
+            <z-avatar size="lg" initials="ZL"></z-avatar>
+            <z-avatar size="xl" initials="WH"></z-avatar>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <z-avatar shape="square" initials="SQ"></z-avatar>
+            <z-avatar></z-avatar>
+            <z-avatar src="https://i.pravatar.cc/80?img=3" alt="User"></z-avatar>
+            <z-avatar src="bad-url" initials="XX"></z-avatar>
+          </div>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-avatar</span> <span class="attr">initials</span>=<span class="val">"JD"</span><span class="tag">&gt;&lt;/z-avatar&gt;</span>
+<span class="tag">&lt;z-avatar</span> <span class="attr">src</span>=<span class="val">"..."</span><span class="tag">&gt;&lt;/z-avatar&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← data-display.html#divider -->
+<section id="divider" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="divider.title">Divider</h2>
+        <p data-i18n="divider.desc">Visual separator with optional label text. Horizontal and vertical orientations.</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <p style="font-size:13px;">Content above</p>
+          <z-divider></z-divider>
+          <p style="font-size:13px;">Content below</p>
+          <z-divider>OR</z-divider>
+          <p style="font-size:13px;">More content</p>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+            <span style="font-size:13px;">Left</span>
+            <z-divider orientation="vertical"></z-divider>
+            <span style="font-size:13px;">Right</span>
+          </div>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-divider&gt;&lt;/z-divider&gt;</span>
+<span class="tag">&lt;z-divider&gt;</span><span class="txt">OR</span><span class="tag">&lt;/z-divider&gt;</span>
+<span class="tag">&lt;z-divider</span> <span class="attr">orientation</span>=<span class="val">"vertical"</span><span class="tag">&gt;&lt;/z-divider&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← navigation.html#accordion -->
+<section id="accordion" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="accordion.title">Accordion</h2>
+        <p data-i18n="accordion.desc">Expandable sections with single or multiple open modes. Composable accordion-item children with title slot and smooth animation.</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block" style="max-width:500px;">
+          <z-accordion bordered id="accordion-demo">
+            <z-accordion-item title="What is zAgentUI?" open>
+              zAgentUI is a lightweight, framework-agnostic Web Component UI library built with native Custom Elements.
+            </z-accordion-item>
+            <z-accordion-item title="How do I install it?">
+              Import the ESM module or individual components. No bundler config required.
+            </z-accordion-item>
+            <z-accordion-item title="Does it support React?" disabled>
+              Yes, React wrappers are provided for all components.
+            </z-accordion-item>
+          </z-accordion>
+          <span id="accordion-value" style="font-size:12px;color:var(--z-color-text-secondary);margin-top:8px;display:inline-block;"></span>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-accordion</span> <span class="attr">bordered</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-accordion-item</span> <span class="attr">title</span>=<span class="val">"Section 1"</span> <span class="attr">open</span><span class="tag">&gt;</span>
+    <span class="txt">Content...</span>
+  <span class="tag">&lt;/z-accordion-item&gt;</span>
+<span class="tag">&lt;/z-accordion&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="typography" class="demo-section">
+      <div class="demo-section__header">
+        <h2>Typography</h2>
+        <p>七档字号，按语义选（标题 / 正文 / 次要 / 提示）。用 scale 而不是手写 px —— 换主题或调密度时整页一起变，不会出现「这页 13px、那页 14px」。</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-typography scale="h3">门店经营日报</z-typography>
+          <z-typography scale="h5">2026 年 11 月 · 华东区</z-typography>
+          <z-typography scale="body">本周上线 3 个新品，整体售罄率 92%。</z-typography>
+          <z-typography scale="secondary">数据更新于 06:00 · 口径见页脚</z-typography>
+          <z-typography scale="body" ellipsis lines="2" style="max-width:420px;margin-top:10px">
+            这段文字超过两行就会被截断并加省略号。长摘要列表里最常见的问题是一行文本把卡片撑高，
+            于是同一行的卡片高度不一致；用 lines 把「最多几行」写成语义，就不会再有人各写一套 -webkit-line-clamp。
+          </z-typography>
+          <div style="margin-top:10px">
+            <z-typography scale="body" strong>可复制的编号：</z-typography>
+            <z-typography scale="body" copyable>SH-2026-1115-0042</z-typography>
+          </div>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code>&lt;<span class="tag">z-typography</span> <span class="attr">scale</span>=<span class="val">"h3"</span>&gt;门店经营日报&lt;/<span class="tag">z-typography</span>&gt;
+&lt;<span class="tag">z-typography</span> <span class="attr">scale</span>=<span class="val">"body"</span>&gt;正文&lt;/<span class="tag">z-typography</span>&gt;
+&lt;<span class="tag">z-typography</span> <span class="attr">scale</span>=<span class="val">"secondary"</span>&gt;次要文字&lt;/<span class="tag">z-typography</span>&gt;
+
+&lt;<span class="tag">z-typography</span> <span class="attr">scale</span>=<span class="val">"body"</span> ellipsis <span class="attr">lines</span>=<span class="val">"2"</span>&gt;最多两行…&lt;/<span class="tag">z-typography</span>&gt;
+&lt;<span class="tag">z-typography</span> <span class="attr">scale</span>=<span class="val">"body"</span> copyable&gt;SH-2026-1115-0042&lt;/<span class="tag">z-typography</span>&gt;</code></pre>
+        </div>
+      </div>
+    </section>
+    <section id="descriptions" class="demo-section">
+      <div class="demo-section__header">
+        <h2>Descriptions</h2>
+        <p>只读键值展示：详情页的「字段名 / 字段值」网格。它替掉的是「手写一堆 label + span」——那种写法在换行、长字段、暗色下都会各坏一次。<code>compact</code> 用于表格行内展开这类空间紧的地方，<code>bordered</code> 用于需要逐格对齐的审批单。</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-descriptions column="3">
+            <z-descriptions-item label="门店">上海静安嘉里中心</z-descriptions-item>
+            <z-descriptions-item label="区域">华东</z-descriptions-item>
+            <z-descriptions-item label="店长">王芳</z-descriptions-item>
+            <z-descriptions-item label="营业时间">09:00 – 22:00</z-descriptions-item>
+            <z-descriptions-item label="开业日期">2023-04-18</z-descriptions-item>
+            <z-descriptions-item label="备注" span="3">周末延长至 22:30，节假日另行通知。</z-descriptions-item>
+          </z-descriptions>
+          <z-descriptions column="2" bordered compact style="margin-top:12px">
+            <z-descriptions-item label="订单号">SO-20261115-0007</z-descriptions-item>
+            <z-descriptions-item label="状态">待发货</z-descriptions-item>
+            <z-descriptions-item label="金额">¥ 12,580.50</z-descriptions-item>
+            <z-descriptions-item label="下单时间">2026-11-15 09:42</z-descriptions-item>
+          </z-descriptions>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code>&lt;<span class="tag">z-descriptions</span> <span class="attr">column</span>=<span class="val">"3"</span>&gt;
+  &lt;<span class="tag">z-descriptions-item</span> <span class="attr">label</span>=<span class="val">"门店"</span>&gt;上海静安嘉里中心&lt;/<span class="tag">z-descriptions-item</span>&gt;
+  &lt;<span class="tag">z-descriptions-item</span> <span class="attr">label</span>=<span class="val">"区域"</span>&gt;华东&lt;/<span class="tag">z-descriptions-item</span>&gt;
+  &lt;<span class="tag">z-descriptions-item</span> <span class="attr">label</span>=<span class="val">"备注"</span> <span class="attr">span</span>=<span class="val">"3"</span>&gt;跨三列&lt;/<span class="tag">z-descriptions-item</span>&gt;
+&lt;/<span class="tag">z-descriptions</span>&gt;
+
+&lt;<span class="tag">z-descriptions</span> <span class="attr">column</span>=<span class="val">"2"</span> bordered compact&gt;…&lt;/<span class="tag">z-descriptions</span>&gt;</code></pre>
+        </div>
+      </div>
+    </section>
+    <section id="embed" class="demo-section">
+      <div class="demo-section__header">
+        <h2>Embed</h2>
+        <p>把一份<b>完整的 HTML 文档</b>嵌进页面。用 iframe 而不是 innerHTML：报告自带的 <code>&lt;style&gt;</code> 会改掉整页排版，一段脚本能直接读宿主的存储与 DOM。两种来源二选一：<code>src</code>（外部地址或站内相对路径）与 <code>html</code>（已生成的 HTML 字符串，走 <code>srcdoc</code>）。默认不给脚本（<code>sandbox="allow-same-origin"</code>），需要图表脚本时显式写 <code>sandbox="allow-scripts allow-same-origin"</code>。</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-embed title="内联报告" height="160" html="&lt;h3 style='margin:0 0 8px'&gt;十一月经营小结&lt;/h3&gt;&lt;p style='margin:0;color:#555'&gt;这份内容是一个独立文档：它有自己的 html / style，影响不到外面的页面。&lt;/p&gt;"></z-embed>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code>&lt;<span class="tag">z-embed</span> <span class="attr">title</span>=<span class="val">"内联报告"</span> <span class="attr">height</span>=<span class="val">"160"</span>
+         <span class="attr">html</span>=<span class="val">"&amp;lt;h3&amp;gt;十一月经营小结&amp;lt;/h3&amp;gt;"</span>&gt;&lt;/<span class="tag">z-embed</span>&gt;
+
+&lt;<span class="tag">z-embed</span> <span class="attr">src</span>=<span class="val">"report/2026-11.html"</span> <span class="attr">title</span>=<span class="val">"十一月报告"</span>&gt;&lt;/<span class="tag">z-embed</span>&gt;
+&lt;<span class="tag">z-embed</span> <span class="attr">src</span>=<span class="val">"dash.html"</span> <span class="attr">auto-height</span> <span class="attr">sandbox</span>=<span class="val">"allow-scripts allow-same-origin"</span>&gt;&lt;/<span class="tag">z-embed</span>&gt;</code></pre>
+        </div>
+      </div>
+    </section>
+    <h2 class="ex-family" id="ex-layout">布局<span>4</span></h2>
+
+    <section id="space" class="demo-section">
+      <div class="demo-section__header">
+        <h2>Space</h2>
+        <p>间距容器：把「子元素之间留白」变成一次声明。写成给每个子元素加 margin 时，最后一个元素的 margin 会顶出去、换行后行距不对 —— 这些都不该由每个业务页各写一遍。</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-space size="sm" style="margin-bottom:10px">
+            <z-button size="sm">查询</z-button>
+            <z-button size="sm">新建</z-button>
+            <z-button size="sm" appearance="outline">导出</z-button>
+          </z-space>
+          <z-space direction="vertical" size="md" block style="max-width:320px">
+            <z-input label="门店" placeholder="输入门店名" size="sm"></z-input>
+            <z-input label="档期" placeholder="2026-11" size="sm"></z-input>
+          </z-space>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code>&lt;<span class="tag">z-space</span> <span class="attr">size</span>=<span class="val">"sm"</span>&gt;
+  &lt;<span class="tag">z-button</span>&gt;查询&lt;/<span class="tag">z-button</span>&gt;
+  &lt;<span class="tag">z-button</span> <span class="attr">variant</span>=<span class="val">"primary"</span>&gt;新建&lt;/<span class="tag">z-button</span>&gt;
+&lt;/<span class="tag">z-space</span>&gt;
+
+&lt;<span class="tag">z-space</span> <span class="attr">direction</span>=<span class="val">"vertical"</span> <span class="attr">size</span>=<span class="val">"md"</span> block&gt;
+  &lt;<span class="tag">z-input</span> <span class="attr">label</span>=<span class="val">"门店"</span>&gt;&lt;/<span class="tag">z-input</span>&gt;
+  &lt;<span class="tag">z-input</span> <span class="attr">label</span>=<span class="val">"档期"</span>&gt;&lt;/<span class="tag">z-input</span>&gt;
+&lt;/<span class="tag">z-space</span>&gt;</code></pre>
+        </div>
+      </div>
+    </section>
+    <section id="flex" class="demo-section">
+      <div class="demo-section__header">
+        <h2>Flex</h2>
+        <p>flex 布局原语：AI 生成布局的第一块积木。<code>justify</code> / <code>align</code> 用的是会话语义（<code>between</code>、<code>baseline</code>），不是 CSS 原名 —— 生成端写 <code>space-between</code> 的失败率明显更高。</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-flex justify="between" align="center" class="ex-frame">
+            <b>门店经营日报</b>
+            <z-space size="sm">
+              <z-button size="sm" appearance="outline">筛选</z-button>
+              <z-button size="sm">导出</z-button>
+            </z-space>
+          </z-flex>
+          <z-flex gap="8px" wrap class="ex-frame" style="margin-top:10px">
+            <z-tag>上海</z-tag><z-tag>杭州</z-tag><z-tag>南京</z-tag>
+            <z-tag>苏州</z-tag><z-tag>宁波</z-tag><z-tag>合肥</z-tag>
+          </z-flex>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code>&lt;<span class="tag">z-flex</span> <span class="attr">justify</span>=<span class="val">"between"</span> <span class="attr">align</span>=<span class="val">"center"</span>&gt;
+  &lt;<span class="tag">b</span>&gt;门店经营日报&lt;/<span class="tag">b</span>&gt;
+  &lt;<span class="tag">z-space</span> <span class="attr">size</span>=<span class="val">"sm"</span>&gt;
+    &lt;<span class="tag">z-button</span> <span class="attr">variant</span>=<span class="val">"outline"</span>&gt;筛选&lt;/<span class="tag">z-button</span>&gt;
+    &lt;<span class="tag">z-button</span> <span class="attr">variant</span>=<span class="val">"primary"</span>&gt;导出&lt;/<span class="tag">z-button</span>&gt;
+  &lt;/<span class="tag">z-space</span>&gt;
+&lt;/<span class="tag">z-flex</span>&gt;</code></pre>
+        </div>
+      </div>
+    </section>
+    <section id="grid" class="demo-section">
+      <div class="demo-section__header">
+        <h2>Grid</h2>
+        <p>12 栅格。响应式的底线 —— 在此之前，所有页面都在手写 <code>display:grid</code> 与列宽，于是同一套 24 列 / 12 列在五个页面里出现了五种断点。<code>z-grid-col</code> 的 span 是字符串，可以直接写 <code>6</code> 或 <code>6 md:4</code>。</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-grid cols="12" gap="10px">
+            <z-grid-col span="6"><div class="ex-cell">span 6</div></z-grid-col>
+            <z-grid-col span="6"><div class="ex-cell">span 6</div></z-grid-col>
+            <z-grid-col span="4"><div class="ex-cell">span 4</div></z-grid-col>
+            <z-grid-col span="4"><div class="ex-cell">span 4</div></z-grid-col>
+            <z-grid-col span="4"><div class="ex-cell">span 4</div></z-grid-col>
+            <z-grid-col span="3"><div class="ex-cell">3</div></z-grid-col>
+            <z-grid-col span="3"><div class="ex-cell">3</div></z-grid-col>
+            <z-grid-col span="3"><div class="ex-cell">3</div></z-grid-col>
+            <z-grid-col span="3"><div class="ex-cell">3</div></z-grid-col>
+            <z-grid-col span="6" offset="3"><div class="ex-cell">span 6 · offset 3</div></z-grid-col>
+          </z-grid>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code>&lt;<span class="tag">z-grid</span> <span class="attr">cols</span>=<span class="val">"12"</span> <span class="attr">gap</span>=<span class="val">"10px"</span>&gt;
+  &lt;<span class="tag">z-grid-col</span> <span class="attr">span</span>=<span class="val">"6"</span>&gt;span 6&lt;/<span class="tag">z-grid-col</span>&gt;
+  &lt;<span class="tag">z-grid-col</span> <span class="attr">span</span>=<span class="val">"6"</span>&gt;span 6&lt;/<span class="tag">z-grid-col</span>&gt;
+  &lt;<span class="tag">z-grid-col</span> <span class="attr">span</span>=<span class="val">"4"</span>&gt;span 4&lt;/<span class="tag">z-grid-col</span>&gt;
+  &lt;<span class="tag">z-grid-col</span> <span class="attr">span</span>=<span class="val">"4"</span>&gt;span 4&lt;/<span class="tag">z-grid-col</span>&gt;
+  &lt;<span class="tag">z-grid-col</span> <span class="attr">span</span>=<span class="val">"4"</span>&gt;span 4&lt;/<span class="tag">z-grid-col</span>&gt;
+  &lt;<span class="tag">z-grid-col</span> <span class="attr">span</span>=<span class="val">"6"</span> <span class="attr">offset</span>=<span class="val">"3"</span>&gt;span 6 · offset 3&lt;/<span class="tag">z-grid-col</span>&gt;
+&lt;/<span class="tag">z-grid</span>&gt;</code></pre>
+        </div>
+      </div>
+    </section>
+    <section id="sticky" class="demo-section">
+      <div class="demo-section__header">
+        <h2>Sticky</h2>
+        <p>吸顶容器。示例放在一个固定高度的滚动框里；直接在文档流里演示会「粘住整页侧栏」。<code>offsetTop</code> 相对最近的滚动祖先计算，框内吸顶与页内吸顶是同一份代码。</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div class="ex-scroll">
+            <z-sticky offset-top="0">
+              <div class="ex-sticky-head">表头吸顶：向下滚动这一块</div>
+            </z-sticky>
+            <div class="ex-scroll__body">
+              <p>第 1 行 · 门店 A</p><p>第 2 行 · 门店 B</p><p>第 3 行 · 门店 C</p>
+              <p>第 4 行 · 门店 D</p><p>第 5 行 · 门店 E</p><p>第 6 行 · 门店 F</p>
+              <p>第 7 行 · 门店 G</p><p>第 8 行 · 门店 H</p><p>第 9 行 · 门店 I</p>
+              <p>第 10 行 · 门店 J</p>
+            </div>
+          </div>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code>&lt;<span class="tag">div</span> <span class="attr">style</span>=<span class="val">"height:200px; overflow:auto"</span>&gt;
+  &lt;<span class="tag">z-sticky</span> <span class="attr">offset-top</span>=<span class="val">"0"</span>&gt;
+    &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="val">"head"</span>&gt;表头&lt;/<span class="tag">div</span>&gt;
+  &lt;/<span class="tag">z-sticky</span>&gt;
+  &lt;<span class="tag">div</span>&gt;… 20 行 …&lt;/<span class="tag">div</span>&gt;
+&lt;/<span class="tag">div</span>&gt;</code></pre>
+        </div>
+      </div>
+    </section>
+    <h2 class="ex-family" id="ex-data">数据<span>2</span></h2>
+
+    <!-- ← data-display.html#table -->
+<section id="table" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="table.title">Table</h2>
+        <p data-i18n="table.desc">Data-driven table with sortable columns, striped/bordered variants, two sizes, loading and empty states.</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-table id="table-demo"></z-table>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button id="table-striped" appearance="ghost" size="sm" data-i18n="table.toggleStriped">Toggle Striped</z-button>
+          <z-button id="table-bordered" appearance="ghost" size="sm" data-i18n="table.toggleBordered">Toggle Bordered</z-button>
+          <z-button id="table-size" appearance="ghost" size="sm" data-i18n="table.toggleSize">Toggle Size</z-button>
+          <span style="flex:1"></span>
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="cmt">// Set data via JavaScript properties</span>
+<span class="tag">const</span> table = document.querySelector(<span class="val">'z-table'</span>);
+table.<span class="attr">columns</span> = [
+  { key: <span class="val">'name'</span>, header: <span class="val">'Name'</span>, sortable: <span class="tag">true</span> },
+  { key: <span class="val">'role'</span>, header: <span class="val">'Role'</span>, align: <span class="val">'center'</span> },
+  { key: <span class="val">'ops'</span>, header: <span class="val">'Actions'</span>, align: <span class="val">'center'</span>,
+    <span class="attr">render</span>: (<span class="val">v</span>, row) =&gt; <span class="val">`&lt;span class="z-table__btn-group"&gt;
+      &lt;z-button size="sm" variant="outline" data-action="edit" data-id="${row.name}"&gt;Edit&lt;/z-button&gt;
+      &lt;z-button size="sm" variant="danger" data-action="delete" data-id="${row.name}"&gt;Delete&lt;/z-button&gt;
+    &lt;/span&gt;`</span> },
+];
+table.<span class="attr">data</span> = [
+  { name: <span class="val">'Alice'</span>, role: <span class="val">'Admin'</span> },
+  { name: <span class="val">'Bob'</span>, role: <span class="val">'Editor'</span> },
+];
+
+<span class="cmt">// Buttons emit z-click through the shadow DOM</span>
+table.<span class="attr">addEventListener</span>(<span class="val">'z-click'</span>, (e) =&gt; {
+  <span class="tag">const</span> { action, id } = e.target.dataset;
+  console.log(<span class="val">`${action}: ${id}`</span>);
+});</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← data-display.html#tree -->
+<section id="tree" class="demo-section">
+      <div class="demo-section__header">
+        <h2>Tree 树形控件</h2>
+        <p>层级树形视图，适用于组织架构、文件浏览器、嵌套菜单等场景。支持展开/收起、单选/多选、级联选择、键盘导航。</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-tree id="tree-demo">
+            <z-tree-node label="技术部" has-children open>
+              <z-tree-node slot="children" label="前端组" level="1" has-children open>
+                <z-tree-node slot="children" label="Web 应用" level="2"></z-tree-node>
+                <z-tree-node slot="children" label="移动应用" level="2"></z-tree-node>
+                <z-tree-node slot="children" label="设计系统" level="2"></z-tree-node>
+              </z-tree-node>
+              <z-tree-node slot="children" label="后端组" level="1" has-children>
+                <z-tree-node slot="children" label="API 服务" level="2"></z-tree-node>
+                <z-tree-node slot="children" label="数据平台" level="2"></z-tree-node>
+                <z-tree-node slot="children" label="基础设施" level="2"></z-tree-node>
+              </z-tree-node>
+              <z-tree-node slot="children" label="测试组" level="1"></z-tree-node>
+            </z-tree-node>
+            <z-tree-node label="设计部" has-children>
+              <z-tree-node slot="children" label="UI 设计" level="1"></z-tree-node>
+              <z-tree-node slot="children" label="UX 研究" level="1"></z-tree-node>
+              <z-tree-node slot="children" label="品牌组" level="1" disabled></z-tree-node>
+            </z-tree-node>
+            <z-tree-node label="产品部" has-children>
+              <z-tree-node slot="children" label="产品规划" level="1"></z-tree-node>
+              <z-tree-node slot="children" label="数据分析" level="1"></z-tree-node>
+            </z-tree-node>
+          </z-tree>
+          <span id="tree-value" style="font-size:12px;color:var(--z-color-text-secondary);margin-top:8px;display:inline-block;"></span>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button id="tree-multi" appearance="ghost" size="sm">多选模式</z-button>
+          <z-button id="tree-cascade" appearance="ghost" size="sm">级联选择</z-button>
+          <span style="flex:1"></span>
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-tree&gt;</span>
+  <span class="tag">&lt;z-tree-node</span> <span class="attr">label</span>=<span class="val">"技术部"</span> <span class="attr">has-children</span> <span class="attr">open</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;z-tree-node</span> <span class="attr">slot</span>=<span class="val">"children"</span> <span class="attr">label</span>=<span class="val">"前端组"</span> <span class="attr">level</span>=<span class="val">"1"</span> <span class="attr">has-children</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;z-tree-node</span> <span class="attr">slot</span>=<span class="val">"children"</span> <span class="attr">label</span>=<span class="val">"Web 应用"</span> <span class="attr">level</span>=<span class="val">"2"</span><span class="tag">&gt;&lt;/z-tree-node&gt;</span>
+    <span class="tag">&lt;/z-tree-node&gt;</span>
+  <span class="tag">&lt;/z-tree-node&gt;</span>
+<span class="tag">&lt;/z-tree&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+
+    <h2 class="ex-family" id="ex-nav">导航<span>3</span></h2>
+
+    <!-- ← overlays.html#menu -->
+<section id="menu" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="menu.title">Menu</h2>
+        <p data-i18n="menu.desc">Dropdown menu with keyboard navigation, dividers, and disabled items. Uses FloatingPosition + FocusTrap.</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live">
+          <z-menu id="menu-demo">
+            <z-button slot="trigger" appearance="outline" size="sm">Actions</z-button>
+            <z-menu-item value="edit">Edit</z-menu-item>
+            <z-menu-item value="duplicate">Duplicate</z-menu-item>
+            <hr>
+            <z-menu-item value="archive">Archive</z-menu-item>
+            <z-menu-item value="delete" disabled>Delete</z-menu-item>
+          </z-menu>
+          <span id="menu-value" style="font-size:12px;color:var(--z-color-text-secondary)"></span>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-menu&gt;</span>
+  <span class="tag">&lt;z-button</span> <span class="attr">slot</span>=<span class="val">"trigger"</span><span class="tag">&gt;</span><span class="txt">Actions</span><span class="tag">&lt;/z-button&gt;</span>
+  <span class="tag">&lt;z-menu-item</span> <span class="attr">value</span>=<span class="val">"edit"</span><span class="tag">&gt;</span><span class="txt">Edit</span><span class="tag">&lt;/z-menu-item&gt;</span>
+  <span class="tag">&lt;z-menu-item</span> <span class="attr">value</span>=<span class="val">"delete"</span> <span class="attr">disabled</span><span class="tag">&gt;</span><span class="txt">Delete</span><span class="tag">&lt;/z-menu-item&gt;</span>
+<span class="tag">&lt;/z-menu&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← overlays.html#context-menu -->
+<section id="context-menu" class="demo-section">
+      <div class="demo-section__header">
+        <h2>Context Menu 右键菜单</h2>
+        <p>在下面区域内右键：菜单在该坐标弹出。方向键移动、Enter 选中、Esc 关闭并把焦点还回来；页面滚动即收起。</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live">
+          <div id="ctx-area" style="width:220px;padding:24px;text-align:center;border:1px dashed var(--z-color-border);border-radius:var(--z-radius-md);color:var(--z-color-text-secondary);font-size:13px">右键这里</div>
+          <z-context-menu id="ctx-demo" options="rename|重命名,-,delete|删除|danger"></z-context-menu>
+          <span id="ctx-value" style="font-size:12px;color:var(--z-color-text-secondary)"></span>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="c">&lt;!-- HTML 宿主：options 是 "key|label|flags" 逗号分隔，"-" 是分隔线 --&gt;</span>
+<span class="tag">&lt;z-context-menu</span> <span class="attr">id</span>=<span class="val">"ctx"</span> <span class="attr">options</span>=<span class="val">"rename|重命名,-,delete|删除|danger"</span><span class="tag">&gt;&lt;/z-context-menu&gt;</span>
+
+<span class="c">// 在需要右键的地方打开（坐标来自事件）</span>
+area.addEventListener("contextmenu", (e) =&gt; {
+  e.preventDefault();
+  ctx.showAt(e.clientX, e.clientY);
+});
+ctx.addEventListener("z-pick", (e) =&gt; console.log(e.detail.key));</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← navigation.html#tabs -->
+<section id="tabs" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="tabs.title">Tabs</h2>
+        <p data-i18n="tabs.desc">Three visual variants: underline (with animated indicator), pills, and cards. Keyboard accessible.</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-tabs id="tabs-underline" tab-style="underline">
+            <z-tab-panel label="Account">Account settings content.</z-tab-panel>
+            <z-tab-panel label="Password">Password change form.</z-tab-panel>
+            <z-tab-panel label="Notifications">Notification preferences.</z-tab-panel>
+            <z-tab-panel label="Billing" disabled>Billing (disabled).</z-tab-panel>
+          </z-tabs>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-tabs</span> <span class="attr">variant</span>=<span class="val">"underline"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-tab-panel</span> <span class="attr">label</span>=<span class="val">"Account"</span><span class="tag">&gt;</span><span class="txt">...</span><span class="tag">&lt;/z-tab-panel&gt;</span>
+  <span class="tag">&lt;z-tab-panel</span> <span class="attr">label</span>=<span class="val">"Password"</span><span class="tag">&gt;</span><span class="txt">...</span><span class="tag">&lt;/z-tab-panel&gt;</span>
+<span class="tag">&lt;/z-tabs&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← navigation.html#segmented · 2026-11-23 新增（与 M3 SegmentedButton / iOS Picker(.segmented) 对齐） -->
+<section id="segmented" class="demo-section">
+      <div class="demo-section__header">
+        <h2>Segmented 分段控件</h2>
+        <p>切换同一份内容的呈现参数（日/周/月、全部/进行中）。语义是 radiogroup，不是 tablist —— 它切的是值，不是面板。</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-segmented id="seg-demo" options="day|日,week|周,month|月" value="week"></z-segmented>
+          <div class="demo-hint" style="margin:8px 0 16px">← → 切换（APG radio group：移动即选中，焦点跟随）</div>
+
+          <z-segmented options="all|全部,running|进行中,done|已完成" value="all" size="sm"></z-segmented>
+          <div class="demo-hint" style="margin:8px 0 16px">size="sm"，用于工具栏那一行</div>
+
+          <z-segmented options="chart|图表,table|表格" value="chart" full></z-segmented>
+          <div class="demo-hint" style="margin:8px 0 0">full：撑满父容器，各段等分</div>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="c">&lt;!-- HTML 宿主：options 是 "value|label" 逗号分隔 --&gt;</span>
+<span class="tag">&lt;z-segmented</span> <span class="attr">options</span>=<span class="val">"day|日,week|周,month|月"</span> <span class="attr">value</span>=<span class="val">"week"</span><span class="tag">&gt;&lt;/z-segmented&gt;</span>
+
+<span class="c">// JS 宿主：items 数组（优先生效）</span>
+seg.items = [{ value: "day", label: "日" }, { value: "week", label: "周", disabled: true }];
+seg.addEventListener("z-change", (e) =&gt; console.log(e.detail.value));</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← navigation.html#pagination -->
+<section id="pagination" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="pagination.title">Pagination</h2>
+        <p data-i18n="pagination.desc">Page navigation with smart ellipsis, sibling count control, and keyboard navigation.</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-pagination id="pagination-demo" current="1" total-records="256" page-size="10" siblings="1"
+                        show-info info-template="{start}-{end} of {total}" show-page-size></z-pagination>
+          <div id="pagination-records" style="margin-top:12px;width:100%;border:1px solid var(--z-color-border);border-radius:6px;"></div>
+          <span id="pagination-value" style="font-size:12px;color:var(--z-color-text-secondary);margin-top:8px;display:inline-block;"></span>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="comment">&lt;!-- 总记录数驱动页数；show-info 信息区；show-page-size 页容量选择器 --&gt;</span>
+<span class="tag">&lt;z-pagination</span>
+  <span class="attr">current</span>=<span class="val">"1"</span>
+  <span class="attr">total-records</span>=<span class="val">"256"</span>
+  <span class="attr">page-size</span>=<span class="val">"10"</span>
+  <span class="attr">show-info</span> <span class="attr">info-template</span>=<span class="val">"{start}-{end} of {total}"</span>
+  <span class="attr">show-page-size</span><span class="tag">&gt;</span>
+<span class="tag">&lt;/z-pagination&gt;</span>
+
+<span class="comment">// pageSizes 为 property（默认 [10,20,50,100]），可覆盖</span>
+<span class="txt">pag</span><span class="tag">.</span><span class="txt">pageSizes</span> = [<span class="val">5</span>, <span class="val">10</span>, <span class="val">25</span>]</code></pre>
+        </div>
+      </div>
+    </section>
+
+
+    <h2 class="ex-family" id="ex-feedback">反馈<span>8</span></h2>
+
+    <!-- ← overlays.html#modal -->
+<section id="modal" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="modal.title">Modal</h2>
+        <p data-i18n="modal.desc">Dialog modal with overlay, FocusTrap, Escape/overlay-click to close. 4 sizes, composable header/body/footer slots.</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live">
+          <z-button id="open-modal">Open Modal</z-button>
+          <span id="modal-value" style="font-size:12px;color:var(--z-color-text-secondary)"></span>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-modal</span> <span class="attr">id</span>=<span class="val">"demo-modal"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;h3</span> <span class="attr">slot</span>=<span class="val">"header"</span><span class="tag">&gt;</span><span class="txt">Confirm Action</span><span class="tag">&lt;/h3&gt;</span>
+  <span class="tag">&lt;p&gt;</span><span class="txt">Are you sure?</span><span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">slot</span>=<span class="val">"footer"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;z-button</span> <span class="attr">variant</span>=<span class="val">"outline"</span><span class="tag">&gt;</span><span class="txt">Cancel</span><span class="tag">&lt;/z-button&gt;</span>
+    <span class="tag">&lt;z-button</span> <span class="attr">variant</span>=<span class="val">"primary"</span><span class="tag">&gt;</span><span class="txt">Confirm</span><span class="tag">&lt;/z-button&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/z-modal&gt;</span></code></pre>
+        </div>
+      </div>
+
+      <z-modal id="demo-modal">
+        <h3 slot="header">Confirm Action</h3>
+        <p>Are you sure you want to proceed? This action cannot be undone.</p>
+        <div slot="footer">
+          <z-button id="modal-cancel" appearance="outline">Cancel</z-button>
+          <z-button id="modal-confirm">Confirm</z-button>
+        </div>
+      </z-modal>
+    </section>
+
+    <!-- ← overlays.html#tooltip -->
+<section id="tooltip" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="tooltip.title">Tooltip</h2>
+        <p data-i18n="tooltip.desc">Hover/focus-triggered floating tooltip. Configurable placement and delay. Uses FloatingPosition primitive.</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live">
+          <z-tooltip content="This is a helpful tip" placement="top">
+            <z-button appearance="outline" size="sm">Hover (top)</z-button>
+          </z-tooltip>
+          <z-tooltip content="Tooltip on the right" placement="right">
+            <z-button appearance="outline" size="sm">Hover (right)</z-button>
+          </z-tooltip>
+          <z-tooltip content="Tooltip below" placement="bottom">
+            <z-button appearance="outline" size="sm">Hover (bottom)</z-button>
+          </z-tooltip>
+          <z-tooltip content="Longer tooltip text that demonstrates max-width wrapping" placement="top">
+            <z-button appearance="outline" size="sm">Long content</z-button>
+          </z-tooltip>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-tooltip</span> <span class="attr">content</span>=<span class="val">"Helpful tip"</span> <span class="attr">placement</span>=<span class="val">"top"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-button&gt;</span><span class="txt">Hover me</span><span class="tag">&lt;/z-button&gt;</span>
+<span class="tag">&lt;/z-tooltip&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← overlays.html#popover -->
+<section id="popover" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="popover.title">Popover</h2>
+        <p data-i18n="popover.desc">Interactive floating card triggered by click or hover. Uses FloatingPosition + document click-outside detection.</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__live">
+          <z-popover id="popover-click-demo">
+            <z-button slot="trigger" appearance="outline" size="sm">Click Popover</z-button>
+            <div style="min-width:200px">
+              <p style="margin:0 0 8px;font-weight:500">Popover Title</p>
+              <p style="margin:0;font-size:13px;color:var(--z-color-text-secondary)">Interactive popover content. Click outside to close.</p>
+            </div>
+          </z-popover>
+          <z-popover trigger="hover" placement="top">
+            <z-button slot="trigger" appearance="outline" size="sm">Hover Popover</z-button>
+            <div style="max-width:200px;font-size:13px;">
+              Hover over the trigger to show this popover. Moving away hides it.
+            </div>
+          </z-popover>
+          <span id="popover-value" style="font-size:12px;color:var(--z-color-text-secondary)"></span>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-popover&gt;</span>
+  <span class="tag">&lt;z-button</span> <span class="attr">slot</span>=<span class="val">"trigger"</span><span class="tag">&gt;</span><span class="txt">Click</span><span class="tag">&lt;/z-button&gt;</span>
+  <span class="tag">&lt;div&gt;</span><span class="txt">Content</span><span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/z-popover&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← feedback.html#toast -->
+<section id="toast" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="toast.title">Toast</h2>
+        <p data-i18n="toast.desc">Imperative notification system. Call ZToast.show() from anywhere. 4 types, auto-dismiss, hover-to-pause.</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live">
+          <z-button id="toast-success" size="sm">Success</z-button>
+          <z-button id="toast-error" tone="danger" size="sm">Error</z-button>
+          <z-button id="toast-warning" appearance="outline" size="sm">Warning</z-button>
+          <z-button id="toast-info" appearance="outline" size="sm">Info</z-button>
+          <z-button id="toast-dismiss-all" appearance="ghost" size="sm" data-i18n="toast.dismissAll">Dismiss All</z-button>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="cmt">// Import the static API</span>
+<span class="tag">import</span> { ZToast } <span class="tag">from</span> <span class="val">'z-agent-ui/components/toast'</span>;
+
+<span class="cmt">// Convenience methods</span>
+ZToast.<span class="attr">success</span>(<span class="val">'Saved!'</span>);
+ZToast.<span class="attr">error</span>(<span class="val">'Failed!'</span>, 5000);
+ZToast.<span class="attr">warning</span>(<span class="val">'Careful!'</span>);
+ZToast.<span class="attr">info</span>(<span class="val">'New version available'</span>);
+
+<span class="cmt">// Full options</span>
+ZToast.<span class="attr">show</span>({
+  message: <span class="val">'Custom toast'</span>,
+  type: <span class="val">'success'</span>,
+  duration: 3000,
+  placement: <span class="val">'top-right'</span>,
+});
+ZToast.<span class="attr">dismissAll</span>();</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← feedback.html#alert -->
+<section id="alert" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="alert.title">Alert</h2>
+        <p data-i18n="alert.desc">Contextual banner for info, success, warning, and error messages. Optional title, close button, and custom icon slot.</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block" style="max-width:500px;">
+          <z-alert tone="info" title="Information" closable id="alert-info-demo">
+            This is an info alert with a title and close button.
+          </z-alert>
+          <z-alert tone="success" style="margin-top:8px">
+            Operation completed successfully.
+          </z-alert>
+          <z-alert tone="warning" title="Warning" style="margin-top:8px">
+            This action may have unintended side effects.
+          </z-alert>
+          <z-alert tone="error" closable id="alert-error-demo" style="margin-top:8px">
+            Something went wrong. Please try again.
+          </z-alert>
+          <span id="alert-close-value" style="font-size:12px;color:var(--z-color-text-secondary);margin-top:4px;display:inline-block;"></span>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-alert</span> <span class="attr">variant</span>=<span class="val">"info"</span> <span class="attr">title</span>=<span class="val">"Title"</span> <span class="attr">closable</span><span class="tag">&gt;</span>
+  <span class="txt">Message text</span>
+<span class="tag">&lt;/z-alert&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← feedback.html#spinner -->
+<section id="spinner" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="spinner.title">Spinner</h2>
+        <p data-i18n="spinner.desc">Loading indicator with three animation variants (border, grow, dots) and three sizes.</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__live">
+          <z-spinner size="sm"></z-spinner>
+          <z-spinner size="md"></z-spinner>
+          <z-spinner size="lg"></z-spinner>
+          <z-divider orientation="vertical"></z-divider>
+          <z-spinner shape="grow" size="md"></z-spinner>
+          <z-spinner shape="dots" size="md"></z-spinner>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-spinner</span> <span class="attr">size</span>=<span class="val">"md"</span><span class="tag">&gt;&lt;/z-spinner&gt;</span>
+<span class="tag">&lt;z-spinner</span> <span class="attr">variant</span>=<span class="val">"grow"</span><span class="tag">&gt;&lt;/z-spinner&gt;</span>
+<span class="tag">&lt;z-spinner</span> <span class="attr">variant</span>=<span class="val">"dots"</span><span class="tag">&gt;&lt;/z-spinner&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← feedback.html#skeleton -->
+<section id="skeleton" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="skeleton.title">Skeleton</h2>
+        <p data-i18n="skeleton.desc">Loading placeholder with text, circle, and rectangle variants. Optional shimmer animation.</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block" style="max-width:400px;">
+          <z-skeleton shape="text" style="margin-bottom:8px"></z-skeleton>
+          <z-skeleton shape="text" width="60%" style="margin-bottom:16px"></z-skeleton>
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;">
+            <z-skeleton shape="circle" width="48px"></z-skeleton>
+            <div style="flex:1">
+              <z-skeleton shape="text" style="margin-bottom:8px"></z-skeleton>
+              <z-skeleton shape="text" width="40%"></z-skeleton>
+            </div>
+          </div>
+          <z-skeleton shape="rect" height="120px"></z-skeleton>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-skeleton</span> <span class="attr">variant</span>=<span class="val">"text"</span><span class="tag">&gt;&lt;/z-skeleton&gt;</span>
+<span class="tag">&lt;z-skeleton</span> <span class="attr">variant</span>=<span class="val">"circle"</span> <span class="attr">width</span>=<span class="val">"48px"</span><span class="tag">&gt;&lt;/z-skeleton&gt;</span>
+<span class="tag">&lt;z-skeleton</span> <span class="attr">variant</span>=<span class="val">"rect"</span> <span class="attr">height</span>=<span class="val">"120px"</span><span class="tag">&gt;&lt;/z-skeleton&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ← feedback.html#progress -->
+<section id="progress" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="progress.title">Progress</h2>
+        <p data-i18n="progress.desc">Progress bar with 4 color variants, 2 sizes, striped/animated modes, and optional percentage label.</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block" style="max-width:400px;">
+          <z-progress value="60" id="progress-demo"></z-progress>
+          <z-progress value="30" tone="success" style="margin-top:12px"></z-progress>
+          <z-progress value="75" tone="warning" striped style="margin-top:12px"></z-progress>
+          <z-progress value="90" tone="danger" showLabel style="margin-top:12px"></z-progress>
+          <z-progress value="45" size="sm" striped animated style="margin-top:12px"></z-progress>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button id="progress-simulate" appearance="ghost" size="sm">Simulate</z-button>
+          <span style="flex:1"></span>
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-progress</span> <span class="attr">value</span>=<span class="val">"60"</span><span class="tag">&gt;&lt;/z-progress&gt;</span>
+<span class="tag">&lt;z-progress</span> <span class="attr">value</span>=<span class="val">"45"</span> <span class="attr">striped</span> <span class="attr">animated</span><span class="tag">&gt;&lt;/z-progress&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="popconfirm" class="demo-section">
+      <div class="demo-section__header">
+        <h2>Popconfirm</h2>
+        <p>气泡确认：删一行不该弹 modal。modal 会把「删一行」抬成「一次页面级决策」，而用户此刻只想确认自己没点错。<code>tone="danger"</code> 让确认按钮变红，<code>placement</code> 与 Popover 同一套取值。</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <z-popconfirm title="删除这条记录？" description="删除后不可恢复，关联的 3 条明细会一起移除。"
+                          tone="danger" confirm-text="删除" cancel-text="取消">
+              <z-button tone="danger" size="sm">删除（危险）</z-button>
+            </z-popconfirm>
+            <z-popconfirm title="确认提交？" description="提交后将进入审核，不能再改。"
+                          confirm-text="提交">
+              <z-button size="sm">提交（主要）</z-button>
+            </z-popconfirm>
+            <z-popconfirm title="上方弹出" description="placement=top：空间不够时会自动翻转。"
+                          placement="top" confirm-text="好">
+              <z-button appearance="ghost" size="sm">placement=top</z-button>
+            </z-popconfirm>
+          </div>
+          <p id="pc-log" style="font-size:12px;color:var(--z-color-text-secondary);margin:10px 0 0"></p>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code>&lt;<span class="tag">z-popconfirm</span>
+  <span class="attr">title</span>=<span class="val">"删除这条记录？"</span>
+  <span class="attr">description</span>=<span class="val">"删除后不可恢复。"</span>
+  <span class="attr">tone</span>=<span class="val">"danger"</span>
+  <span class="attr">confirm-text</span>=<span class="val">"删除"</span>
+  <span class="attr">cancel-text</span>=<span class="val">"取消"</span>
+&gt;
+  &lt;<span class="tag">z-button</span> <span class="attr">variant</span>=<span class="val">"danger"</span>&gt;删除&lt;/<span class="tag">z-button</span>&gt;
+&lt;/<span class="tag">z-popconfirm</span>&gt;</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <h2 class="ex-family" id="ex-mobile">移动端<span>20</span></h2>
+    <p class="ex-note" style="margin:-4px 0 12px">移动端控件（<code>m-</code> 前缀）：触控目标 44px、安全区、固定底栏。</p>
+
+    <section class="demo-section" id="mobile-list">
+      <div class="demo-section__header">
+        <h2 id="mobile-count">移动端控件</h2>
+        <p>移动端控件（<code>m-</code> 前缀）：同样属于 L1，只是按 H5 版面语言组织。</p>
+      </div>
+      <div class="card-grid" id="domain-cards"></div>
+    </section>
+    <section id="mobile-kit" class="demo-section">
+      <div class="demo-section__header">
+        <h2>要在手机壳里点着看？去 H5 页</h2>
+        <p>这 23 个控件的连排演示（5 个手机场景、可切换单件、带事件日志）放在
+        <a href="./h5.html#browser"><b>移动端 H5 · 逐个组件</b></a> ——
+        那里是它们的主场，本页只做家族索引，免得同一份标记维护两处。</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+</body>
+</html>

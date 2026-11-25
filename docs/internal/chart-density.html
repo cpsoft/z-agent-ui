@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>图表密度压力测试 — zAgentUI</title>
+  <!--
+    那一页每种图只有 3-8 个点，展示的是「画得出来」。这一页只有一件事：
+    把真实规模（534 家店）灌进去，量化「还能不能看」。两者的判据完全不同 ——
+    前者看形状对不对，后者看像素够不够。
+
+    每张卡片下方那行数字是脚本实测写回的，不是手写的期望值。
+  -->
+  <script>
+    if (new URLSearchParams(location.search).get("theme") === "dark") {
+      document.documentElement.dataset.theme = "dark";
+    }
+  </script>
+  <style>
+    :root, [data-theme="light"] {
+      --z-color-bg: #ffffff;
+      --z-color-surface: #ffffff;
+      --z-color-text: #0f172a;
+      --z-color-text-secondary: #64748b;
+      --z-color-border: #e2e8f0;
+      --z-chart-focus-ring-color: #2563eb;
+    }
+    [data-theme="dark"], .dark {
+      --z-color-bg: #0f172a;
+      --z-color-surface: #131d31;
+      --z-color-text: #f8fafc;
+      --z-color-text-secondary: #94a3b8;
+      --z-color-border: #24324a;
+      --z-chart-focus-ring-color: #60a5fa;
+    }
+    body {
+      margin: 0; padding: 24px 28px 64px;
+      background: var(--z-color-bg); color: var(--z-color-text);
+      font-family: system-ui, "PingFang SC", sans-serif;
+    }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    .lead { color: var(--z-color-text-secondary); font-size: 13px; margin: 0 0 20px; line-height: 1.7; max-width: 900px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); gap: 18px; max-width: 1200px; }
+    .card {
+      border: 1px solid var(--z-color-border); border-radius: 10px;
+      padding: 14px 14px 10px; background: var(--z-color-surface);
+    }
+    .card h2 { margin: 0 0 2px; font-size: 14px; font-weight: 600; }
+    .card code { font-size: 11px; color: var(--z-color-text-secondary); }
+    .m {
+      margin: 8px 0 0; font-size: 11px; line-height: 1.65;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: var(--z-color-text-secondary); white-space: pre-wrap;
+    }
+    .m b { color: var(--z-color-text); font-weight: 600; }
+    .bad b { color: #dc2626; }
+    .warn b { color: #d97706; }
+    .ok b { color: #059669; }
+  </style>
+  <script type="module" crossorigin src="/assets/internal/chart-density-uLZ1Ecwr.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/presets-CdaBrvJF.js">
+  <link rel="modulepreload" crossorigin href="/assets/copy-DoHMT7Ic.js">
+  <link rel="modulepreload" crossorigin href="/assets/Position-D6zl9ryN.js">
+  <link rel="modulepreload" crossorigin href="/assets/PointerDragSession-D3R9IvJB.js">
+  <link rel="modulepreload" crossorigin href="/assets/styleInjection-peqqYNO6.js">
+  <link rel="modulepreload" crossorigin href="/assets/ChartAxis-COcZWSWB.js">
+</head>
+<body>
+  <h1>图表密度压力测试</h1>
+  <p class="lead">
+    每张卡下方的数字是渲染后从 shadow DOM 实测读回来的，不是手写期望值。
+    判据：<b>单根柱 &lt; 2px</b> 基本看不成柱、<b>&lt; 1px</b> 已在亚像素边缘；
+    tooltip 命中区小于 4px 时指针无法可靠选中。
+  </p>
+
+  <div class="grid">
+    <!-- 1. 横向柱 534 店：真实门店数 -->
+    <section class="card">
+      <h2>横向柱 · 534 店（真实规模）</h2>
+      <code>type=bar direction=horizontal</code>
+      <z-chart id="c-h534" type="bar" direction="horizontal" width="540" height="320">
+        <z-chart-series id="s-h534" name="营业额"></z-chart-series>
+      </z-chart>
+      <p class="m" id="m-h534">测量中…</p>
+    </section>
+
+    <!-- 2. 横向柱 30 店：找出可用上限 -->
+    <section class="card">
+      <h2>横向柱 · 30 店</h2>
+      <code>type=bar direction=horizontal</code>
+      <z-chart id="c-h30" type="bar" direction="horizontal" width="540" height="320">
+        <z-chart-series id="s-h30" name="营业额"></z-chart-series>
+      </z-chart>
+      <p class="m" id="m-h30">测量中…</p>
+    </section>
+
+    <!-- 3. 纵向柱 534 根：竖向对照，柱宽也是亚像素 -->
+    <section class="card">
+      <h2>纵向柱 · 534 根</h2>
+      <code>type=bar（竖向对照）</code>
+      <z-chart id="c-v534" type="bar" width="540" height="320">
+        <z-chart-series id="s-v534" name="营业额"></z-chart-series>
+      </z-chart>
+      <p class="m" id="m-v534">测量中…</p>
+    </section>
+
+    <!-- 4. 折线 365 天 -->
+    <section class="card">
+      <h2>折线 · 365 天</h2>
+      <code>type=line（一年日趋势）</code>
+      <z-chart id="c-l365" type="line" width="540" height="320">
+        <z-chart-series id="s-l365" name="营业额"></z-chart-series>
+      </z-chart>
+      <p class="m" id="m-l365">测量中…</p>
+    </section>
+
+    <!-- 5. 热力 3 指标 × 24 时段：当前能力上限（行=系列） -->
+    <section class="card">
+      <h2>热力 · 3 指标 × 24 时段</h2>
+      <code>type=heatmap（行=系列，当前唯一形态）</code>
+      <z-chart id="c-hm3" type="heatmap" width="540" height="320">
+        <z-chart-series id="s-hm3a" name="上午单量"></z-chart-series>
+        <z-chart-series id="s-hm3b" name="下午单量"></z-chart-series>
+        <z-chart-series id="s-hm3c" name="晚间单量"></z-chart-series>
+      </z-chart>
+      <p class="m" id="m-hm3">测量中…</p>
+    </section>
+
+    <!-- 6. 热力 30 系列：看行数上限在哪 -->
+    <section class="card">
+      <h2>热力 · 30 系列 × 24 时段</h2>
+      <code>type=heatmap（模拟「门店 × 时段」的一种凑法）</code>
+      <z-chart id="c-hm30" type="heatmap" width="540" height="320">
+        <z-chart-series id="s-hm30" name="系列"></z-chart-series>
+      </z-chart>
+      <p class="m" id="m-hm30">测量中…</p>
+    </section>
+  </div>
+
+</body>
+</html>

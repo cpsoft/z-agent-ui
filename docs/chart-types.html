@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>图表类型全集 — zAgentUI</title>
+  <!-- 主题必须在解析 body 之前定下来：z-chart 在 connectedCallback 时读一次 CSS 变量，
+       之后再改 data-theme 不会自动重绘（宿主切主题需自己触发重渲染）。
+       加 ?theme=dark 可直接验深色下的可读性。 -->
+  <script>
+    if (new URLSearchParams(location.search).get("theme") === "dark") {
+      document.documentElement.dataset.theme = "dark";
+    }
+  </script>
+  <style>
+    /* z-chart 从 CSS 变量读配色（见 Chart.ts 的 resolveTheme）。本页自带两套 ——
+       vite dev 对 /src 下的 .css 直接请求会走
+       SPA fallback 返回 index.html，浏览器把它当 CSS 解析失败，变量全部为空
+       （现象：getComputedStyle 读 --z-color-bg 得空串，图表恒用浅色默认值）。
+       自包含也顺带让这页能当独立样例复制走。 */
+    :root, [data-theme="light"] {
+      --z-color-bg: #ffffff;
+      --z-color-surface: #ffffff;
+      --z-color-text: #0f172a;
+      --z-color-text-secondary: #64748b;
+      --z-color-border: #e2e8f0;
+      /* 焦点框与框选选区都用它。不补的话拖出来的框是全透明的（声明被丢弃）。 */
+      --z-chart-focus-ring-color: #2563eb;
+    }
+    [data-theme="dark"], .dark {
+      --z-color-bg: #0f172a;
+      --z-color-surface: #131d31;
+      --z-color-text: #f8fafc;
+      --z-color-text-secondary: #94a3b8;
+      --z-color-border: #24324a;
+      --z-chart-focus-ring-color: #60a5fa;
+    }
+
+    /* 本页只服务「新图表类型」这一件事，不复用 shell 侧栏 */
+    body { margin: 0; padding: 28px 32px 64px; background: var(--z-color-bg, #fff); color: var(--z-color-text, #0f172a); }
+    .ct-head { max-width: 1180px; margin: 0 auto 24px; }
+    /* 标题显式取 token：demo.css 给 h1/h2 设了硬编码深色，深色主题下会压成看不见 */
+    .ct-head h1 { margin: 0 0 8px; font-size: 26px; color: var(--z-color-text, #0f172a); }
+    .ct-head p { margin: 0; color: var(--z-color-text-secondary, #64748b); font-size: 14px; line-height: 1.7; }
+    .ct-grid { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); gap: 20px; }
+    .ct-card { border: 1px solid var(--z-color-border, #e2e8f0); border-radius: 12px; padding: 16px 16px 8px; background: var(--z-color-surface, #fff); }
+    .ct-card h2 { margin: 0 0 2px; font-size: 15px; font-weight: 600; color: var(--z-color-text, #0f172a); }
+    .ct-card code { font-size: 12px; color: var(--z-color-text-secondary, #64748b); }
+    .ct-card z-chart { display: block; }
+  </style>
+  <script type="module" crossorigin src="/assets/chart-types-2Z5s7Wnu.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/presets-CdaBrvJF.js">
+  <link rel="modulepreload" crossorigin href="/assets/copy-DoHMT7Ic.js">
+  <link rel="modulepreload" crossorigin href="/assets/Position-D6zl9ryN.js">
+  <link rel="modulepreload" crossorigin href="/assets/PointerDragSession-D3R9IvJB.js">
+  <link rel="modulepreload" crossorigin href="/assets/styleInjection-peqqYNO6.js">
+  <link rel="modulepreload" crossorigin href="/assets/ChartAxis-COcZWSWB.js">
+  <link rel="stylesheet" crossorigin href="/assets/demo-BAF_qh2v.css">
+  <link rel="stylesheet" crossorigin href="/assets/charts-k6LKELNv.css">
+</head>
+<body>
+
+<div class="ct-head">
+  <h1>图表类型全集</h1>
+  <p>本轮新增 8 项：横向柱图（<code>direction=horizontal</code>）、漏斗、热力、散点、仪表盘、矩形树、桑基、箱线。
+     数据全部是茶饮连锁门店场景。改 <code>data-theme</code> 可验深色主题下的可读性。</p>
+</div>
+
+<div class="ct-grid">
+
+  <!-- 1. 横向柱：Top-N 排行 -->
+  <section class="ct-card">
+    <h2>横向柱图 · 门店营业额排行</h2>
+    <code>type=bar direction=horizontal labels markline=6000</code>
+    <z-chart id="c-hbar" type="bar" direction="horizontal" labels markline="6000" markline-label="日均目标" width="540" height="320">
+      <z-chart-series id="s-hbar" name="营业额"></z-chart-series>
+    </z-chart>
+  </section>
+
+  <!-- 2. 横向堆积 -->
+  <section class="ct-card">
+    <h2>横向堆积 · 堂食 / 外卖构成</h2>
+    <code>type=bar direction=horizontal stack=stacked</code>
+    <z-chart id="c-hstack" type="bar" direction="horizontal" stack="stacked" width="540" height="320">
+      <z-chart-series id="s-hs-dine" name="堂食"></z-chart-series>
+      <z-chart-series id="s-hs-deliver" name="外卖"></z-chart-series>
+    </z-chart>
+  </section>
+
+  <!-- 3. 漏斗 -->
+  <section class="ct-card">
+    <h2>漏斗 · 预购转化</h2>
+    <code>type=funnel</code>
+    <z-chart id="c-funnel" type="funnel" width="540" height="320">
+      <z-chart-series id="s-funnel" name="转化" format="int"></z-chart-series>
+    </z-chart>
+  </section>
+
+  <!-- 4. 热力 -->
+  <section class="ct-card">
+    <h2>热力 · 门店 × 星期出杯量</h2>
+    <code>type=heatmap labels（行=系列名，列=label）</code>
+    <z-chart id="c-heat" type="heatmap" labels heatmap-clamp="100,600" width="540" height="320">
+      <z-chart-series id="s-heat-a" name="湖滨店"></z-chart-series>
+      <z-chart-series id="s-heat-b" name="武林店"></z-chart-series>
+      <z-chart-series id="s-heat-c" name="滨江店"></z-chart-series>
+      <z-chart-series id="s-heat-d" name="城西店"></z-chart-series>
+    </z-chart>
+  </section>
+
+  <!-- 5. 散点 -->
+  <section class="ct-card">
+    <h2>散点 · 客单价 vs 周消费频次</h2>
+    <code>type=scatter（series 数据用 {x, value}）</code>
+    <z-chart id="c-scatter" type="scatter" width="540" height="320">
+      <z-chart-axis position="bottom" type="value" title="客单价"></z-chart-axis>
+      <z-chart-axis position="left" type="value" title="周频次"></z-chart-axis>
+      <z-chart-series id="s-scatter" name="会员"></z-chart-series>
+    </z-chart>
+  </section>
+
+  <!-- 6. 仪表盘 -->
+  <section class="ct-card">
+    <h2>仪表盘 · 月度目标达成率</h2>
+    <code>type=gauge + axis min=0 max=120</code>
+    <z-chart id="c-gauge" type="gauge" width="540" height="320">
+      <z-chart-axis position="left" type="value" min="0" max="120" format="int"></z-chart-axis>
+      <z-chart-series id="s-gauge" name="达成率"></z-chart-series>
+    </z-chart>
+  </section>
+
+  <!-- 7. 矩形树 -->
+  <section class="ct-card">
+    <h2>矩形树 · 品类销售结构</h2>
+    <code>type=treemap</code>
+    <z-chart id="c-treemap" type="treemap" width="540" height="320">
+      <z-chart-series id="s-treemap" name="销售额" format="currency"></z-chart-series>
+    </z-chart>
+  </section>
+
+  <!-- 8. 桑基 -->
+  <section class="ct-card">
+    <h2>桑基 · 渠道流转</h2>
+    <code>type=sankey（label 写「来源→去向」）</code>
+    <z-chart id="c-sankey" type="sankey" width="540" height="320">
+      <z-chart-series id="s-sankey" name="订单" format="int"></z-chart-series>
+    </z-chart>
+  </section>
+
+  <!-- 9. 箱线 -->
+  <section class="ct-card">
+    <h2>箱线 · 订单金额分布</h2>
+    <code>type=boxplot（5 个系列 = 最小/Q1/中位/Q3/最大）</code>
+    <z-chart id="c-box" type="boxplot" width="540" height="320">
+      <z-chart-series id="s-box-min" name="最小"></z-chart-series>
+      <z-chart-series id="s-box-q1" name="Q1"></z-chart-series>
+      <z-chart-series id="s-box-med" name="中位"></z-chart-series>
+      <z-chart-series id="s-box-q3" name="Q3"></z-chart-series>
+      <z-chart-series id="s-box-max" name="最大"></z-chart-series>
+    </z-chart>
+  </section>
+
+  <!-- 10. 折线 + 缩放条 -->
+  <section class="ct-card">
+    <h2>折线 + 缩放 · 30 天营业额</h2>
+    <code>type=line zoomable zoom="0.4,0.8"（拖手柄，或聚焦后按方向键）</code>
+    <z-chart id="c-zoom" type="line" zoomable zoom="0.4,0.8" width="540" height="320">
+      <z-chart-series id="s-zoom" name="营业额"></z-chart-series>
+    </z-chart>
+  </section>
+
+  <!-- 11. 数值轴缩放（2026-11-17）：分类轴切的是「点」，数值轴切的是「值」 -->
+  <section class="ct-card">
+    <h2>数值轴缩放 · 客单价 × 订单量</h2>
+    <code>type=scatter zoomable zoom="0,0.55"（x 是数值轴：收窄值域，不是切片）</code>
+    <z-chart id="c-zoomx" type="scatter" zoomable zoom="0,0.55" width="540" height="320">
+      <z-chart-axis position="bottom" type="value"></z-chart-axis>
+      <z-chart-axis position="left" type="value"></z-chart-axis>
+      <z-chart-series id="s-zoomx" name="订单"></z-chart-series>
+    </z-chart>
+  </section>
+
+  <!-- 13. 对数轴（2026-11-17）：跨数量级的数据放在同一张图里 -->
+  <section class="ct-card">
+    <h2>对数轴 · 跨 3 个数量级的营业额</h2>
+    <code>左轴 scale=log（每个数量级占同样高度；0 与负数无位置，不画）</code>
+    <z-chart id="c-log" type="bar" width="540" height="320">
+      <z-chart-axis position="bottom" type="category"></z-chart-axis>
+      <z-chart-axis position="left" type="value" scale="log"></z-chart-axis>
+      <z-chart-series id="s-log" name="营业额"></z-chart-series>
+    </z-chart>
+    <p style="font-size:12px;opacity:.72;margin:6px 0 0">1,200 → 320,000：线性轴上后面几根会把前面压成贴底的一条线</p>
+  </section>
+
+  <!-- 12. 框选（2026-11-17）：拖出矩形选一段，上报 z-brush -->
+  <section class="ct-card">
+    <h2>框选 · 拖出矩形选一段</h2>
+    <code>brushable（松开上报 z-brush；拖 4px 以内仍算点击，不产生选区）</code>
+    <z-chart id="c-brush" type="bar" brushable width="540" height="320">
+      <z-chart-series id="s-brush" name="营业额"></z-chart-series>
+    </z-chart>
+    <!-- 上报结果打在这里：框选的价值在「选中了哪几个」，不在那圈半透明框 -->
+    <p id="brush-log" style="font-size:12px;opacity:.72;margin:6px 0 0">拖一下试试</p>
+  </section>
+
+</div>
+
+</body>
+</html>

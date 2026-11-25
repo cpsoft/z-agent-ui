@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>密度与尺寸 — zAgentUI</title>
+  <script type="module" crossorigin src="/assets/density-DZV14YnE.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/presets-CdaBrvJF.js">
+  <link rel="modulepreload" crossorigin href="/assets/a11y-DJ6wHu5s.js">
+  <link rel="modulepreload" crossorigin href="/assets/Button-6M0Me5pu.js">
+  <link rel="modulepreload" crossorigin href="/assets/shell-DwQ7nMfw.js">
+  <link rel="stylesheet" crossorigin href="/assets/a11y-D1tjoguM.css">
+  <link rel="stylesheet" crossorigin href="/assets/demo-BAF_qh2v.css">
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+
+  <!-- Sidebar：由 shell.ts 从 nav.ts 渲染（单一数据源） -->
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <main class="demo-main">
+
+    <section class="demo-hero">
+      <h1>密度与尺寸</h1>
+      <p>两个旋钮，名字容易被混成一件事：<b>密度改令牌，size 改对令牌的引用</b>。
+      所以局部永远赢，而密度仍是那一档的基线 —— compact 下放一个 <code>size="lg"</code> 的输入框，
+      它会是 32px 而不是 36px。</p>
+    </section>
+
+    <section class="demo-section">
+      <div class="demo-section__header">
+        <h2>谁改什么</h2>
+        <p>两个旋钮管的事不一样：<b>密度是全局的，size 是单组件的</b>。两者同时生效时，size 决定这一个控件的高度。</p>
+      </div>
+      <table class="demo-props">
+        <thead><tr><th style="width:120px">旋钮</th><th style="width:190px">作用域</th><th>做法</th></tr></thead>
+        <tbody>
+          <tr><td><b>密度</b></td><td>全局（<code>&lt;html data-density&gt;</code>）</td><td>覆盖 <code>--z-control-h-*</code> 一整组令牌，页面上所有控件一起变紧或变松</td></tr>
+          <tr><td><b>size</b></td><td>单组件（<code>size="xs|sm|md|lg"</code>）</td><td>只改控件外壳高度，映射到上面那组令牌里的某一个 —— 不写死像素</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="demo-section">
+      <div class="demo-section__header">
+        <h2>三档密度 × 四档 size</h2>
+        <p>取值来自 <code>src/theme/tokens.css</code>。空着的格子不是遗漏：那几档没有 <code>size</code> 语义（见下）。</p>
+      </div>
+      <table class="demo-props" id="density-matrix">
+        <thead><tr><th style="width:120px">密度</th><th>xs</th><th>sm</th><th>md</th><th>lg</th></tr></thead>
+        <tbody>
+          <tr><td colspan="5" style="color:var(--z-color-text-secondary)">正在量…</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:13px;color:var(--z-color-text-secondary);margin-top:8px">
+        单位 px，<b>现算</b>：逐档切 <code>&lt;html data-density&gt;</code>，挂一个真的
+        <code>&lt;z-input&gt;</code> 上去量 <code>offsetHeight</code>。
+        手抄的表格迟早和令牌对不上，而那种偏差没有任何东西会报错 —— 所以这里不抄。</p>
+      <div id="density-probe" class="ex-probe" aria-hidden="true"></div>
+    </section>
+
+    <section class="demo-section">
+      <div class="demo-section__header">
+        <h2>哪些控件有 size</h2>
+        <p>自己有外壳的控件（画边框 / 背景 / 内边距）才有四档高度；其余控件的尺寸由内容或使用场景决定。</p>
+      </div>
+      <table class="demo-props">
+        <thead><tr><th style="width:190px">类别</th><th>组件</th><th style="width:34%">说明</th></tr></thead>
+        <tbody>
+          <tr><td>有外壳 → 四档高度</td><td><code>z-input</code> <code>z-select</code> <code>z-number-input</code> <code>z-pagination</code></td><td>控件盒高由自己决定，size 就是盒高</td></tr>
+          <tr><td>无外壳 → size 指图形</td><td><code>z-checkbox</code> <code>z-radio</code> <code>z-slider</code> <code>z-rate</code></td><td>它们改的是方框/轨道/星标尺寸，与「盒子 32px」不是一回事</td></tr>
+          <tr><td>高度由内容决定</td><td><code>z-textarea</code></td><td>高度是 rows / autosize 的事</td></tr>
+          <tr><td>外壳来自内在控件</td><td><code>z-datepicker</code> <code>z-time-picker</code> <code>z-date-range</code></td><td>触发框由消费方塞进去的 <code>z-input</code> 决定</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+</body>
+</html>

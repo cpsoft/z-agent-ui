@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>L0 地基 — zAgentUI</title>
+  <script type="module" crossorigin src="/assets/foundation-B8Z8l1Mb.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/presets-CdaBrvJF.js">
+  <link rel="modulepreload" crossorigin href="/assets/a11y-DJ6wHu5s.js">
+  <link rel="modulepreload" crossorigin href="/assets/Button-6M0Me5pu.js">
+  <link rel="modulepreload" crossorigin href="/assets/shell-DwQ7nMfw.js">
+  <link rel="modulepreload" crossorigin href="/assets/cards-DUJc2ay8.js">
+  <link rel="stylesheet" crossorigin href="/assets/a11y-D1tjoguM.css">
+  <link rel="stylesheet" crossorigin href="/assets/demo-BAF_qh2v.css">
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+
+  <!-- Sidebar：由 shell.ts 从 nav.ts 渲染（单一数据源） -->
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <main class="demo-main">
+
+    <section class="demo-hero">
+      <h1>L0 地基</h1>
+      <p>模板、转义、令牌桥、浮层定位、焦点陷阱。这一层<b>不含任何控件外观</b> ——
+      它存在的理由是让上面三层说同一种语言：一套属性声明、一套 HTML 构造、一套浮层与焦点管理、一套色值。</p>
+    </section>
+
+    <section class="demo-section">
+      <div class="demo-section__header">
+        <h2>三个目录</h2>
+        <p>层与 <code>src</code> 一级目录 1:1。看到目录名就知道它属于哪一层，不用查表。</p>
+      </div>
+      <table class="demo-props">
+        <thead><tr><th style="width:130px">目录</th><th style="width:150px">管什么</th><th>边界</th></tr></thead>
+        <tbody>
+          <tr><td><code>core</code></td><td>模板 / 转义 / 令牌桥 / 日期算术 / 尺寸语义</td><td>零 import —— 不引组件、不引 theme。纯函数与常量，谁都能用</td></tr>
+          <tr><td><code>primitives</code></td><td>浮层定位、焦点陷阱、元素引用</td><td>碰 DOM，但不知道「弹窗」是什么；只管「贴哪、谁能按 Tab」</td></tr>
+          <tr><td><code>theme</code></td><td>令牌、明暗、密度</td><td>只产出 CSS 变量，不含任何选择器知识</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="demo-section">
+      <div class="demo-section__header">
+        <h2>机制件</h2>
+        <p>这些组件不直接出现在页面上，而是被每个浮层用到：
+        <code>focus-trap</code> / <code>click-outside</code> 管「按 Tab 怎么走、点到外面关不关」；
+        <code>z-portal</code> 与 <code>z-position</code> 的输出看得见（节点搬出去、浮层贴上锚点），下面直接跑给你看。</p>
+      </div>
+      <div class="card-grid" id="l0-cards"></div>
+    </section>
+    <section id="l0-live" class="demo-section">
+      <div class="demo-section__header">
+        <h2>两个能看得见的机制件</h2>
+        <p>两个有画面的机制件：一个把节点搬到别处，一个让浮层贴住锚点。</p>
+      </div>
+
+      <h3 class="ex-sub">z-portal：把子节点搬到别处</h3>
+      <p class="ex-note">下面的方块在<b>源码里写在左边框内</b>，但它被 <code>&lt;z-portal target="#portal-target"&gt;</code>
+      搬到了右边框。所有浮层（modal / drawer / select 面板）都靠它跳出 <code>overflow:hidden</code>
+      与 <code>z-index</code> 层叠上下文。</p>
+      <div class="ex-portal">
+        <div class="ex-portal__src">
+          <div class="ex-portal__cap">源码里的位置</div>
+          <z-portal target="#portal-target">
+            <div class="ex-token">我在源码里属于左边，却显示在右边</div>
+          </z-portal>
+          <p class="ex-note" style="margin:6px 0 0">↑ 这里现在应该是空的 —— 节点被搬走了，位置留白。</p>
+        </div>
+        <div class="ex-portal__dst" id="portal-target">
+          <div class="ex-portal__cap">target 容器（DOM 里它在右框）</div>
+        </div>
+      </div>
+
+      <h3 class="ex-sub">z-position：给浮层算坐标</h3>
+      <p class="ex-note">它接受 <code>anchor</code>（选择器）与 <code>placement</code>，算出浮层该贴在哪。
+      点下面的按钮换边，看浮层跟过去、以及下方日志里的<b>实际间距</b>（贴边翻转时与配置值不同）。</p>
+      <div class="ex-pos">
+        <div class="ex-pos__row">
+          <z-button id="pos-anchor" size="sm">锚点按钮</z-button>
+          <z-button size="sm" appearance="ghost" data-placement="bottom-start">bottom-start</z-button>
+          <z-button size="sm" appearance="ghost" data-placement="top-start">top-start</z-button>
+          <z-button size="sm" appearance="ghost" data-placement="right-start">right-start</z-button>
+          <z-button size="sm" appearance="ghost" data-placement="left-end">left-end</z-button>
+        </div>
+        <p class="ex-note" id="pos-log">—</p>
+        <z-portal>
+          <z-position id="pos-demo" anchor="#pos-anchor" placement="bottom-start" offset="6">
+            <div class="ex-pos__panel">浮层：我贴着锚点按钮</div>
+          </z-position>
+        </z-portal>
+      </div>
+    </section>
+
+
+  </main>
+</div>
+
+</body>
+</html>

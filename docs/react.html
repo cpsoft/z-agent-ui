@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>在 React 里用 — zAgentUI</title>
+  <script type="module" crossorigin src="/assets/react-C5V5v9V4.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/presets-CdaBrvJF.js">
+  <link rel="modulepreload" crossorigin href="/assets/a11y-DJ6wHu5s.js">
+  <link rel="modulepreload" crossorigin href="/assets/Button-6M0Me5pu.js">
+  <link rel="modulepreload" crossorigin href="/assets/shell-DwQ7nMfw.js">
+  <link rel="modulepreload" crossorigin href="/assets/vocabulary-DLBU9tdh.js">
+  <link rel="modulepreload" crossorigin href="/assets/copy-DoHMT7Ic.js">
+  <link rel="modulepreload" crossorigin href="/assets/Tag-atLYLSZk.js">
+  <link rel="stylesheet" crossorigin href="/assets/a11y-D1tjoguM.css">
+  <link rel="stylesheet" crossorigin href="/assets/demo-BAF_qh2v.css">
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+
+  <!-- Sidebar：由 shell.ts 从 nav.ts 渲染（单一数据源） -->
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <main class="demo-main">
+
+    <section class="demo-hero">
+      <h1>在 React 里用</h1>
+      <p>库自带一层极薄的 React 包装：<code>src/react/index.ts</code> 里 <b id="wrap-count">—</b> 个
+      <code>createReactWrapper(tag)</code>。它只做三件事 —— 标签转 JSX、props 落到 attribute/property、
+      <code>z-click</code> 这类事件转成 <code>onZClick</code> 回调。</p>
+      <p><b>它不做第四件事：注册元素。</b>包装层只 <code>import { createReactWrapper }</code>，
+      一个组件都不引 —— 所以引了包装还得引组件入口，这条下面单独说。</p>
+    </section>
+
+    <section class="demo-section">
+      <div class="demo-section__header">
+        <h2>三行用起来</h2>
+        <p>样式与组件入口各引一次，然后当普通组件写。包装层的导出名是 <code>Z</code> + PascalCase + <code>React</code>。</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__code demo-preview__code--visible">
+<pre><code><span class="cmt">// ① 样式 + 组件入口（注册 z-button）② 包装层</span>
+<span class="tag">import</span> <span class="txt">"z-agent-ui/z-agent-ui.css"</span>;
+<span class="tag">import</span> <span class="txt">"z-agent-ui/components/button"</span>;
+<span class="tag">import</span> { ZButtonReact } <span class="tag">from</span> <span class="txt">"z-agent-ui/react"</span>;
+
+<span class="tag">export function</span> <span class="val">Save</span>() {
+  <span class="tag">return</span> (
+    <span class="tag">&lt;ZButtonReact</span> <span class="attr">variant</span>=<span class="val">"primary"</span> <span class="attr">onZClick</span>={() => save()}<span class="tag">&gt;</span>
+      <span class="txt">保存</span>
+    <span class="tag">&lt;/ZButtonReact&gt;</span>
+  );
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="live">
+      <div class="demo-section__header">
+        <h2>活的一个</h2>
+        <p>下面这块是真 React 渲染的（<code>react-dom/client</code> 挂到本页），点按钮能加计数 ——
+        说明 <code>onZClick</code> 这条映射在真实 React 里是通的，不是纸上示意。</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__live" id="react-demo">React 正在加载…</div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="naming">
+      <div class="demo-section__header">
+        <h2>命名规则</h2>
+        <p>规则只有一条：<code>tag 的每段首字母大写 + 前后缀</code>。<code>m-</code> 前缀变成 <code>M</code>，
+        中间的连字符变成下一个词的首字母。</p>
+      </div>
+      <table class="demo-props">
+        <thead><tr><th style="width:34%">元素</th><th style="width:34%">导出名</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>z-button</code></td><td><code>ZButtonReact</code></td><td>最常见形态</td></tr>
+          <tr><td><code>z-grid-col</code></td><td><code>ZGridColReact</code></td><td>多段连字符逐段大写</td></tr>
+          <tr><td><code>m-action-bar</code></td><td><code>ZMActionBarReact</code></td><td>移动端 <code>m-</code> 也有包装，前缀统一带 <code>Z</code></td></tr>
+          <tr><td><code>z-portal</code> / <code>z-position</code></td><td>—</td><td>L0 内部原语，不直接对外用，因此不提供包装</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="demo-section" id="props">
+      <div class="demo-section__header">
+        <h2>props 怎么落到元素上</h2>
+        <p>React 的属性名是 camelCase，自定义元素认的是 kebab attribute，中间这层由包装做。
+        四条规则按值的类型分，读一遍能避开全部常见坑。</p>
+      </div>
+      <table class="demo-props">
+        <thead><tr><th style="width:26%">React 里写</th><th style="width:30%">落到元素上</th><th>为什么</th></tr></thead>
+        <tbody>
+          <tr><td><code>buttonType="submit"</code></td><td><code>button-type="submit"</code></td><td>camelCase → kebab，逐个单词小写</td></tr>
+          <tr><td><code>loading={true}</code> / <code>{false}</code></td><td><code>loading</code> 空属性 / 移除</td><td>布尔 attribute 的存在即真；<b>写 <code>"false"</code> 在 HTML 里也是真</b>，所以 false 只能靠删除</td></tr>
+          <tr><td><code>items={[...]}</code> / <code>columns={[...]}</code></td><td>元素上的 <b>property</b></td><td>对象和数组传不进 attribute（会被 <code>String()</code> 变成 <code>[object Object]</code>），走 property 赋值</td></tr>
+          <tr><td><code>placeholder={undefined}</code></td><td>移除该 attribute</td><td>「显式置空」必须真的把旧值删掉，否则同位置复用实例时旧形态会残留</td></tr>
+        </tbody>
+      </table>
+      <p class="demo-note">第四条最容易忽略：React 按「同位置同类型」复用实例，元素不重建，
+      上一种形态的 <code>disabled</code> / <code>placeholder</code> 会留在元素上，且不报错 ——
+      表现为「界面没更新」。包装层会先清理「上次有、这次没有」的键。</p>
+    </section>
+
+    <section class="demo-section" id="events">
+      <div class="demo-section__header">
+        <h2>事件：z-click → onZClick</h2>
+        <p>自定义事件名整体转成 <code>on</code> + PascalCase，<code>z-select-close</code> 就是 <code>onZSelectClose</code>。</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__code demo-preview__code--visible">
+<pre><code><span class="cmt">// z-change → onZChange；detail 在 e.detail 里</span>
+<span class="tag">&lt;ZSelectReact</span>
+  <span class="attr">value</span>={value}
+  <span class="attr">onZChange</span>={(e) => setValue((e <span class="tag">as</span> CustomEvent).detail.value)}
+<span class="tag">/&gt;</span></code></pre>
+        </div>
+      </div>
+      <p class="demo-note">两个细节：监听器<b>只在挂载时挂一次</b>，回调通过 ref 取最新闭包 ——
+      避免每次渲染重新绑定引起的 shadow DOM 重渲染（表现为闪屏）。
+      另外包装只响应<b>元素自己</b>发出的事件（<code>e.target === el</code>），
+      子组件冒泡上来的同名事件不算 —— 否则 <code>z-modal</code> 里关掉一个 <code>z-alert</code>
+      会把整个弹窗一起关掉。</p>
+    </section>
+
+    <section class="demo-section" id="ref">
+      <div class="demo-section__header">
+        <h2>ref 拿到的是元素本体</h2>
+        <p>不是包装组件，是那个自定义元素 —— 可以读属性、调方法、量尺寸。</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__code demo-preview__code--visible">
+<pre><code><span class="tag">const</span> ref = useRef&lt;HTMLElement&gt;(<span class="tag">null</span>);
+
+&lt;ZTableReact ref={ref} columns={cols} data={rows} /&gt;
+
+<span class="cmt">// ref.current 就是 &lt;z-table&gt;，属性和方法都在上面</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="pitfalls">
+      <div class="demo-section__header">
+        <h2>三个坑，都是「不报错」的那种</h2>
+      </div>
+      <table class="demo-props">
+        <thead><tr><th style="width:30%">现象</th><th style="width:32%">原因</th><th>怎么确认</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>标签在 DOM 里，但样式全无、内容消失</td>
+            <td>元素没注册：只引了 <code>z-agent-ui/react</code>（或只引了根入口 <code>z-agent-ui</code>）</td>
+            <td>DevTools 里那个标签显示为 inline；补 <code>import "z-agent-ui/components/xxx"</code> 即好</td>
+          </tr>
+          <tr>
+            <td>改了 prop，界面上是旧值</td>
+            <td>复杂类型（数组/对象）当 attribute 传了，被 <code>String()</code> 拍平</td>
+            <td>看元素上有没有 <code>[object Object]</code></td>
+          </tr>
+          <tr>
+            <td>事件回调不进 React</td>
+            <td>事件名拼错（<code>onZclick</code> / <code>onClick</code>），包装认的是 <code>on</code> + 大写开头</td>
+            <td>按 <code>tag 的事件名 → on + PascalCase</code> 转一遍</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="demo-note">SSR：包装只是 <code>React.createElement(tag)</code>，服务端渲染出来就是那个标签，
+      注册发生在客户端 <code>import</code> 组件入口时 —— 所以服务端不需要 DOM，但客户端一定要引组件入口。</p>
+    </section>
+
+    <section class="demo-section" id="check">
+      <div class="demo-section__header">
+        <h2>自查</h2>
+        <p>漏包装不会报错：类型上它还是个普通组件，渲染出来却是空壳。加完组件跑一次
+        <code>tests/unit/react-wrapper-coverage.test.ts</code>，它会指出哪个 <code>customElements.define</code>
+        还没有对应的 React 包装。</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__code demo-preview__code--visible">
+<pre><code><span class="cmt"># 现有包装数（新增组件后应 +1）</span>
+grep -c <span class="val">'createReactWrapper('</span> src/react/index.ts
+
+<span class="cmt"># 校验：漏包装会报错</span>
+npx vitest run tests/unit/react-wrapper-coverage.test.ts</code></pre>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>

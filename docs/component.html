@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>组件详情 — zAgentUI</title>
+  <script type="module" crossorigin src="/assets/component-89WSgQZa.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/presets-CdaBrvJF.js">
+  <link rel="modulepreload" crossorigin href="/assets/a11y-DJ6wHu5s.js">
+  <link rel="modulepreload" crossorigin href="/assets/Button-6M0Me5pu.js">
+  <link rel="modulepreload" crossorigin href="/assets/shell-DwQ7nMfw.js">
+  <link rel="stylesheet" crossorigin href="/assets/a11y-D1tjoguM.css">
+  <link rel="stylesheet" crossorigin href="/assets/demo-BAF_qh2v.css">
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+
+  <!-- Sidebar：由 shell.ts 从 nav.ts 渲染（单一数据源） -->
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <main class="demo-main">
+
+    <!-- 面包屑：详情页是「靠 ?tag= 进入」的，没有一个回程链接时，浏览器后退是唯一出口 -->
+    <nav class="demo-crumb" id="comp-crumb" aria-label="breadcrumb"></nav>
+
+    <section class="demo-hero">
+      <h1 id="comp-title">组件详情</h1>
+      <p id="comp-sum">从总览页点进来，或直接带 <code>?tag=z-input</code> 打开。</p>
+      <p class="demo-crumb__jump" id="comp-jump" hidden></p>
+    </section>
+
+    <section class="demo-section" id="preview">
+      <div class="demo-section__header">
+        <h2>示例</h2>
+        <p>示例<b>不在这一页</b>：每个组件的可跑示例都放在它所属家族的那一节里，
+        因为要演示的往往不是孤立的一个控件，而是「它和邻居一起用」的样子。
+        下面的链接直接跳到那一节。</p>
+      </div>
+      <div class="demo-preview"><div class="demo-preview__live demo-preview__live--block" id="example-slot">
+        <p class="demo-empty" id="example-where">——</p>
+      </div></div>
+    </section>
+
+    <section class="demo-section" id="usage">
+      <div class="demo-section__header">
+        <h2>用法</h2>
+        <p>最小可运行片段。<b>入口那一行是推出来的</b>（由 <code>package.json</code> 的 exports 现算，
+        事件名取自清单）：组件搬家后示例不会过期。</p>
+      </div>
+      <div class="demo-usage">
+        <button class="demo-usage__copy" id="usage-copy" type="button">复制</button>
+        <pre><code id="usage-body">—</code></pre>
+      </div>
+      <p class="demo-usage__hint">CSS 那一行不能省：组件的间距 / 描边 / 密度全在令牌里，
+      漏了它组件「渲染得出来，但没有样式」。按需引入用目录 barrel，一个页面只用两三个控件时不必引全量。</p>
+    </section>
+
+    <section class="demo-section" id="props">
+      <div class="demo-section__header">
+        <h2>属性</h2>
+        <p>全部来自清单（B4 起由生成器从源码产出）。<code>默认</code> 列里 <code>—</code> 表示未声明默认值，与 <code>false</code> 是两件事。</p>
+      </div>
+      <table class="demo-props"><thead><tr><th style="width:150px">属性</th><th style="width:80px">类型</th><th style="width:110px">默认</th><th>取值 / 说明</th></tr></thead><tbody id="prop-body"></tbody></table>
+    </section>
+
+    <section class="demo-section" id="events">
+      <div class="demo-section__header">
+        <h2>事件</h2>
+        <p>以 <code>z-</code> 前缀派发。<code>detail</code> 里给什么，就在这行写什么。</p>
+      </div>
+      <p id="event-body" style="font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">—</p>
+    </section>
+
+    <section class="demo-section" id="slots">
+      <div class="demo-section__header">
+        <h2>插槽</h2>
+        <p>具名插槽才列出来；<code>default</code> 表示直接放子节点。</p>
+      </div>
+      <p id="slot-body" style="font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">—</p>
+    </section>
+  </main>
+</div>
+
+</body>
+</html>

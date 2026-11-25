@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>主题零侵入验收 — zAgentUI</title>
+  <!--
+    宿主主题验收页（issue IKIDAI 验收标准 1）
+
+    这条验收问的是「宿主只写一份 CSS 变量覆盖文件，
+    组件观感是否与宿主自有页面一致」。要回答它，必须能**一键对比**：
+      开/关宿主主题、亮/暗、三档密度，且四条切换路径（data-theme / .dark class）都走一遍。
+    混在组件展示页里做这件事，每次都要手工改文件。
+
+    宿主 token 取 issue 附的 zwms 实测值（shadcn 风格）。开关在右上角。
+  -->
+  <style>
+    /* ── 本页自身的排版（不属于验收对象，故意只用系统字体与中性色） ── */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0 0 64px;
+      font: 13px/1.55 system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--z-color-bg);
+      color: var(--z-color-text);
+    }
+    .bar {
+      position: sticky; top: 0; z-index: 10;
+      display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+      padding: 10px 20px;
+      background: var(--z-color-surface);
+      border-bottom: 1px solid var(--z-color-border);
+    }
+    .bar__title { font-weight: 600; font-size: 14px; margin-right: auto; }
+    .bar__title small { font-weight: 400; color: var(--z-color-text-secondary); margin-left: 8px; }
+    .bar label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 20px; }
+    h2 {
+      margin: 28px 0 12px; font-size: 13px; font-weight: 600;
+      color: var(--z-color-text-secondary); text-transform: uppercase; letter-spacing: .04em;
+    }
+    h2:first-of-type { margin-top: 8px; }
+    .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .stack { display: flex; flex-direction: column; gap: 10px; }
+    .note {
+      padding: 12px 14px; border-radius: var(--z-radius-md);
+      background: var(--z-color-primary-soft); color: var(--z-color-text);
+      border: 1px solid var(--z-color-primary-tint);
+    }
+    .note ol { margin: 8px 0 0; padding-left: 20px; }
+    .note li { margin: 3px 0; }
+    code { font-family: var(--z-font-mono); font-size: 12px; }
+    .hostframe {
+      padding: 16px; border-radius: var(--z-radius-lg);
+      background: var(--background, #fff);
+      color: var(--foreground, #0f172a);
+      border: 1px solid var(--border, #e2e8f0);
+    }
+    .hostframe__hd { font-weight: 600; margin-bottom: 10px; }
+  </style>
+
+  <!-- 宿主（zwms）主题：内容逐字取自 issue IKIDAI 附录的实测值。默认关闭。
+       `<style disabled>` 不是标准属性
+       （规范里只有 sheet.disabled 这个 DOM 属性），写了也照样生效 ——
+       结果是「默认态」一打开就带着宿主主题，验收结论全反。 -->
+  <style id="host-theme" media="not all">
+    :root {
+      --radius: 0.5rem;
+      --background: #f8fafc;  --foreground: #0f172a;
+      --card: #ffffff;        --card-foreground: #0f172a;
+      --popover: #ffffff;     --popover-foreground: #0f172a;
+      --primary: #2563eb;     --primary-foreground: #ffffff;
+      --primary-soft: #eff6ff;
+      --secondary: #f1f5f9;   --secondary-foreground: #1e293b;
+      --muted: #f1f5f9;       --muted-foreground: #64748b;
+      --accent: #eff6ff;      --accent-foreground: #1e40af;
+      --destructive: #ef4444; --destructive-soft: #fef2f2;
+      --success: #10b981;     --success-soft: #f0fdf4;
+      --warning: #f59e0b;     --warning-soft: #fefce8;
+      --border: #e2e8f0;      --input: #e2e8f0;   --ring: #2563eb;
+      --ring-soft: rgb(37 99 235 / 0.15);
+      --chart-1: #2563eb; --chart-2: #10b981; --chart-3: #f59e0b; --chart-4: #8b5cf6; --chart-5: #ef4444;
+      --sidebar: #ffffff;     --sidebar-foreground: #0f172a; --sidebar-border: #e2e8f0;
+      --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    .dark, [data-theme="dark"] {
+      --background: #0f172a;  --foreground: #f8fafc;
+      --card: #1e293b;        --primary: #3b82f6;
+      --border: #334155;      --muted: #334155;
+      --primary-soft: rgb(59 130 246 / 0.16);
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/internal/theme-host-CK1E9SAU.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/presets-CdaBrvJF.js">
+  <link rel="modulepreload" crossorigin href="/assets/a11y-DJ6wHu5s.js">
+  <link rel="modulepreload" crossorigin href="/assets/Button-6M0Me5pu.js">
+  <link rel="modulepreload" crossorigin href="/assets/copy-DoHMT7Ic.js">
+  <link rel="modulepreload" crossorigin href="/assets/Input-wCelPXsT.js">
+  <link rel="modulepreload" crossorigin href="/assets/styleInjection-peqqYNO6.js">
+  <link rel="modulepreload" crossorigin href="/assets/Position-D6zl9ryN.js">
+  <link rel="modulepreload" crossorigin href="/assets/floatingPanel-BYE_1ufg.js">
+  <link rel="modulepreload" crossorigin href="/assets/roving-DMg3clv6.js">
+  <link rel="modulepreload" crossorigin href="/assets/Select-Dm4kbGWW.js">
+  <link rel="modulepreload" crossorigin href="/assets/Checkbox-PuEiz19l.js">
+  <link rel="modulepreload" crossorigin href="/assets/Switch-BDiqwL0_.js">
+  <link rel="modulepreload" crossorigin href="/assets/Card-D_PXomyA.js">
+  <link rel="modulepreload" crossorigin href="/assets/vocabulary-DLBU9tdh.js">
+  <link rel="modulepreload" crossorigin href="/assets/Badge-DbBfhcO2.js">
+  <link rel="modulepreload" crossorigin href="/assets/Alert-D0aLMeQP.js">
+  <link rel="modulepreload" crossorigin href="/assets/PointerDragSession-D3R9IvJB.js">
+  <link rel="modulepreload" crossorigin href="/assets/Pagination-D9yYEaKb.js">
+  <link rel="modulepreload" crossorigin href="/assets/Tooltip-CEiGPTba.js">
+  <link rel="stylesheet" crossorigin href="/assets/a11y-D1tjoguM.css">
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar__title">主题零侵入验收 <small>issue IKIDAI</small></div>
+  <label><input type="checkbox" id="sw-host" /> 注入宿主主题</label>
+  <label><input type="checkbox" id="sw-dark" /> 暗色</label>
+  <label>
+    暗色通道
+    <select id="sw-channel">
+      <option value="attr">data-theme</option>
+      <option value="class">.dark class</option>
+    </select>
+  </label>
+  <label>
+    密度
+    <select id="sw-density">
+      <option value="default">default</option>
+      <option value="compact">compact</option>
+      <option value="comfortable">comfortable</option>
+    </select>
+  </label>
+</div>
+
+<div class="wrap">
+
+  <div class="note">
+    <strong>怎么判「零侵入成立」</strong>
+    <ol>
+      <li>勾上「注入宿主主题」后，<b>页面底与卡片面必须不同</b>（#f8fafc vs #ffffff）。只换主色不换层次 = 失败。</li>
+      <li>主色、圆角、边框、字体同时跟随；任一没跟，说明那条 token 还没桥接。</li>
+      <li>切「暗色」时两条通道（data-theme / .dark class）结果必须一致。</li>
+      <li>切密度后，表格行高、按钮、输入框、分页按钮<b>同时</b>变紧或变松。</li>
+      <li>无论怎么切，文字都清晰可读（WCAG AA 4.5:1）。</li>
+    </ol>
+  </div>
+
+  <h2>按钮</h2>
+  <div class="grid">
+    <div class="hostframe stack">
+      <div class="hostframe__hd">变体</div>
+      <div class="row">
+        <z-button>主操作</z-button>
+        <z-button appearance="outline">次要</z-button>
+        <z-button appearance="ghost">幽灵</z-button>
+        <z-button tone="danger">危险</z-button>
+        <z-button disabled>禁用</z-button>
+      </div>
+      <div class="row">
+        <z-button size="sm">小</z-button>
+        <z-button>中</z-button>
+        <z-button size="lg">大</z-button>
+      </div>
+    </div>
+
+    <div class="hostframe stack">
+      <div class="hostframe__hd">表单控件</div>
+      <z-input placeholder="门店名称"></z-input>
+      <z-input placeholder="禁用态" disabled></z-input>
+      <z-select placeholder="选择区域">
+        <z-option value="hz">杭州</z-option>
+        <z-option value="nb">宁波</z-option>
+      </z-select>
+      <div class="row">
+        <z-checkbox checked>已核对</z-checkbox>
+        <z-switch checked></z-switch>
+      </div>
+    </div>
+  </div>
+
+  <h2>卡片与层次（本条最关键）</h2>
+  <div class="grid">
+    <z-card>
+      <div style="padding:16px">
+        <div style="font-weight:600;margin-bottom:6px">卡片面</div>
+        <div style="color:var(--z-color-text-secondary)">
+          背景走 <code>--z-color-surface</code>（宿主 <code>--card</code>），
+          必须与页面底 <code>--background</code> 区分开。
+        </div>
+      </div>
+    </z-card>
+
+    <z-card>
+      <div style="padding:16px" class="stack">
+        <div style="font-weight:600">语义色与浅底</div>
+        <div class="row">
+          <z-badge tone="success">正常</z-badge>
+          <z-badge tone="warning">待处理</z-badge>
+          <z-badge tone="danger">异常</z-badge>
+          <z-badge tone="primary">新建</z-badge>
+        </div>
+        <div style="font-size:12px;color:var(--z-color-text-secondary)">
+          浅底走 <code>-soft</code>（宿主 <code>--primary-soft</code> 等）。
+        </div>
+      </div>
+    </z-card>
+  </div>
+
+  <h2>表格与分页</h2>
+  <div class="grid">
+    <div class="stack">
+      <div id="tbl"></div>
+      <div class="row"><div id="pg"></div></div>
+    </div>
+  </div>
+
+  <h2>标签页与提示</h2>
+  <div class="grid">
+    <z-tabs tab-style="underline">
+      <z-tab-panel label="概览">概览内容</z-tab-panel>
+      <z-tab-panel label="明细">明细内容</z-tab-panel>
+      <z-tab-panel label="设置">设置内容</z-tab-panel>
+    </z-tabs>
+    <z-alert tone="info" title="提示">提示块的水色底来自 <code>--z-color-info-soft</code>。</z-alert>
+  </div>
+
+</div>
+
+
+</body>
+</html>
