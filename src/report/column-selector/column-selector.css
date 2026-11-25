@@ -66,22 +66,22 @@
   top: 100%;
   right: 0;
   margin-top: 4px;
-  /* [WHY] 字段较多时多列展示: min-width 保底 2 列(小屏不超视口), max-width 不超过 1/3 屏幕 */
-  /* [WHY] border-box: 让 max-width 计入 padding, 总宽严格不超过 1/3 视口 */
+  /* [WHY 单列列表] 列序调整需要一条**线性**顺序：多列网格里"拖到某个格子前面"
+     没有唯一解释（进的是本列还是上一列？），所以下拉改成单列，字段多时纵向滚动。 */
   box-sizing: border-box;
-  min-width: min(300px, 90vw);
-  max-width: 33.333vw;
+  min-width: min(220px, 90vw);
+  max-width: min(300px, 90vw);
   max-height: 280px;
   overflow-y: auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
-  gap: 2px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
   background: var(--z-color-popover);
   border: 1px solid var(--z-color-border);
   border-radius: var(--z-radius-md);
   box-shadow: var(--z-shadow-lg);
   z-index: 100;
-  padding: var(--z-space-1) 6px;
+  padding: var(--z-space-1) 4px;
   /* [WHY] 自然交互: 下拉以淡入+轻微位移进入, 150ms 符合微交互时长规范 */
   animation: z-colsel-in var(--z-duration-fast) var(--z-ease-standard);
   transform-origin: top right;
@@ -98,13 +98,51 @@
   }
 }
 
+/* 一行 = 手柄 + 勾选框整块。行是拖拽单元，label 只负责勾选 */
+.z-colsel__row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: var(--z-radius-sm);
+  transition: background var(--z-transition-fast), opacity var(--z-transition-fast);
+}
+
+/* 拖动中的行：抬起感（半透明 + 底色），落点由实时挪动的位置表达 */
+.z-colsel__row--dragging {
+  background: var(--z-color-hover);
+  opacity: 0.75;
+}
+
+/* [WHY 手柄常显而不是 hover 才出] 这是「这里能调顺序」的唯一可见线索；
+   hover 才出现的把手等于让用户先猜再试。颜色压低不抢勾选框。 */
+.z-colsel__grip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 16px;
+  height: 22px;
+  color: var(--z-color-text-disabled);
+  cursor: grab;
+  touch-action: none;
+}
+
+.z-colsel__grip:hover {
+  color: var(--z-color-text-secondary);
+}
+
+.z-colsel__row--dragging .z-colsel__grip {
+  cursor: grabbing;
+}
+
 .z-colsel__item {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 8px;
-  /* [WHY] 网格内超长标题单行截断, 完整文本以悬浮 title 呈现 */
+  flex: 1;
   min-width: 0;
+  padding: 4px 8px 4px 0;
+  /* [WHY] 超长标题单行截断, 完整文本以悬浮 title 呈现 */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -118,6 +156,7 @@
 
 .z-colsel__item:hover {
   background: var(--z-color-hover-subtle);
+  border-radius: var(--z-radius-sm);
 }
 
 /* [WHY] required 字段: 不可取消勾选, 置灰提示; hover 不高亮 */

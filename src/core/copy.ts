@@ -96,6 +96,8 @@ export const COPY = {
   columns: "列选择",
   columnSettings: "列设置",
   requiredField: "必选字段",
+  /** 列选择器里拖拽手柄的提示（悬停可见）：说明这个把手能把列挪位。 */
+  reorderColumn: "拖动调整顺序",
   alignLeft: "左对齐",
   alignCenter: "居中",
   alignRight: "右对齐",

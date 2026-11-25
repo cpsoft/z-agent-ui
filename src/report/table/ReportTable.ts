@@ -31,7 +31,15 @@ const MAX_COL_WIDTH = 2000;
 // [WHY] 2026-10-25 系统审计：原 1058 行单文件按职责拆为 types / column-config-panel / table-render /
 // table-interactions 四个模块, 本文件只保留元素壳(属性/生命周期/状态/事件分发/配置快照)
 import { handleColumnConfigClick, type ColumnConfigHost } from "./column-config-panel.js";
-import { applyConfigSnapshot, takeConfigSnapshot } from "./report-table-config.js";
+import {
+  applyConfigSnapshot,
+  applyPersistedColumnView,
+  readPersistedColumnView,
+  reorderColumnsByKeys,
+  takeConfigSnapshot,
+  writePersistedColumnView,
+} from "./report-table-config.js";
+import { renderPager } from "./report-table-pager.js";
 import { gridIntent, resolveCell, roveByKey, roveTo, sameCell, type CellPos, type GridBounds } from "../../primitives/index.js";
 import { esc, rowKeyOf, type ReportColFormat, type ReportColumn, type SortEntry, type TableConfig } from "./report-table-types.js";
 import { dataViewRows, groupViewRows, paginateViewRows, type PagedView, type ViewRow } from "./table-view-rows.js";
@@ -106,6 +114,13 @@ export class ZReportTable extends BaseElement {
    */
   @property({ type: Boolean }) resizable = false;
   @property({ type: Boolean }) showColumnSelector = true;
+  /**
+   * 本机记住列顺序与显隐的 localStorage 键。空 = 不记（默认）。
+   *
+   * [WHY 默认关] 主用法是宿主拿 `z-config-change` 存到账号；组件再写一份就是两个
+   * 真相源 —— 换台机器登录，同一份报表的列顺序不一样。只在免登录查看页开它。
+   */
+  @property({ type: String }) persistKey = "";
   // [WHY] 整行点击开关: 默认开启(z-row-click 开箱即用); 列表页若自行接管行内点击可置 false 关闭, 见 [[REQ-014]]
   @property({ type: Boolean }) rowClickable = true;
   // [WHY] 排序模式: client 组件内部排序; server 仅触发 z-sort, 数据由调用方按 sortState 重新获取
@@ -140,6 +155,8 @@ export class ZReportTable extends BaseElement {
   @property({ type: String }) footerLabel = COPY.total;
   // [WHY] i18n: 必选字段的悬浮提示文案, 见 [[REQ-001]]
   @property({ type: String }) requiredColumnText = COPY.requiredField;
+  // [WHY i18n] 列选择器拖拽手柄的提示文案，透传给内嵌 <z-column-selector>
+  @property({ type: String }) reorderColumnText = COPY.reorderColumn;
   // [WHY] i18n: 表头配置下拉中"合计"开关文案, 见 [[REQ-001]]
   @property({ type: String }) footerToggleText = COPY.total;
   // [WHY] i18n: tips 文案属性化(表头配置/对齐/冻结/列选择器), 见 [[REQ-001]] [[2026-08-09-W5-i18n]]
@@ -321,60 +338,8 @@ export class ZReportTable extends BaseElement {
     this.requestUpdate();
   }
 
-  /** 分页器上的候选档位：去重、升序，并保证含当前行数（脚本写的 30 也要能选回来）。 */
-  private _sizeChoices(): number[] {
-    const list = this.pageSizeOptions
-      .split(",")
-      .map((s) => Math.trunc(Number(s.trim())))
-      .filter((n) => Number.isFinite(n) && n > 0);
-    if (this.pageSize > 0) list.push(this.pageSize);
-    return [...new Set(list)].sort((a, b) => a - b);
-  }
-
   private _renderPager(p: PagedView): string {
-    if (!(this.pageSize > 0)) return "";
-    const sizes = this._sizeChoices();
-    const picker = sizes.length > 1;
-    // [WHY 只有一页就不画] 「共 4 条 · 第 1 / 1 页」加两个禁用按钮，占一行高度却没有任何
-    // 可执行动作 —— 短表卡（KPI 级数据）本来就不高，这一行纯属噪音。
-    // server 模式例外：页数由宿主决定，组件手里恒为 1，画出来才有的点。
-    const noNav = this.pageMode !== "server" && p.pageCount <= 1;
-    if (noNav && !picker) return "";
-    // [WHY 有下拉时「一页」也要画] 30 行数据按每页 50 行只有 1 页 —— 而用户恰恰要
-    // 把它改成 10 行。按老规则整条分页栏会消失，「改行数」的入口就只在数据已经
-    // 比一页多时才存在。真正该省的是**空表**上的那一行。
-    if (picker && p.totalRows === 0 && p.rows.length === 0) return "";
-    const info = `${this.pagerTotalText.replace("{n}", String(p.totalRows))} · ${this.pagerPageText
-      .replace("{p}", String(p.page))
-      .replace("{c}", String(p.pageCount))}`;
-    const btn = (go: "prev" | "next", text: string, disabled: boolean): string =>
-      `<button type="button" class="z-rpt__pager-btn" data-page-go="${go}"${
-        disabled ? " disabled" : ""
-      } part="pager-button">${esc(text)}</button>`;
-    // 档位下拉：`<select>` 原生实现即可 —— 键盘、触屏、无障碍语义都是浏览器给的，
-    // 自绘一个「点开才出选项」的浮层只会在表格底部被裁切（卡片有 overflow）。
-    const sizeSel = picker
-      ? `<span class="z-rpt__pager-size"><select data-page-size part="pager-size-select"
-           aria-label="${esc(this.pagerSizeLabel)}">${sizes
-          .map(
-            (n) =>
-              `<option value="${n}"${n === this.pageSize ? " selected" : ""}>${esc(
-                this.pagerSizeText.replace("{n}", String(n)),
-              )}</option>`,
-          )
-          .join("")}</select></span>`
-      : "";
-    return html`
-      <div class="z-rpt__pager" part="pager">
-        <span class="z-rpt__pager-info" part="pager-info">${esc(info)}</span>
-        <div class="z-rpt__pager-right">
-          ${sizeSel}
-          ${noNav ? "" : html`<div class="z-rpt__pager-btns">
-            ${btn("prev", this.prevPageText, p.page <= 1)}${btn("next", this.nextPageText, p.page >= p.pageCount)}
-          </div>`}
-        </div>
-      </div>
-    `;
+    return renderPager(p, this);
   }
 
   /** 折叠按钮点击。返回 true = 已消费（不再走行点击）。 */
@@ -539,7 +504,8 @@ export class ZReportTable extends BaseElement {
     // 统一决定 —— 两处各判一次，漏一处就是表头从那一格起右移。
     const toolsHtml = showTools
       ? html`<z-column-selector ${this.columnSelectorOpen ? "open" : ""}
-              columnstext="${esc(this.columnsText)}" requiredcolumntext="${esc(this.requiredColumnText)}"></z-column-selector>`
+              columnstext="${esc(this.columnsText)}" requiredcolumntext="${esc(this.requiredColumnText)}"
+              reordertext="${esc(this.reorderColumnText)}"></z-column-selector>`
       : "";
     const headRows = renderHeadRows({ vis, ctx: headerCtx, selectable: this.selectable, tools: toolsHtml });
 
@@ -668,6 +634,13 @@ export class ZReportTable extends BaseElement {
   private _emitConfigChange(): void {
     // [WHY] 统一配置变更事件: 任何列配置/排序变更都携带完整快照, 外部只需监听这一个事件做持久化
     this.emit("z-config-change", { config: this.getConfig() });
+    writePersistedColumnView(this.persistKey, this);
+  }
+
+  /** 渲染前叠上本机记住的顺序/显隐（放在 updated 会先画一帧默认顺序再跳）。 */
+  willUpdate(): void {
+    const view = readPersistedColumnView(this.persistKey);
+    if (view) applyPersistedColumnView(this, view);
   }
 
   // ── Public helpers ─────────────────────────────────────
@@ -704,6 +677,15 @@ export class ZReportTable extends BaseElement {
   toggleColumn(key: string): void {
     const col = this.columns.find((c) => c.key === key);
     if (col && !col.required) { col.hidden = !col.hidden; this.requestUpdate(); this._emitConfigChange(); }
+  }
+
+  /** 按给定 key 顺序重排列（列选择器拖拽 / Alt+↑↓ 的落点）。 */
+  reorderColumns(keys: string[]): void {
+    const next = reorderColumnsByKeys(this, keys);
+    if (!next) return;
+    this.requestUpdate();
+    this.emit("z-column-order-change", { keys: next });
+    this._emitConfigChange();
   }
 
   // ── Hosts for extracted modules ────────────────────────

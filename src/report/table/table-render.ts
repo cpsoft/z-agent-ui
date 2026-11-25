@@ -592,3 +592,4 @@ export function renderFooter(ctx: FooterRenderContext): string {
       </tfoot>
     `;
 }
+

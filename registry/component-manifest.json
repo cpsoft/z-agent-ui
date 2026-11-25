@@ -9,8 +9,8 @@
       "composite": 30,
       "foundation": 2
     },
-    "properties": 959,
-    "events": 212,
+    "properties": 962,
+    "events": 213,
     "componentsWithEvents": 95,
     "componentsWithNamedSlots": 27,
     "propertiesWithValues": 72,
@@ -3629,6 +3629,7 @@
       "layer": "composite",
       "summary": "z-column-selector: 列显隐选择器(独立组件)",
       "events": [
+        "z-column-order-change",
         "z-column-visibility-change"
       ],
       "slots": [],
@@ -3663,6 +3664,17 @@
           ],
           "type": "String",
           "default": "必选字段",
+          "values": null
+        },
+        {
+          "name": "reorderText",
+          "attribute": "reorder-text",
+          "aliases": [
+            "reorder-text",
+            "reordertext"
+          ],
+          "type": "String",
+          "default": "拖动调整顺序",
           "values": null
         },
         {
@@ -9147,6 +9159,17 @@
           "values": null
         },
         {
+          "name": "persistKey",
+          "attribute": "persist-key",
+          "aliases": [
+            "persist-key",
+            "persistkey"
+          ],
+          "type": "String",
+          "default": "",
+          "values": null
+        },
+        {
           "name": "rowClickable",
           "attribute": "row-clickable",
           "aliases": [
@@ -9310,6 +9333,17 @@
           ],
           "type": "String",
           "default": "必选字段",
+          "values": null
+        },
+        {
+          "name": "reorderColumnText",
+          "attribute": "reorder-column-text",
+          "aliases": [
+            "reorder-column-text",
+            "reordercolumntext"
+          ],
+          "type": "String",
+          "default": "拖动调整顺序",
           "values": null
         },
         {

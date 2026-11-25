@@ -1,4 +1,5 @@
 import { COPY, BaseElement, composedContains, deepActiveElement, html, property, escapeAttr } from "../../core/index.js";
+import { PointerDragSession } from "../../primitives/index.js";
 import columnSelectorCSS from "./column-selector.css?raw";
 
 // ═══════════════════════════════════════════════════════════
@@ -15,6 +16,13 @@ import columnSelectorCSS from "./column-selector.css?raw";
 interface ColumnSource {
   columns: ColumnItem[];
   toggleColumn: (key: string) => void;
+  /**
+   * 按给定 key 顺序重排（`reorderColumns(keys)`）。
+   *
+   * [WHY 可选] 这是后加的能力：只实现 columns + toggleColumn 的旧宿主照样能用，
+   * 组件用**能力探测**决定是否画拖拽手柄 —— 摆一个拖不动的把手比不摆更糟。
+   */
+  reorderColumns?: (keys: string[]) => void;
 }
 
 interface ColumnItem {
@@ -51,6 +59,8 @@ export class ZColumnSelector extends BaseElement {
   // [WHY] i18n: 文案属性化, 见 [[REQ-001]]; 内嵌时宿主表格透传同名属性
   @property({ type: String }) columnsText = COPY.columns;
   @property({ type: String }) requiredColumnText = COPY.requiredField;
+  // [WHY i18n] 拖拽手柄的 title：不写字面量，见 [[REQ-001]]；内嵌时宿主表格透传
+  @property({ type: String }) reorderText = COPY.reorderColumn;
   // [WHY 默认纯图标] 带文字的胶囊按钮在表格工具栏里太重（2026-10-26 反馈
   // 「列选择的按钮太大太难看了」）。默认渲染 24px 图标钮，与工具栏同高；
   // 文案仍作为 aria-label + title 存在 —— 可发现性不能靠"猜图标"。
@@ -85,6 +95,9 @@ export class ZColumnSelector extends BaseElement {
   private _uid = `z-colsel-${++COL_SEL_SEQ}`;
   private _docBound = false;
   private _retryTimer: ReturnType<typeof setTimeout> | null = null;
+  /** 当前被拖动的列行（`.z-colsel__row`）。null = 没有进行中的拖拽。 */
+  private _dragRow: HTMLElement | null = null;
+  private _dragSession: PointerDragSession | null = null;
 
   connectedCallback(): void {
     super.connectedCallback();
@@ -96,6 +109,10 @@ export class ZColumnSelector extends BaseElement {
   }
 
   disconnectedCallback(): void {
+    // [WHY dispose 而不是 abort] 卸载时宿主 DOM 已经拆了一半，不再回调业务逻辑
+    this._dragSession?.dispose();
+    this._dragSession = null;
+    this._dragRow = null;
     if (this._retryTimer) {
       clearTimeout(this._retryTimer);
       this._retryTimer = null;
@@ -210,20 +227,34 @@ export class ZColumnSelector extends BaseElement {
     // 先挂载后设属性)期间触发器保持可见, 下拉项在 source 就绪后随每次渲染刷新
     const source = isUsableSource(target) ? (target as unknown as ColumnSource) : null;
     const ddId = `${this._uid}-dropdown`;
+    // [WHY 能力探测] 只有宿主实现了 reorderColumns 才画手柄；旧宿主拿到的仍是纯勾选列表
+    const reorderable = typeof source?.reorderColumns === "function";
     const items = (source?.columns ?? []).map((col) => html`
-      <label class="z-colsel__item ${col.required ? "z-colsel__item--required" : ""}"
-             part="column-selector-item"
-             ${col.required ? `title="${escapeAttr(this.requiredColumnText)}"` : ""}>
-        <input type="checkbox" class="z-colsel__checkbox"
-               data-key="${escapeAttr(col.key)}"
-               ${!col.hidden || col.required ? "checked" : ""}
-               ${col.required ? "disabled" : ""}
-               part="column-selector-checkbox" />
-        <span class="z-colsel__label">${escapeAttr(col.title)}</span>
-        ${col.required
-          ? html`<svg class="z-colsel__lock" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
+      <div class="z-colsel__row" data-key="${escapeAttr(col.key)}">
+        ${reorderable
+          ? html`<span class="z-colsel__grip" part="column-selector-grip"
+                       title="${escapeAttr(this.reorderText)}" aria-hidden="true">
+              <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor">
+                <circle cx="3" cy="2" r="1"/><circle cx="7" cy="2" r="1"/>
+                <circle cx="3" cy="6" r="1"/><circle cx="7" cy="6" r="1"/>
+                <circle cx="3" cy="10" r="1"/><circle cx="7" cy="10" r="1"/>
+              </svg>
+            </span>`
           : ""}
-      </label>
+        <label class="z-colsel__item ${col.required ? "z-colsel__item--required" : ""}"
+               part="column-selector-item"
+               ${col.required ? `title="${escapeAttr(this.requiredColumnText)}"` : ""}>
+          <input type="checkbox" class="z-colsel__checkbox"
+                 data-key="${escapeAttr(col.key)}"
+                 ${!col.hidden || col.required ? "checked" : ""}
+                 ${col.required ? "disabled" : ""}
+                 part="column-selector-checkbox" />
+          <span class="z-colsel__label">${escapeAttr(col.title)}</span>
+          ${col.required
+            ? html`<svg class="z-colsel__lock" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
+            : ""}
+        </label>
+      </div>
     `).join("");
 
     return html`
@@ -288,6 +319,8 @@ export class ZColumnSelector extends BaseElement {
     if (!shadow) return;
     shadow.addEventListener("click", this._onShadowClick as unknown as EventListener);
     shadow.addEventListener("change", this._onShadowChange);
+    shadow.addEventListener("pointerdown", this._onShadowPointerDown as unknown as EventListener);
+    shadow.addEventListener("keydown", this._onShadowKeydown as unknown as EventListener);
     this._eventsBound = true;
   }
 
@@ -316,6 +349,116 @@ export class ZColumnSelector extends BaseElement {
     // 重渲染会换掉所有复选框节点 ⇒ 焦点掉到 body，记下 key 让 updated() 放回去
     this._pendingFocusKey = key;
     this.requestUpdate();
+  };
+
+  // ── 列序调整：拖手柄，或复选框上 Alt+↑/↓ ────────────────
+  //
+  // [WHY 只在手柄上起手] 整行可拖会吃掉勾选：按下-移动几像素再松手，用户以为是"点了
+  // 一下"，实际已经把列挪了。手柄是显式的起手区，勾选框永远只负责勾选。
+  //
+  // [WHY 拖动中只挪 DOM、松手才通知宿主] 宿主收到新顺序会 `requestUpdate`，内嵌模式下
+  // 本组件随之整体重建 —— 拖动中重建，手柄和落点指示会当场消失。所以过程全在本组件
+  // 的 shadow 内完成，pointerup 时一次性提交。
+
+  private _canReorder(source: ColumnSource | null): source is ColumnSource & { reorderColumns: (keys: string[]) => void } {
+    return !!source && typeof source.reorderColumns === "function";
+  }
+
+  /**
+   * 派发列序变更。
+   *
+   * [WHY 内嵌时不发] 内嵌场景下宿主表格本来就会在 `reorderColumns` 里派发同名事件，
+   * 组件再从自己的 shadow 里补一份，页面上的监听会收到两次 —— 而"收到事件就重新取数"
+   * 是宿主的常见写法，这一下就是两次请求。
+   */
+  private _emitOrderChange(keys: string[]): void {
+    if (this._findAncestorTable()) return;
+    this.emit("z-column-order-change", { keys });
+  }
+
+  private _onShadowPointerDown = (e: PointerEvent): void => {
+    if (e.button !== 0) return;
+    const grip = (e.target as HTMLElement | null)?.closest?.(".z-colsel__grip");
+    if (!grip) return;
+    const row = grip.closest<HTMLElement>(".z-colsel__row");
+    const source = this._getSource();
+    if (!row || !this._canReorder(source)) return;
+    e.preventDefault();
+    this._dragSession?.dispose();
+    this._dragRow = row;
+    row.classList.add("z-colsel__row--dragging");
+    const session = new PointerDragSession({
+      onMove: (d) => {
+        if (d.moved) this._dragMoveTo(d.event);
+      },
+      onEnd: (d) => {
+        const moved = d.moved;
+        this._endDrag();
+        if (moved) this._commitOrder();
+      },
+      onCancel: () => this._endDrag(),
+      // 阈值比全局默认大 1px：手柄只有 10px 宽，按下去必带手抖
+    }, { threshold: 4 });
+    this._dragSession = session;
+    session.begin(e);
+  };
+
+  /** 把被拖的行挪到指针命中的那一行之前/之后（纯 DOM，不通知宿主）。 */
+  private _dragMoveTo(e: PointerEvent): void {
+    const row = this._dragRow;
+    if (!row?.isConnected) return;
+    const rows = Array.from(this.shadowRoot?.querySelectorAll<HTMLElement>(".z-colsel__row") ?? []);
+    for (const other of rows) {
+      if (other === row) continue;
+      const b = other.getBoundingClientRect();
+      if (e.clientY < b.top || e.clientY >= b.bottom) continue;
+      // 上半 → 插到它前面；下半 → 插到它后面。判据用中线，行高只有 24px，
+      // 用「上半/下半各 50%」比固定像素更容易命中。
+      if (e.clientY < b.top + b.height / 2) other.before(row);
+      else other.after(row);
+      return;
+    }
+  }
+
+  private _endDrag(): void {
+    this._dragRow?.classList.remove("z-colsel__row--dragging");
+    this._dragRow = null;
+    this._dragSession = null;
+  }
+
+  /** 松手：读 DOM 里的最终顺序，一次交给宿主。 */
+  private _commitOrder(): void {
+    const source = this._getSource();
+    if (!this._canReorder(source)) return;
+    const rows = Array.from(this.shadowRoot?.querySelectorAll<HTMLElement>(".z-colsel__row") ?? []);
+    const keys = rows.map((r) => r.dataset.key).filter((k): k is string => !!k);
+    if (keys.length < 2) return;
+    // [WHY 先 emit 再改宿主] 内嵌模式下改宿主会让本实例被重建，事件此时已经同步派发完毕
+    this._emitOrderChange(keys);
+    source.reorderColumns(keys);
+    // 外部直绑（selector 不在表格 shadow 内）时宿主重建波及不到本组件，自己刷新列表顺序
+    if (this.isConnected) this.requestUpdate();
+  }
+
+  /** 键盘等价操作：复选框上 Alt+↑/↓ 移动一格（拖拽的键盘可达路径）。 */
+  private _onShadowKeydown = (e: KeyboardEvent): void => {
+    if (!e.altKey || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
+    const cb = (e.target as HTMLElement | null)?.closest?.(".z-colsel__checkbox") as HTMLInputElement | null;
+    const source = this._getSource();
+    if (!cb || !this._canReorder(source)) return;
+    const key = cb.dataset.key;
+    if (!key) return;
+    const keys = source.columns.map((c) => c.key);
+    const from = keys.indexOf(key);
+    const to = from + (e.key === "ArrowUp" ? -1 : 1);
+    if (from < 0 || to < 0 || to >= keys.length) return;
+    e.preventDefault();
+    e.stopPropagation();
+    [keys[from], keys[to]] = [keys[to], keys[from]];
+    this._pendingFocusKey = key;
+    this._emitOrderChange(keys);
+    source.reorderColumns(keys);
+    if (this.isConnected) this.requestUpdate();
   };
 }
 

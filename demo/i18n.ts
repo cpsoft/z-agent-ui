@@ -144,6 +144,7 @@ export function updatePage(): void {
   apply("z-report-table", "pinrighttext", "components.reportTable.pinRightText");
   apply("z-report-table", "columnstext", "components.reportTable.columnsText");
   apply("z-report-table", "requiredcolumntext", "components.reportTable.requiredColumnText");
+  apply("z-report-table", "reordercolumntext", "components.reportTable.reorderColumnText");
 
   // 操作列文案在 render 回调内(非属性), 语言切换后重设 columns 触发重渲染, 见 [[REQ-001]]
   const tableDemo = document.getElementById("table-demo") as any;

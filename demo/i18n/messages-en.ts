@@ -469,6 +469,7 @@ export const messagesEn: Messages = {
         pinRightText: "Pin right",
         columnsText: "Columns",
         requiredColumnText: "Required field",
+        reorderColumnText: "Drag to reorder",
       },
     },
   search: {
