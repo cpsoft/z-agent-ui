@@ -1,0 +1,104 @@
+/* ===== z-calendar ===== */
+
+:host {
+  display: inline-block;
+}
+
+.z-calendar {
+  display: inline-block;
+  padding: var(--z-space-3);
+  background: var(--z-color-bg);
+  border: 1px solid var(--z-color-border-control);
+  border-radius: var(--z-radius-md);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  line-height: var(--z-line-height);
+  color: var(--z-color-text);
+  user-select: none;
+}
+
+.z-calendar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--z-space-2);
+}
+
+.z-calendar__nav {
+  width: 28px;
+  height: var(--z-control-h-sm);
+  border: none;
+  background: transparent;
+  border-radius: var(--z-radius-sm);
+  color: var(--z-color-text-secondary);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  transition: background var(--z-transition-fast);
+}
+
+.z-calendar__nav:hover {
+  background: var(--z-color-bg-secondary);
+}
+
+.z-calendar__label {
+  font-weight: var(--z-font-weight-medium);
+}
+
+.z-calendar__grid {
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.z-calendar__weekday {
+  padding: var(--z-space-1) 0;
+  width: 32px;
+  text-align: center;
+  font-size: var(--z-font-size-xs);
+  color: var(--z-color-text-secondary);
+  font-weight: var(--z-font-weight-medium);
+}
+
+.z-calendar__cell {
+  width: 32px;
+  height: var(--z-control-h);
+  text-align: center;
+  vertical-align: middle;
+  border-radius: var(--z-radius-sm);
+  cursor: pointer;
+  font-size: var(--z-font-size-sm);
+  transition: background var(--z-transition-fast), color var(--z-transition-fast);
+}
+
+.z-calendar__cell:hover {
+  background: var(--z-color-bg-secondary);
+}
+
+/* [WHY] 非当月格两种呈现：show-outside=true 半透明可见，false 隐藏占位
+   （42 格布局恒定，键盘焦点按格移动） */
+.z-calendar__cell--out {
+  opacity: 0.4;
+}
+
+.z-calendar__cell--hidden {
+  visibility: hidden;
+}
+
+.z-calendar__cell--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.z-calendar__cell--today {
+  box-shadow: inset 0 0 0 1px var(--z-color-primary);
+}
+
+.z-calendar__cell--selected {
+  background: var(--z-color-primary-solid);
+  color: var(--z-color-primary-text);
+}
+
+.z-calendar__cell--focus {
+  outline: var(--z-focus-ring-outline);
+  outline-offset: -2px;
+}

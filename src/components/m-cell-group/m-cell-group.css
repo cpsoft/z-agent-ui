@@ -1,0 +1,47 @@
+/* ===== m-cell-group ===== */
+
+:host {
+  display: block;
+  margin: 0 var(--z-m-gutter) var(--z-space-4);
+}
+
+:host([plain]) {
+  margin: 0;
+}
+
+.m-cell-group__head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 var(--z-space-1) var(--z-space-2);
+  color: var(--z-color-text-secondary);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+}
+
+.m-cell-group__heading {
+  font-weight: var(--z-font-weight-medium);
+}
+
+.m-cell-group__desc {
+  color: var(--z-color-text-disabled);
+  font-size: var(--z-font-size-xs);
+}
+
+.m-cell-group__body {
+  overflow: hidden;
+  background: var(--z-color-surface);
+  border-radius: var(--z-m-radius);
+}
+
+:host([plain]) .m-cell-group__body {
+  background: transparent;
+  border-radius: 0;
+}
+
+/* [WHY ::slotted 只能写复合选择器] 分隔线必须由分组统一加：行自己加会漏，
+   而漏一行没有任何报错，只是两个条目看起来像一条。这里用相邻兄弟做不到
+   （::slotted 不支持组合符），`not(:first-child)` 是等价写法。 */
+::slotted(m-cell:not(:first-child)) {
+  border-top: 1px solid var(--z-color-divider);
+}

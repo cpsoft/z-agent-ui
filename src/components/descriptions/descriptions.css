@@ -1,0 +1,15 @@
+/* ===== z-descriptions ===== */
+
+/*
+  列数走 `--_col`（willUpdate 写入）。
+  带边框时不用 `border` 而是「grid gap 露出底色」—— 相邻两格不会出现双线，
+  这是表格线最省事的做法，也不需要处理 first-child/last-child 的特例。
+*/
+:host {
+  display: grid;
+  grid-template-columns: repeat(var(--_col, 3), minmax(0, 1fr));
+  gap: var(--_gap, 0);
+  background: var(--_bg, transparent);
+  /* 与 z-grid 同一条：长内容不能把列撑破 */
+  min-width: 0;
+}

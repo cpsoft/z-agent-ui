@@ -1,0 +1,515 @@
+/* [WHY] 全部配色派生自 --z-* token（组件内可用 --z-gantt-* 覆写），明暗主题自动跟随；
+   part 暴露：base/list/list-header/list-body/splitter/chart/header/body/bar/
+   today-line/expander/handle/menu（menu 随 M3 补充）。
+   See: wiki/requirements/REQ-018-gantt.md */
+:host {
+  display: block;
+  height: 400px;
+  border: 1px solid var(--z-gantt-border, var(--z-color-border));
+  border-radius: var(--z-gantt-radius, var(--z-radius-md));
+  background: var(--z-gantt-bg, var(--z-color-bg));
+  color: var(--z-color-text);
+  font-size: var(--z-font-size-sm);
+  outline: none;
+  overflow: hidden;
+}
+
+:host(:focus-visible) {
+  border-color: var(--z-color-primary);
+}
+
+.z-gantt {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+}
+
+/* ── 左列表 ─────────────────────────────── */
+
+.z-gantt__list {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--z-gantt-border, var(--z-color-border));
+  min-width: 0;
+}
+
+.z-gantt__list-header {
+  flex: none;
+  display: flex;
+  overflow: hidden;
+  background: var(--z-gantt-header-bg, var(--z-color-bg-secondary));
+  border-bottom: 1px solid var(--z-gantt-border, var(--z-color-border));
+}
+
+.z-gantt__th {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  font-weight: var(--z-font-weight-semibold);
+  color: var(--z-color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.z-gantt__list-body {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.z-gantt__tr {
+  display: flex;
+  border-bottom: 1px solid var(--z-gantt-border-soft, var(--z-color-border));
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.z-gantt__tr:hover {
+  background: var(--z-gantt-row-hover, var(--z-color-bg-secondary));
+}
+
+.z-gantt__tr--selected.z-gantt__tr,
+.z-gantt__row--selected {
+  background: var(--z-gantt-row-selected, color-mix(in srgb, var(--z-color-primary) 12%, transparent));
+}
+
+.z-gantt__td {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.z-gantt__name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.z-gantt__expander {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  position: relative;
+  cursor: pointer;
+}
+
+.z-gantt__expander::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 2px;
+  border-style: solid;
+  border-width: 4px 0 4px 5px;
+  border-color: transparent transparent transparent var(--z-color-text-secondary);
+  transition: transform var(--z-transition-instant);
+}
+
+.z-gantt__expander--open.z-gantt__expander::before {
+  transform: rotate(90deg);
+  transform-origin: 2px 4px;
+}
+
+.z-gantt__expander--leaf {
+  cursor: default;
+}
+
+.z-gantt__expander--leaf::before {
+  display: none;
+}
+
+/* ── 分隔条 ─────────────────────────────── */
+
+.z-gantt__splitter {
+  flex: none;
+  width: 0;
+}
+
+/* ── 时间轴 ─────────────────────────────── */
+
+.z-gantt__chart {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.z-gantt__header {
+  flex: none;
+  overflow: hidden;
+  position: relative;
+  background: var(--z-gantt-header-bg, var(--z-color-bg-secondary));
+  border-bottom: 1px solid var(--z-gantt-border, var(--z-color-border));
+}
+
+.z-gantt__header-inner {
+  position: relative;
+  height: 100%;
+  will-change: transform;
+}
+
+.z-gantt__header-row {
+  position: relative;
+  overflow: hidden;
+}
+
+.z-gantt__tick {
+  position: absolute;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 1px solid var(--z-gantt-border-soft, var(--z-color-border));
+  color: var(--z-color-text-secondary);
+}
+
+.z-gantt__tick--top {
+  font-weight: var(--z-font-weight-semibold);
+  color: var(--z-color-text);
+}
+
+.z-gantt__tick--weekend {
+  background: var(--z-gantt-weekend-bg, color-mix(in srgb, var(--z-color-text) 6%, transparent));
+}
+
+.z-gantt__tick--today {
+  color: var(--z-gantt-today-color, var(--z-color-danger));
+  font-weight: var(--z-font-weight-semibold);
+}
+
+.z-gantt__body {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+}
+
+/* [WHY] 隐藏原生滚动条但保留滚动能力（滚轮/触摸/scrollTo API 不受影响）；
+   Firefox 用 scrollbar-width，WebKit 系用 ::-webkit-scrollbar，其余引擎无视 */
+.z-gantt__body {
+  scrollbar-width: none;
+}
+
+.z-gantt__body::-webkit-scrollbar {
+  display: none;
+}
+
+.z-gantt__grid {
+  position: relative;
+  min-height: 100%;
+}
+
+/* [WHY] 虚拟滚动：行切片容器铺满网格（grid 自身高度即 spacer），只渲染可见
+   窗口行；容器不拦截背景层外事件（weekend/today 均 pointer-events:none） */
+.z-gantt__rows {
+  position: absolute;
+  inset: 0;
+}
+
+.z-gantt__weekend {
+  position: absolute;
+  top: 0;
+  background: var(--z-gantt-weekend-bg, color-mix(in srgb, var(--z-color-text) 6%, transparent));
+  pointer-events: none;
+}
+
+.z-gantt__today {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--z-gantt-today-color, var(--z-color-danger));
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── 行与条形 ───────────────────────────── */
+
+.z-gantt__row {
+  position: relative;
+  border-bottom: 1px solid var(--z-gantt-border-soft, var(--z-color-border));
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.z-gantt__row:hover {
+  background: var(--z-gantt-row-hover, color-mix(in srgb, var(--z-color-text) 4%, transparent));
+}
+
+/* [WHY] 状态类特异性必须高于基础类（css-specificity-override lesson） */
+.z-gantt__row--selected.z-gantt__row {
+  background: var(--z-gantt-row-selected, color-mix(in srgb, var(--z-color-primary) 12%, transparent));
+}
+
+/* [WHY] 条形皮肤对齐参考仓库（vueGantt 观感，GanttChart.tsx .gantt-actual-bar）：
+   横向渐变（主色 → 向白 lighten 8%，color-mix 实现）+ 大圆角 + 轻投影；
+   几何尺寸（高度/位置）不动，拖拽与箭头几何保持稳定 */
+.z-gantt__bar {
+  position: absolute;
+  height: 24px;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--z-gantt-bar-bg, var(--z-color-primary-solid)) 0%,
+    color-mix(in srgb, var(--z-gantt-bar-bg, var(--z-color-primary-solid)) 92%, var(--z-color-white)) 100%
+  );
+  box-shadow: var(--z-gantt-bar-shadow, 0 1px 3px rgba(0, 0, 0, 0.12));
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* [WHY] 触摸端手势元素禁用浏览器默认平移/缩放，pointermove 才能连续派发；
+   滚动手势从行空白/表头区域起手不受影响 */
+.z-gantt__bar,
+.z-gantt__bar-progress,
+.z-gantt__handle,
+.z-gantt__connect,
+.z-gantt__milestone {
+  touch-action: none;
+}
+
+/* [WHY] 进度叠加对齐参考（rgba(255,255,255,0.25)）：进度段比底色更亮，
+   未完成段即渐变底色本身（参考的右段白 8% 省略，观感差异微小） */
+.z-gantt__bar-progress {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: var(--z-gantt-bar-progress-bg, rgba(255, 255, 255, 0.25));
+  cursor: ew-resize;
+}
+
+/* label 对齐参考：11px semibold + 轻投影保证浅色段上可读 */
+.z-gantt__bar-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  box-sizing: border-box;
+  color: var(--z-gantt-bar-text, var(--z-color-primary-text));
+  font-size: 11px;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.z-gantt__bar-days {
+  margin-left: 6px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+/* real 条对齐参考计划基线细条（.gantt-plan-bar）的填充/描边语言：
+   主色淡填充 + 半透明描边，从实心色块改为描边空心观感（几何不动） */
+.z-gantt__bar--real.z-gantt__bar {
+  height: 14px;
+  border-radius: 3px;
+  background: var(
+    --z-gantt-bar-real-bg,
+    color-mix(in srgb, var(--z-color-success) 14%, transparent)
+  );
+  border: 1.5px solid
+    color-mix(in srgb, var(--z-gantt-bar-real-border, var(--z-color-success)) 50%, transparent);
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+/* summary 对齐参考展开态胶囊（淡填充 + 描边圆角条），替代原三角收口条 */
+.z-gantt__bar--summary.z-gantt__bar {
+  height: 10px;
+  border-radius: 5px;
+  background: var(
+    --z-gantt-summary-bg,
+    color-mix(in srgb, var(--z-color-text-secondary) 18%, transparent)
+  );
+  border: 1.5px solid
+    color-mix(in srgb, var(--z-gantt-summary-border, var(--z-color-text-secondary)) 45%, transparent);
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.z-gantt__milestone-anchor {
+  position: absolute;
+  z-index: 1;
+}
+
+/* [WHY] 菱形本体在 anchor 内旋转：anchor 承载定位与连线锚点命中区，
+   本体只负责视觉（connects 放旋转坐标系内会跟着转导致锚点错位） */
+.z-gantt__milestone {
+  position: absolute;
+  inset: 0;
+  background: var(--z-gantt-milestone-bg, var(--z-color-warning));
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+
+/* ── 依赖连线锚点（hover 显现） ──────────── */
+
+.z-gantt__connect {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: var(--z-color-primary);
+  border: 1px solid var(--z-color-bg);
+  box-sizing: border-box;
+  cursor: crosshair;
+  opacity: 0;
+  /* [WHY] 隐形端口不得拦截指针：端口 8x8 恰好压在 bar 左右缘（±4px），
+     opacity:0 时若仍可命中，用户从条缘起手拖拽会被 mode=connect 抢走
+     （进连线模式而非横向移动日期）。hover 显现时才恢复可点。 */
+  pointer-events: none;
+  transition: opacity var(--z-transition-instant);
+  z-index: 2;
+}
+
+.z-gantt__connect--start {
+  left: -4px;
+}
+
+.z-gantt__connect--end {
+  right: -4px;
+}
+
+/* [WHY] 端口圆点挂行（[[bug-20260927-gantt-row-anchor]]）：行 hover 统一显现，
+   与 handle 的 row:hover 模式一致；显现同时恢复可命中（连线起手） */
+.z-gantt__row:hover .z-gantt__connect {
+  opacity: 0.9;
+  pointer-events: auto;
+}
+
+/* ── 依赖箭头层（M4 填充 path）+ 连线临时线 ── */
+
+.z-gantt__arrows {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.z-gantt__arrow {
+  fill: none;
+  stroke: var(--z-gantt-arrow-color, var(--z-color-text-secondary));
+  stroke-width: 1.5;
+  pointer-events: none;
+}
+
+.z-gantt__arrow-head {
+  fill: var(--z-gantt-arrow-color, var(--z-color-text-secondary));
+}
+
+.z-gantt__temp-line {
+  fill: none;
+  stroke: var(--z-color-primary);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  pointer-events: none;
+}
+
+/* [WHY] 关键路径高亮：danger 底色 + 同色描边，特异性与基础类并列覆盖 */
+.z-gantt__bar--critical.z-gantt__bar {
+  background: var(--z-gantt-critical-bg, var(--z-color-danger));
+}
+
+.z-gantt__bar--critical.z-gantt__bar--summary {
+  background: var(--z-gantt-critical-bg, var(--z-color-danger));
+}
+
+/* [WHY] milestone 本体复用 z-gantt__bar--critical 状态类（criticalClass 统一输出） */
+.z-gantt__bar--critical.z-gantt__milestone {
+  background: var(--z-gantt-critical-bg, var(--z-color-danger));
+}
+
+/* [WHY] 近关键（总浮时 0 < float <= 阈值）：warning 底色弱化提示 */
+.z-gantt__bar--near-critical.z-gantt__bar,
+.z-gantt__bar--near-critical.z-gantt__bar--summary,
+.z-gantt__bar--near-critical.z-gantt__milestone {
+  background: var(--z-gantt-near-critical-bg, var(--z-color-warning));
+}
+
+/* ── 拖拽手柄（readonly 隐藏） ───────────── */
+
+.z-gantt__handle {
+  position: absolute;
+  top: 0;
+  width: 7px;
+  height: 100%;
+  cursor: ew-resize;
+  opacity: 0;
+  transition: opacity var(--z-transition-instant);
+}
+
+.z-gantt__handle--start {
+  left: 0;
+}
+
+.z-gantt__handle--end {
+  right: 0;
+}
+
+.z-gantt__handle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 3px;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 2px;
+  background: var(--z-gantt-bar-text, var(--z-color-primary-text));
+}
+
+.z-gantt__handle--start::after {
+  left: 2px;
+}
+
+.z-gantt__handle--end::after {
+  right: 2px;
+}
+
+.z-gantt__bar:hover .z-gantt__handle,
+.z-gantt__row:hover .z-gantt__handle {
+  opacity: 0.9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-gantt__handle,
+  .z-gantt__connect,
+  .z-gantt__expander::before {
+    transition: none;
+  }
+}
+
+/* 读屏副本：键盘提示。视觉反馈由选中行高亮承担，这行字只给读屏。 */
+.z-gantt__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

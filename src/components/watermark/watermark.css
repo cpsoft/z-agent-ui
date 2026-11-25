@@ -1,0 +1,13 @@
+/* ===== z-watermark ===== */
+
+:host {
+  display: block;
+  position: relative;
+}
+
+.z-watermark {
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat;
+  pointer-events: none; /* [WHY] 水印永不拦截点击 */
+}

@@ -1,0 +1,70 @@
+/* complex.html 的页面样式。各 section 的事件日志 id 带前缀去重。 */
+    /* ── 事件日志（各 section 通用）── */
+    .demo-log {
+      font-family: var(--z-font-mono);
+      font-size: 12px;
+      color: var(--z-color-text-secondary);
+      white-space: pre-wrap;
+    }
+    /* ── form ── */
+    z-form { width: 100%; }
+    z-form-item { width: 100%; }
+    /* ── date ── */
+    z-calendar { margin: 0 auto; }
+    /* ── nav ── */
+    .anchor-page { position: relative; }
+    .anchor-nav { position: sticky; top: 16px; align-self: flex-start; width: 160px; flex-shrink: 0; }
+    .anchor-body { flex: 1; min-width: 0; }
+    .anchor-body section { min-height: 320px; border: 1px solid var(--z-color-border); border-radius: var(--z-radius-md); padding: 16px; margin-bottom: 16px; }
+    .anchor-body h3 { margin: 0 0 8px; }
+    .drawer-content { display: flex; flex-direction: column; gap: 12px; }
+    /* ── data ── */
+    .stat-row { display: flex; gap: 40px; align-items: flex-end; }
+    .img-box { width: 180px; height: 120px; }
+    /* ── enterprise ── */
+    .wm-host { width: 100%; height: 200px; position: relative; background: var(--z-color-gray-50); border-radius: var(--z-radius-md); }
+    /* 水印 host 无高度（内容 absolute）→ demo 里需绝对铺满容器,否则水印不可见 */
+    .wm-host z-watermark { position: absolute; inset: 0; }
+    .wm-card { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; border: 1px solid var(--z-color-border); border-radius: var(--z-radius-md); padding: 16px 24px; text-align: center; }
+    .vlist-host { width: 100%; height: 320px; }
+    .vlist-row { height: 40px; display: flex; align-items: center; padding: 0 12px; box-sizing: border-box; border-bottom: 1px solid var(--z-color-gray-100); font-size: 13px; color: var(--z-color-text); }
+    .vlist-row .idx { display: inline-block; width: 2.5em; color: var(--z-color-text-secondary); }
+    /* ── rich text ── */
+    .rt-host { width: 100%; }
+    /* ── data list ── */
+    .dl-host { width: 100%; }
+    .dl-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .dl-toolbar span.mode-badge { font-size: 12px; color: var(--z-color-text-secondary); margin-right: 8px; }
+    .dl-log-area { width: 100%; max-height: 200px; overflow: auto; border: 1px solid var(--z-color-border); border-radius: 6px; padding: 8px; box-sizing: border-box; }
+    /* ── markdown live editor ── */
+    .live-editor {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      min-height: 400px;
+      width: 100%;
+    }
+    @media (max-width: 768px) {
+      .live-editor { grid-template-columns: 1fr; }
+    }
+    .live-editor__output {
+      min-height: 400px;
+      padding: 16px;
+      border: 1px solid var(--z-color-border);
+      border-radius: var(--z-radius-md);
+      background: var(--z-color-bg);
+      overflow-y: auto;
+    }
+    .live-editor__output:empty::after {
+      content: "Rendered output will appear here...";
+      color: var(--z-color-text-secondary);
+      font-style: italic;
+    }
+    /* ── API 表格（markdown API 参考）── */
+    .cmplx-api-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .cmplx-api-table th { text-align: left; padding: 8px 12px; border-bottom: 2px solid var(--z-color-border); }
+    .cmplx-api-table td { padding: 8px 12px; border-bottom: 1px solid var(--z-color-border); }

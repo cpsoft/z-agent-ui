@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<title>观感对齐矩阵 · zAgentUI vs 宿主原生</title>
+<!--
+  「零侵入接入后观感是否等价」原本只能靠人看，而人会漏、也说不清差在哪。
+  这里把同一批控件**并排放**：左 = zAgentUI 组件，右 = 按宿主 token 手写的原生控件
+  （尺寸按 shadcn 默认：h-9 / rounded-md=radius-2 / text-sm）。
+
+  它不判断「谁对」，只把差异摆出来：高度、圆角、字号、边框色、底色五项逐一量。
+  有差异的项要么改库、要么改宿主，要么明确接受 —— 但必须先看见。
+
+  用法：npx vite --config vite.demo.config.ts --port 5199
+        node smoke/visual-compare.mjs
+-->
+<style>
+  /* ── 宿主主题（zwms 实测 token，逐字取自 issue IKIDAI 附录） ──
+     默认开启：这个页面比较的就是"宿主接入之后"的状态。 */
+  :root {
+    --radius: 0.5rem;
+    --background: #f8fafc;  --foreground: #0f172a;
+    --card: #ffffff;        --card-foreground: #0f172a;
+    --popover: #ffffff;     --popover-foreground: #0f172a;
+    --primary: #2563eb;     --primary-foreground: #ffffff;
+    --primary-soft: #eff6ff;
+    --secondary: #f1f5f9;   --secondary-foreground: #1e293b;
+    --muted: #f1f5f9;       --muted-foreground: #64748b;
+    --accent: #eff6ff;      --accent-foreground: #1e40af;
+    --destructive: #ef4444; --destructive-soft: #fef2f2;
+    --success: #10b981;     --warning: #f59e0b;
+    --border: #e2e8f0;      --input: #e2e8f0;   --ring: #2563eb;
+    --ring-soft: rgb(37 99 235 / 0.15);
+    --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  .dark, [data-theme="dark"] {
+    --background: #0f172a;  --foreground: #f8fafc;
+    --card: #1e293b;        --primary: #3b82f6;
+    --border: #334155;      --muted: #334155;
+    --primary-soft: rgb(59 130 246 / 0.16);
+  }
+
+  /* ── 页面自身（不属于被测对象） ── */
+  body {
+    margin: 0; padding: 16px 20px 40px;
+    font-family: var(--font-sans);
+    background: var(--background); color: var(--foreground);
+  }
+  h1 { font-size: 15px; margin: 0 0 4px; font-weight: 600; }
+  .hint { font-size: 12px; color: var(--muted-foreground); margin: 0 0 14px; }
+  .bar {
+    display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+    padding: 8px 12px; margin-bottom: 14px;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--card);
+    font-size: 12px;
+  }
+  .bar label { display: inline-flex; gap: 5px; align-items: center; }
+
+  .rows { display: grid; grid-template-columns: 116px 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .rows > * { background: var(--card); padding: 10px 12px; }
+  .head { font-size: 12px; font-weight: 600; color: var(--muted-foreground); }
+  .label { font-size: 12px; color: var(--muted-foreground); display: flex; align-items: center; }
+  .cell { display: flex; align-items: center; gap: 8px; min-height: 40px; }
+
+  /* ── 宿主"原生"控件复刻（shadcn 默认尺寸，只用宿主 token） ── */
+  .hn, .hn-table th, .hn-table td { box-sizing: border-box; font-family: var(--font-sans); }
+  .hn { font-size: 14px; line-height: 1; }
+  .hn-btn {
+    height: 36px; padding: 0 16px;
+    border-radius: calc(var(--radius) - 2px);
+    border: 1px solid transparent;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 500; cursor: pointer;
+  }
+  .hn-btn--primary { background: var(--primary); color: var(--primary-foreground); }
+  .hn-btn--secondary { background: var(--secondary); color: var(--secondary-foreground); border-color: transparent; }
+  .hn-input {
+    height: 36px; padding: 0 12px;
+    border-radius: calc(var(--radius) - 2px);
+    border: 1px solid var(--input, var(--border));
+    background: var(--card); color: var(--foreground);
+    display: inline-flex; align-items: center; min-width: 180px;
+  }
+  .hn-input__ph { color: var(--muted-foreground); }
+  .hn-badge {
+    height: 22px; padding: 0 8px;
+    border-radius: calc(var(--radius) - 4px);
+    background: var(--secondary); color: var(--secondary-foreground);
+    display: inline-flex; align-items: center; font-size: 12px; font-weight: 500;
+  }
+  .hn-switch {
+    width: 40px; height: 22px; border-radius: 999px;
+    background: var(--primary); position: relative;
+  }
+  .hn-switch::after {
+    content: ""; position: absolute; top: 2px; right: 2px;
+    width: 18px; height: 18px; border-radius: 999px; background: #fff;
+  }
+  .hn-check {
+    width: 16px; height: 16px; border-radius: calc(var(--radius) - 6px);
+    background: var(--primary); color: var(--primary-foreground);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; line-height: 1;
+  }
+  .hn-pager {
+    height: 32px; min-width: 32px; padding: 0 8px;
+    border-radius: calc(var(--radius) - 2px);
+    border: 1px solid var(--border); background: var(--card); color: var(--foreground);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .hn-pager--active { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+
+  /* 表格：表头 + 斑马行 */
+  .hn-table { border: 1px solid var(--border); border-radius: calc(var(--radius) - 2px); overflow: hidden; width: 100%; border-collapse: collapse; }
+  .hn-table th {
+    height: 36px; padding: 0 12px; text-align: left;
+    background: var(--muted); color: var(--muted-foreground);
+    font-size: 12px; font-weight: 500;
+  }
+  .hn-table td { height: 36px; padding: 0 12px; font-size: 13px; border-top: 1px solid var(--border); }
+  .hn-table tr:nth-child(even) td { background: color-mix(in srgb, var(--muted) 55%, var(--card)); }
+</style>
+</head>
+<body>
+
+<h1>观感对齐矩阵</h1>
+<p class="hint">左：zAgentUI 组件（shadow DOM）　右：按宿主 token 手写的原生控件（shadcn 默认尺寸）</p>
+
+<div class="bar">
+  <label><input type="checkbox" id="sw-host" checked /> 宿主主题</label>
+  <label><input type="checkbox" id="sw-dark" /> 暗色</label>
+</div>
+
+<div class="rows" id="rows">
+  <div class="head">控件</div>
+  <div class="head">zAgentUI</div>
+  <div class="head">宿主原生（shadcn 默认）</div>
+
+  <div class="label">主按钮</div>
+  <div class="cell" data-lib="z-button|.z-button|primary"><z-button>主操作</z-button></div>
+  <div class="cell" data-host=".hn-btn--primary"><button class="hn hn-btn hn-btn--primary">主操作</button></div>
+
+  <div class="label">次按钮</div>
+  <div class="cell" data-lib="z-button|.z-button|secondary"><z-button tone="default">次要</z-button></div>
+  <div class="cell" data-host=".hn-btn--secondary"><button class="hn hn-btn hn-btn--secondary">次要</button></div>
+
+  <div class="label">输入框</div>
+  <div class="cell" data-lib="z-input|.z-input__wrapper|.z-input__field"><z-input placeholder="门店名称"></z-input></div>
+  <div class="cell" data-host=".hn-input||.hn-input__ph"><span class="hn hn-input"><span class="hn-input__ph">门店名称</span></span></div>
+
+  <div class="label">标签</div>
+  <div class="cell" data-lib="z-badge|.z-badge|"><z-badge>默认</z-badge></div>
+  <div class="cell" data-host=".hn-badge"><span class="hn hn-badge">默认</span></div>
+
+  <div class="label">开关</div>
+  <div class="cell" data-lib="z-switch|.z-switch__track|"><z-switch checked></z-switch></div>
+  <div class="cell" data-host=".hn-switch"><span class="hn hn-switch"></span></div>
+
+  <div class="label">复选框</div>
+  <div class="cell" data-lib="z-checkbox|.z-checkbox__box|"><z-checkbox checked></z-checkbox></div>
+  <div class="cell" data-host=".hn-check"><span class="hn hn-check">✓</span></div>
+
+  <div class="label">分页按钮</div>
+  <div class="cell" data-lib="z-pagination|.z-pagination__item:not(.z-pagination__item--active)|"><div id="pg"></div></div>
+  <div class="cell" data-host=".hn-pager"><span class="hn hn-pager">1</span></div>
+
+  <div class="label">表头</div>
+  <div class="cell" data-lib="z-report-table|.z-rpt__th|"><div id="tbl"></div></div>
+  <div class="cell" data-host=".hn-table th"><table class="hn-table"><thead><tr><th>门店</th><th>销量</th></tr></thead><tbody><tr><td>西湖店</td><td>128</td></tr></tbody></table></div>
+</div>
+
+<script type="module">
+  import "../../src/theme/index.js";
+  import "../../src/components/button/index.js";
+  import "../../src/components/input/index.js";
+  import "../../src/components/badge/index.js";
+  import "../../src/components/switch/index.js";
+  import "../../src/components/checkbox/index.js";
+  import "../../src/components/pagination/index.js";
+  import "../../src/report/table/index.js";
+
+  const pg = document.createElement("z-pagination");
+  pg.total = 128;
+  pg.pageSize = 20;
+  pg.page = 1;
+  document.getElementById("pg").appendChild(pg);
+
+  const tbl = document.createElement("z-report-table");
+  tbl.columns = [
+    { key: "shop", title: "门店" },
+    { key: "qty", title: "销量", numeric: true },
+  ];
+  tbl.data = [
+    { shop: "西湖店", qty: 128 },
+    { shop: "拱墅店", qty: 96 },
+  ];
+  document.getElementById("tbl").appendChild(tbl);
+
+  // ── 开关 ──
+  const swHost = document.getElementById("sw-host");
+  const swDark = document.getElementById("sw-dark");
+  const hostVars = [...document.querySelectorAll("style")].find((s) => s.textContent.includes("--radius: 0.5rem"));
+  swHost.addEventListener("change", () => {
+    // 关掉宿主 token 靠"清掉内联覆盖"，避免动整段 style（页面自身也用了这些变量）
+    const root = document.documentElement;
+    if (!swHost.checked) {
+      root.dataset.nohost = "1";
+      root.style.setProperty("--radius", "8px");
+      root.style.setProperty("--background", "#ffffff");
+      root.style.setProperty("--card", "#ffffff");
+      root.style.setProperty("--muted", "#f8fafc");
+      root.style.setProperty("--secondary", "#f1f5f9");
+      root.style.setProperty("--accent", "#f1f5f9");
+      root.style.setProperty("--border", "#e2e8f0");
+      root.style.setProperty("--input", "#e2e8f0");
+      root.style.setProperty("--foreground", "#0f172a");
+      root.style.setProperty("--muted-foreground", "#64748b");
+      root.style.setProperty("--primary", "#2563eb");
+      root.style.setProperty("--primary-foreground", "#ffffff");
+      root.style.setProperty("--secondary-foreground", "#1e293b");
+    } else {
+      root.removeAttribute("data-nohost");
+      ["--radius", "--background", "--card", "--muted", "--secondary", "--accent", "--border",
+       "--input", "--foreground", "--muted-foreground", "--primary", "--primary-foreground",
+       "--secondary-foreground"].forEach((n) => root.style.removeProperty(n));
+    }
+  });
+  swDark.addEventListener("change", () => {
+    document.documentElement.classList.toggle("dark", swDark.checked);
+    document.documentElement.dataset.theme = swDark.checked ? "dark" : "light";
+  });
+</script>
+</body>
+</html>

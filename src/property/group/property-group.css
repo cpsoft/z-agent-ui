@@ -1,0 +1,79 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+/* [WHY] span 由面板 grid 放置，组默认占满整行；!important 用于 480px 媒体查询
+   覆盖 host 内联的 --_z-property-cols（内联样式优先级更高） */
+:host([span]) {
+  grid-column: 1 / -1;
+}
+
+:host([disabled]) .z-property-group__header {
+  color: var(--z-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.z-property-group {
+  border-bottom: 1px solid var(--z-color-border);
+}
+
+.z-property-group__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--z-space-3) var(--z-space-1);
+  background: none;
+  border: none;
+  color: var(--z-color-text);
+  font-size: var(--z-property-header-font-size);
+  font-weight: var(--z-property-header-weight);
+  cursor: pointer;
+  text-align: left;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.z-property-group__header:hover {
+  color: var(--z-color-primary);
+}
+
+.z-property-group__icon {
+  display: inline-flex;
+  color: var(--z-color-text-secondary);
+  transition: transform var(--z-transition-normal);
+}
+
+.z-property-group__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.z-property-group--open .z-property-group__icon {
+  transform: rotate(180deg);
+}
+
+.z-property-group__content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--z-transition-normal);
+}
+
+.z-property-group--open .z-property-group__content {
+  max-height: var(--_z-property-content-height, 2000px);
+}
+
+.z-property-group__body {
+  display: grid;
+  grid-template-columns: var(--_z-property-cols, repeat(1, minmax(0, 1fr)));
+  gap: var(--z-property-gap) var(--z-space-4);
+  padding: var(--z-space-1) 0 var(--z-space-4);
+  align-items: start;
+}
+
+@media (max-width: 480px) {
+  :host {
+    --_z-property-cols: repeat(1, minmax(0, 1fr)) !important;
+  }
+}

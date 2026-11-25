@@ -1,0 +1,19 @@
+/* ===== z-sticky ===== */
+
+/*
+  [sticky 失效的三个原因 —— 都会「看起来只是没吸住」而不报错]
+    1. 任一祖先有 `overflow: hidden | auto | scroll`（含 `overflow-x: auto`）——
+       元素改成相对那个祖先吸顶，而不是视口。表格容器最容易踩。
+    2. 祖先高度不够（元素没有可滑动的空间），sticky 自然不动。
+    3. `:host` 的 `display: inline`（sticky 对行内元素无效）。
+  组件层无法检测这三条，所以写在这里：出问题时先查这三项，不要怀疑组件。
+*/
+:host {
+  display: block;
+  position: var(--_pos, sticky);
+  top: var(--_top, 0);
+  bottom: var(--_bottom, auto);
+  z-index: var(--_z, 1);
+  /* 吸顶后内容会与下方滚动内容贴在一起，描边由使用方给（有的要分隔线、有的要阴影） */
+  background: var(--z-color-bg);
+}

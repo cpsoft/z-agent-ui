@@ -1,0 +1,148 @@
+/* [WHY] 2026-10-25 系统审计：report-table.css 的 Fixed columns / Checkbox column / Dark theme
+   区块（原 L533-672）。 */
+
+/* ── Fixed columns ── */
+
+.z-rpt__th--fixed-left,
+.z-rpt__th--fixed-right,
+.z-rpt__td--fixed-left,
+.z-rpt__td--fixed-right,
+/* [WHY] 合计行固定列: 与表头/表体同阶梯(z-index 2), 水平滚动时合计行与冻结列对齐,
+   见 [[bug-20260810-rpt-header-overlap]] 遗留 */
+.z-rpt__tf--fixed-left,
+.z-rpt__tf--fixed-right {
+  position: sticky;
+  z-index: 2;
+}
+
+/* [WHY] 冻结表头 z-index 提权: .z-rpt__head .z-rpt__th(0,2,0) 的 z-index:3 会覆盖
+   (0,1,0) 的 z-index:4, 水平滚动时普通表头(同为 3 且 DOM 靠后)盖住冻结表头。
+   此处 (0,3,0) 保证冻结表头恒在普通表头之上, 见 [[bug-20260810-rpt-header-overlap]] */
+.z-rpt__head .z-rpt__th--fixed-left,
+.z-rpt__head .z-rpt__th--fixed-right {
+  position: sticky;
+  z-index: 4;
+}
+
+/* [WHY] 表头工具格同样要提权，而且是**跨行**才暴露：分组表头下工具格 `rowspan=2` 落在
+   第一行，列名行（第二行）的格子按 DOM 顺序画在它之后 —— 同为 z-index:3 时工具格被压住，
+   卡片右边缘的图标格下半截露出被横滚过去的列名（IKXFXX 补记 2）。
+   [WHY 写成三元 (0,3,0)] 只写 `.z-rpt__head .z-rpt__th--tools` 与 `.z-rpt__head .z-rpt__th`
+   特异性打平，谁赢只取决于两个 CSS 文件合并的先后 —— 实测那条共享规则里的 z-index:5
+   就是这样被吃掉的（计算值仍是 3）。多挂一个类名，结论与顺序无关。 */
+.z-rpt__head .z-rpt__th.z-rpt__th--tools {
+  z-index: 5;
+}
+
+.z-rpt__th--fixed-left,
+.z-rpt__td--fixed-left,
+.z-rpt__tf--fixed-left {
+  left: 0;
+}
+
+.z-rpt__th--fixed-right,
+.z-rpt__td--fixed-right,
+.z-rpt__tf--fixed-right {
+  right: 0;
+}
+
+/* Shadow for fixed columns — 仅在实际滚动时出现, 交互自然 */
+.z-rpt__th--fixed-left::before,
+.z-rpt__td--fixed-left::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -8px;
+  bottom: 0;
+  width: 8px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--z-transition-fast);
+  background: linear-gradient(to right, rgba(0,0,0,0.06), transparent);
+}
+
+.z-rpt__th--fixed-right::after,
+.z-rpt__td--fixed-right::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -8px;
+  bottom: 0;
+  width: 8px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--z-transition-fast);
+  background: linear-gradient(to left, rgba(0,0,0,0.06), transparent);
+}
+
+.z-rpt__wrapper--scrolled-left .z-rpt__th--fixed-left::before,
+.z-rpt__wrapper--scrolled-left .z-rpt__td--fixed-left::before,
+.z-rpt__wrapper--scrolled-right .z-rpt__th--fixed-right::after,
+.z-rpt__wrapper--scrolled-right .z-rpt__td--fixed-right::after {
+  opacity: 1;
+}
+
+/* ── Checkbox column ── */
+
+.z-rpt__th--checkbox,
+.z-rpt__td--checkbox {
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  padding: 0;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.z-rpt__select-all,
+.z-rpt__row-checkbox {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--z-color-primary);
+  vertical-align: middle;
+}
+
+/* [WHY] 键盘可达性: 复选框需可见焦点环 */
+.z-rpt__select-all:focus-visible,
+.z-rpt__row-checkbox:focus-visible {
+  outline: var(--z-focus-ring-outline);
+  outline-offset: 1px;
+}
+
+/* [WHY] reduced-motion: 旋转指示器动画降速 */
+@media (prefers-reduced-motion: reduce) {
+  .z-rpt__spinner {
+    animation-duration: 1.6s;
+  }
+}
+
+/* ── Dark theme ── */
+/*
+ * [WHY 这里原来有 6 条覆盖，现在删掉] 表头 / 可排序表头 hover / 行 hover / 斑马纹 /
+ * 斑马行 hover / 表尾，各有一条 `[data-theme="dark"]` 把底改成 gray-200/300。删的理由：
+ *   1. **只认 `[data-theme="dark"]`**。宿主按 shadcn 惯例用 `.dark` class 切暗色时，
+ *      这 6 条一条都不生效 —— 暗色下表格是近白表头 + 近白斑马纹，而亮色那套规则
+ *      又是 gray-50，看上去像「暗色主题没做完」。
+ *   2. 值绑在 gray 阶上，宿主换中性色时跟着不动。
+ *   3. 亮暗两套各写一遍，实际上已经不一致：亮色行 hover 是 gray-50，暗色是 gray-200，
+ *      中间跳过一档。
+ * 现在这几个角色都由语义 token 表达（分带 -bg-secondary / 行 hover -hover-subtle /
+ * 压灰面的 hover -hover），它们走 gray 阶、在 .dark 里随整阶反转自动适配。
+ *
+ * 唯一的视觉变化：暗色下分带与 hover 各**浅一档**（#334155 → #1e293b，层级关系不变，
+ * 每一档仍然相差一级）。要恢复原来的对比强度，宿主给 `--muted` 设 #334155 即可。
+ *
+ * 选中行保留：暗色要的不是 tint(.28) 而是更收敛的 soft(.16)，这是刻意的暗色微调。
+ * 选择器补 `.dark`，与 tokens.css 的双通道保持一致。
+ */
+[data-theme="dark"] .z-rpt__row--selected .z-rpt__td,
+.dark .z-rpt__row--selected .z-rpt__td {
+  background: var(--z-color-primary-soft) !important;
+}
+
+[data-theme="dark"] .z-rpt__row--selected:hover .z-rpt__td,
+.dark .z-rpt__row--selected:hover .z-rpt__td {
+  background: var(--z-color-primary-soft) !important;
+}

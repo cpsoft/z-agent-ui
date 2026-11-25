@@ -1,0 +1,382 @@
+/* 列渲染产出的类 —— 只补 `format=badge` 与 `format=progress`（issue IKUE1E / IKUC2E）。
+ *
+ * [WHY 单独一个文件，而不是写进 page-view.css]
+ * 每个组件（BaseElement）都 `attachShadow`，样式按 **shadow root** 隔离。
+ * 表格单元格是 `<z-report-table>` 在自己的 shadow 里渲染的，因此
+ * `page-view.css` 里的规则**一条都进不来** —— 而 `page-view.css` 实际只被
+ * PageEditor 引入（编辑器画布用）。运行时页面上，`format=badge` 的
+ * `is-badge` 从来没有任何样式，这正是「写了等于没写」的真正原因。
+ *
+ * [2026-11-18 补上 .is-danger 等纯语义色] 原先这里写着「那是 `tone=` 用的，表格侧从建表
+ * 起就没有过它们，补上会改变存量观感」。那句话在当时是对的（`tone=` 只有九个业务语义，
+ * 表格里根本没输出过这些 class）；issue IKUZL3 之后渲染器真的开始往单元格里写
+ * `is-danger`，于是「有 class 没样式」变成了新的静默失效。详见下面「单元格里的语义色」。
+ */
+
+/* ── 胶囊（format=badge）── */
+/*
+ * [WHY 必须有底色] 只给圆角与内边距时，胶囊与纯文本在视觉上几乎没差别，
+ * 读者会以为「这列没配格式」。中性底兜住「没写 badge-tone」的列。
+ */
+.is-badge {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: var(--z-radius-sm);
+  font-size: var(--z-font-size-xs);
+  line-height: 18px;
+  background: var(--z-color-bg-secondary);
+  color: var(--z-color-text-secondary);
+  /* 状态列是「已订 / 未订」这类双字词，不能被表格的 nowrap 或省略号截掉 */
+  white-space: nowrap;
+}
+
+/* 按值配色（`badge-tone=[0:danger, 1:muted]`）。色名白名单在 render-data.ts，
+   这里只负责「已经被允许的这五个色名长什么样」。 */
+.is-badge.is-danger {
+  color: var(--z-color-danger-strong);
+  background: var(--z-color-danger-soft);
+}
+
+.is-badge.is-warning {
+  color: var(--z-color-warning-strong);
+  background: var(--z-color-warning-soft);
+}
+
+.is-badge.is-success {
+  color: var(--z-color-success-strong);
+  background: var(--z-color-success-soft);
+}
+
+.is-badge.is-muted {
+  color: var(--z-color-text-secondary);
+  background: var(--z-color-bg-secondary);
+}
+
+.is-badge.is-primary {
+  color: var(--z-color-primary-strong);
+  background: var(--z-color-primary-soft);
+}
+
+/* ── 并进同一个格子的徽标组（issue IKUXAD）── */
+/*
+ * `col 任务 "任务名" badges=[异议, 作废]` —— 被点名的列渲染在这个容器里，
+ * 跟在主值后面。容器用 inline-flex 而不是 inline-block：胶囊之间要有间隙，
+ * 且窄列时允许换行（宁可多占一行，也不要把最后一个胶囊截掉半个字）。
+ *
+ * `vertical-align: middle` 是为了与主文本的基线对齐 —— 默认 baseline 会把胶囊
+ * 压到字的下缘，看起来像下划线。
+ */
+.zp-cell__badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* ── 行底色（`row-tone-field` + `row-tone=`，issue IKUZL4）──
+ *
+ * class 由 `rowToneClassOf`（page/render/format.ts）按行取值给出，白名单就是
+ * `tone` 那五个色名 —— 值来自数据，不做白名单就是一条「数据 → class 属性」的注入通道。
+ *
+ * [WHY 染 td 而不是染 tr] 冻结列的 td 自己带 `position: sticky` 与背景（横向滚动时要
+ * 盖住后面的列），tr 的背景在它下面看不见 —— 只染 tr 的结果是「非冻结列变色、冻结列还是白的」。
+ * 同理 `> ` 直接子选择器：嵌套表（子表卡）的内层 td 不该跟着外层的行色走。
+ *
+ * [WHY 用 soft 而不是 strong] 整行是阅读区域，`-strong` 是给实心小色块用的，
+ * 铺在 42 行上会让整张表变成照片底片，反而看不出那一行是被标记的那一行。 */
+.z-rpt__row.is-danger > .z-rpt__td {
+  background: var(--z-color-danger-soft);
+}
+
+.z-rpt__row.is-warning > .z-rpt__td {
+  background: var(--z-color-warning-soft);
+}
+
+.z-rpt__row.is-success > .z-rpt__td {
+  background: var(--z-color-success-soft);
+}
+
+.z-rpt__row.is-muted > .z-rpt__td {
+  background: var(--z-color-bg-secondary);
+}
+
+.z-rpt__row.is-primary > .z-rpt__td {
+  background: var(--z-color-primary-soft);
+}
+
+/* ── 单元格里的语义色（`col … tone=`）──
+ *
+ * [2026-11-18 补，推翻本文件开头那条「暂不定义」的决定] 那条写于 2026-11，理由是
+ * 「表格侧从建表起就没有过它们，顺手补上会改变存量观感」。之后 `tone=` 放开了阈值与
+ * 恒色写法（issue IKUZL3），`render-data.ts` 会真的往单元格里输出 `is-danger` 这类 class
+ * —— 但**一条样式都没有**。于是「逾期 13 天标红」在 PC 表格里是灰的，在 KPI 卡里是红的：
+ * 同一个属性、同一份脚本，两块屏两种结果，而页面不报错。
+ * 一个 class 有名字没有样式，等于写了个错别字：不报错、不生效。
+ *
+ * 只给字色，不给底色：整格的底色属于 `row-tone`（见上式），两者叠在一起会变成
+ * 「红底红字」。这也与 page-view.css 对 `td .is-*` 的口径一致（那边显式清掉了背景）。 */
+.z-rpt__td .is-danger {
+  color: var(--z-color-danger-strong);
+}
+
+.z-rpt__td .is-warning {
+  color: var(--z-color-warning-strong);
+}
+
+.z-rpt__td .is-success {
+  color: var(--z-color-success-strong);
+}
+
+.z-rpt__td .is-muted {
+  color: var(--z-color-text-secondary);
+}
+
+.z-rpt__td .is-primary {
+  color: var(--z-color-primary-strong);
+}
+
+/* 方向色（`tone=vs:` / `tone=sign`，issue IKXCXD）：高于基线 `is-up`、低于基线 `is-down`。
+ *
+ * [WHY 与 page-view-base.css 重复一份] 表格单元格在 `<z-report-table>` 的 shadow 里，
+ * page-view.css 进不来（同 `is-badge` 的理由）。两份不同步的症状是
+ * 「KPI 卡里有颜色、表格里是灰的」—— 而同一份脚本、同一个 `tone`。
+ * 契约由 `tests/unit/page-semantic-class-coverage.test.ts` 守住：渲染层能产出的每个
+ * `is-*`，在表格与页面两份样式里都必须至少有一条选择器。
+ *
+ * 只给字色：方向不是「要处理」，整格铺底色会把「这一列涨了」画成一块红。 */
+.z-rpt__td .is-up {
+  color: var(--z-color-data-up);
+}
+
+.z-rpt__td .is-down {
+  color: var(--z-color-data-down);
+}
+/* ── 进度条（format=progress）── */
+/*
+ * 条与文字并排而非叠放：叠在条上的数字在填充过半时会被色块压住读不出来。
+ * 轨道定宽而不是百分比：列宽是用户可调的，百分比宽度会让同一页不同表格
+ * 的条看起来长短不一，反而更像数据不一致。
+ */
+.zpg-progress {
+  display: inline-flex;
+  align-items: center;
+  /* [★ 2026-11-11 从 flex-end 改成 flex-start，督导配送日页实测] 整块右对齐时，
+     轨道的**右端**被右侧文字推着走 —— 而「0 / 3」比「19 / 29」窄 5 个字符，
+     同一列九行里条的左端能差 20px，看上去像是条没渲完、行与行错位。
+     左对齐 + 轨道定宽 + 文字定宽，三个左端同时钉在列左边界，任何人一眼都齐。 */
+  justify-content: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.zpg-progress__track {
+  position: relative;
+  flex: 0 0 auto;
+  /* 56 → 72：线框稿给的是 78px，56px 上 10% 的差别只有 5px，读不出「谁更缺」 */
+  width: 72px;
+  height: 6px;
+  border-radius: var(--z-radius-full);
+  background: var(--z-color-bg-secondary);
+  /* 0% 只剩空轨：卡片底色与轨道底色几乎同值，看起来就是「这格没画条」。
+     一道内描边让「有条但为 0」与「根本没有条（分母缺失）」能区分开。 */
+  box-shadow: inset 0 0 0 1px var(--z-color-border);
+  overflow: hidden;
+}
+
+.zpg-progress__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--z-color-primary);
+  /* 同一列各行的条宽不同，没有过渡时重渲染会「跳」一下 */
+  transition: width var(--z-transition-quick);
+}
+
+.zpg-progress__text {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  /* 定宽 + 右对齐：轨道左端已经固定了，文字这一段再按内容宽度走的话，
+     「0 / 3」与「19 / 29」的右端会各自为政，一列数字看着像没对齐。 */
+  min-width: 4.2em;
+  text-align: right;
+}
+
+/* ── 行内控件（`col ui=switch|stepper|button|action`，issue IKUXAB）──
+ *
+ * [WHY 样式必须写在这个文件] 单元格 HTML 是在 `<z-report-table>` 的 shadow 里渲染的，
+ * `page-view.css` 的规则一条都进不来（同 `is-badge` / `is-progress` 的理由）。
+ *
+ * 三件事刻意不做：不加过渡（表格滚动时几百个控件同时动会卡，也没有信息量）；
+ * 不套 `z-switch` 组件（表格一行一个实例，且它在 shadow 里还要再开一层 shadow）；
+ * 不给 hover 以外的反馈音效/动画 —— 改值成不成由 `is-pending` 与重渲染后的真实值说话。
+ */
+.zp-cellctl {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+}
+
+/* 开关：轨道 + 圆钮，尺寸刻意比表单里的小一号（表格行高只有 36px） */
+.zp-cellctl--switch {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--z-radius-full);
+  background: var(--z-color-border);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.zp-cellctl--switch.is-on {
+  background: var(--z-color-primary);
+}
+
+.zp-cellctl__knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--z-radius-full);
+  background: var(--z-color-surface);
+}
+
+.zp-cellctl--switch.is-on .zp-cellctl__knob {
+  left: 18px;
+}
+
+/* 步进器：两个按钮夹一个数字，数字用等宽数字避免宽度抖动 */
+.zp-cellctl--stepper {
+  gap: 2px;
+}
+
+.zp-cellctl__step {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-surface);
+  color: var(--z-color-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-md);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.zp-cellctl__val {
+  min-width: 26px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--z-color-text);
+}
+
+/* 按钮：行内次按钮（写值）/ 主按钮（去那一行）外观只差字重与底色 */
+.zp-cellctl--button,
+.zp-cellctl--action {
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-surface);
+  color: var(--z-color-primary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.zp-cellctl--action {
+  font-weight: var(--z-font-weight-medium);
+}
+
+/* 图标版行内动作（issue IKWNGS）：方形、无内边距 —— 一行两枚动作时文字列放不下。
+   尺寸跟 svg 走（14px），`line-height: 0` 去掉行盒的额外上下留白，否则按钮比 24px 更高。 */
+.zp-cellctl--action.zp-cellctl--icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  padding: 0;
+  line-height: 0;
+}
+
+.zp-cellctl--button:hover,
+.zp-cellctl--action:hover {
+  background: var(--z-color-bg-secondary);
+}
+
+.zp-cellctl:focus-visible {
+  outline: none;
+  box-shadow: var(--z-focus-ring);
+}
+
+/* 就地输入（`ui=text|number`，issue IKWNGS）：看上去像一格文字，点进去才是输入框。
+   [WHY 不画成标准 input] 一列 200 行全带边框，表格会变成一片网格；这里的语义是
+   「这一格可以改」，不是「这里有个表单字段」。所以常态透明底、无边框，hover/focus 才显形。
+   宽度用 `ch` 而不是固定 px：一列数字的宽度本来就跟位数走。 */
+.zp-cellctl--input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 4ch;
+  min-height: 24px;
+  padding: 0 4px;
+  border: 1px solid transparent;
+  border-radius: var(--z-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+}
+
+.zp-cellctl--input:hover {
+  border-color: var(--z-color-border);
+}
+
+/* 聚焦时必须有可见边框：`focus-visible` 只在键盘下来，鼠标点进来也要看得出「在改哪一格」 */
+.zp-cellctl--input:focus {
+  border-color: var(--z-color-primary);
+  background: var(--z-color-surface);
+  outline: none;
+}
+
+.zp-cellctl--input.zp-cellctl--num {
+  text-align: right;
+  /* 数字等宽：一列金额上下对不齐比没有输入框更显眼 */
+  font-variant-numeric: tabular-nums;
+}
+
+/* 已上报、等宿主回写：半透明 + 不吃点击（连点会连发一串写入） */
+.zp-cellctl.is-pending {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* 草稿态（`card edit=yes`，issue IKX0CE P1-6）：改过、但还没交出去。
+ *
+ * [WHY 不复用 is-pending] 两者的收尾人不同：pending 等**宿主**写回，草稿等**用户**提交。
+ * 借过来用就得连 `pointer-events: none` 一起借 —— 而草稿态下用户必须能接着改。
+ */
+.zp-cellctl.is-dirty {
+  border-color: var(--z-color-warning);
+  background: var(--z-color-warning-soft);
+}
+
+/* 行级标记：一格里改了东西，整行左侧要能扫出来（宽表 20 列，只标一格等于没标） */
+.z-rpt__row.is-dirty > .z-rpt__td {
+  background: var(--z-color-warning-soft);
+}
+
+/* 待删（勾选后点了「删除所选」）：留着这一行、画删除线。
+ *
+ * [WHY 不当场挪走] 提交之前它还在数据里 —— 挪走了用户就看不到自己要删的是哪几行，
+ * 而写失败时也没人能把它挪回来（页面不写库）。 */
+.z-rpt__row.is-deleted > .z-rpt__td {
+  color: var(--z-color-text-secondary);
+  text-decoration: line-through;
+  background: var(--z-color-danger-soft);
+}

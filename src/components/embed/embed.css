@@ -1,0 +1,61 @@
+/* ===== z-embed ===== */
+
+:host {
+  display: block;
+}
+
+/* 高度由宿主行内 style 给（height / auto-height 的测量值），这里只负责撑满 */
+.z-embed {
+  position: relative;
+  width: 100%;
+}
+
+.z-embed__frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg);
+  color-scheme: normal;
+}
+
+/* 占位与加载态共用一个盒子：两者互斥出现，样式一致才不会在切换时跳一下 */
+.z-embed__state {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-2);
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 60px;
+  border: 1px dashed var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg-secondary);
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-sm);
+}
+
+/* [WHY 叠在画面上而不是替换 iframe] 加载态若把 iframe 从 DOM 里拿掉，再插回来就是
+   第二次请求 —— 一个永远在转的 spinner 会把同一份文档拉两遍。 */
+.z-embed__state--overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--z-color-bg-secondary);
+}
+
+.z-embed__retry {
+  padding: 2px var(--z-space-3);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-bg);
+  color: var(--z-color-primary);
+  font-size: var(--z-font-size-sm);
+  cursor: pointer;
+}
+
+.z-embed__retry:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: 1px;
+}

@@ -1,0 +1,137 @@
+/* ===== m-picker ===== */
+
+:host {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-picker__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-z-modal);
+  display: flex;
+  align-items: flex-end;
+  background: var(--z-color-bg-overlay);
+  animation: m-picker-fade-in var(--z-anim-duration-fast) ease-out;
+}
+
+.m-picker__overlay--closing {
+  animation: m-picker-fade-out var(--z-anim-duration-fast) ease-in forwards;
+}
+
+.m-picker__panel {
+  width: 100%;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--z-color-surface);
+  border-radius: var(--z-radius-lg) var(--z-radius-lg) 0 0;
+  animation: m-picker-slide-up var(--z-anim-duration-normal) ease-out;
+}
+
+.m-picker__panel--closing {
+  animation: m-picker-slide-down var(--z-anim-duration-normal) ease-in forwards;
+}
+
+.m-picker__head {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  padding: var(--z-space-2) var(--z-space-3);
+  border-bottom: 1px solid var(--z-color-divider);
+}
+
+.m-picker__title {
+  flex: 1 1 auto;
+  overflow: hidden;
+  color: var(--z-color-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-base);
+  font-weight: var(--z-font-weight-medium);
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.m-picker__act {
+  flex: 0 0 auto;
+  min-width: var(--z-touch-min);
+  min-height: var(--z-touch-min-sm);
+  padding: 0 var(--z-space-2);
+  border: 0;
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-base);
+  cursor: pointer;
+}
+
+.m-picker__act--primary {
+  color: var(--z-color-primary);
+  font-weight: var(--z-font-weight-medium);
+}
+
+.m-picker__list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  /* [WHY 惯性滚动 + 边界不穿透] iOS 上内层滚动到顶会继续滚动外层页面，
+     看起来像「面板自己跳走了」。 */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-bottom: var(--z-safe-bottom);
+}
+
+.m-picker__option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--z-space-1);
+  width: 100%;
+  min-height: var(--z-touch-min);
+  padding: var(--z-space-2) var(--z-m-gutter);
+  border: 0;
+  background: transparent;
+  color: var(--z-color-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-base);
+  cursor: pointer;
+}
+
+.m-picker__option:active {
+  background: var(--z-color-fill-secondary);
+}
+
+.m-picker__option--on {
+  color: var(--z-color-primary);
+  font-weight: var(--z-font-weight-medium);
+}
+
+.m-picker__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.m-picker__check {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+@keyframes m-picker-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes m-picker-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes m-picker-slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes m-picker-slide-down {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}

@@ -1,0 +1,219 @@
+/* ===== z-doc-template-manager: 模板列表 ===== */
+
+:host {
+  display: block;
+}
+
+.z-dtm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-3);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+}
+
+.z-dtm__toolbar,
+.z-dtm__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+}
+
+.z-dtm__spacer {
+  flex: 1;
+}
+
+.z-dtm__title {
+  font-size: var(--z-font-size-md);
+  font-weight: var(--z-font-weight-semibold);
+}
+
+/* [WHY 搜索框不再参与这条规则] 它现在是 z-search-bar，边框/高度/焦点光晕由组件自己
+   按统一口径画；这里再写一遍就是两层边框叠出来的双线。只留宽度对齐工具栏。 */
+.z-dtm__select {
+  height: var(--z-input-height);
+  padding: var(--z-input-padding-y) var(--z-input-padding-x);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg);
+  color: var(--z-color-text);
+  font-size: var(--z-input-font-size);
+  outline: none;
+}
+
+.z-dtm__search {
+  width: 200px;
+}
+
+.z-dtm__select:focus {
+  border-color: var(--z-color-primary);
+  box-shadow: var(--z-focus-ring);
+}
+
+/* ── 按钮 ───────────────────────────────────────────── */
+.z-dtm__btn {
+  height: var(--z-input-height);
+  padding: var(--z-button-padding-y) var(--z-button-padding-x);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-button-radius);
+  background: var(--z-color-bg);
+  color: var(--z-color-text);
+  font-size: var(--z-button-font-size);
+  font-weight: var(--z-button-font-weight);
+  cursor: pointer;
+  transition: var(--z-button-transition);
+}
+
+.z-dtm__btn:hover {
+  border-color: var(--z-color-border-hover);
+  background: var(--z-color-bg-secondary);
+}
+
+.z-dtm__btn--primary {
+  background: var(--z-color-primary-solid);
+  border-color: var(--z-color-primary-solid);
+  color: var(--z-color-primary-text);
+}
+
+.z-dtm__btn--primary:hover {
+  background: var(--z-color-primary-solid-hover);
+  border-color: var(--z-color-primary-solid-hover);
+}
+
+.z-dtm__btn--danger {
+  color: var(--z-color-danger);
+  border-color: color-mix(in srgb, var(--z-color-danger) 40%, transparent);
+}
+
+.z-dtm__btn--danger:hover {
+  background: var(--z-color-danger-solid);
+  border-color: var(--z-color-danger-solid);
+  color: var(--z-color-danger-text);
+}
+
+/* ── 表格 ───────────────────────────────────────────── */
+.z-dtm__list {
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg);
+  overflow: auto;
+}
+
+.z-dtm__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.z-dtm__table th {
+  padding: var(--z-space-2) var(--z-space-3);
+  text-align: left;
+  font-weight: var(--z-font-weight-semibold);
+  color: var(--z-color-text-secondary);
+  border-bottom: 1px solid var(--z-color-border);
+  background: var(--z-color-bg-secondary);
+  white-space: nowrap;
+}
+
+.z-dtm__th--ops {
+  text-align: right;
+}
+
+.z-dtm__row:hover {
+  background: var(--z-color-bg-secondary);
+}
+
+.z-dtm__row--active {
+  background: color-mix(in srgb, var(--z-color-primary) 8%, transparent);
+}
+
+.z-dtm__cell {
+  padding: var(--z-space-2) var(--z-space-3);
+  border-bottom: 1px solid var(--z-color-border);
+  vertical-align: middle;
+}
+
+.z-dtm__cell--desc {
+  color: var(--z-color-text-secondary);
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.z-dtm__cell--time {
+  color: var(--z-color-text-secondary);
+  white-space: nowrap;
+}
+
+.z-dtm__cell--ops {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.z-dtm__cell--ops .z-dtm__btn {
+  margin-left: var(--z-space-1);
+}
+
+.z-dtm__name {
+  font-weight: var(--z-font-weight-medium);
+}
+
+.z-dtm__badge {
+  display: inline-block;
+  margin-left: var(--z-space-2);
+  padding: 1px 6px;
+  border-radius: var(--z-radius-sm);
+  background: color-mix(in srgb, var(--z-color-primary) 12%, transparent);
+  color: var(--z-color-primary);
+  font-size: var(--z-font-size-xs);
+  line-height: 16px;
+}
+
+.z-dtm__state {
+  padding: var(--z-space-8);
+  text-align: center;
+  color: var(--z-color-text-secondary);
+}
+
+.z-dtm__error {
+  padding: var(--z-space-2) var(--z-space-3);
+  border: 1px solid color-mix(in srgb, var(--z-color-danger) 40%, transparent);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-danger-soft);
+  color: var(--z-color-danger-strong);
+}
+
+/* ── 分页 ───────────────────────────────────────────── */
+.z-dtm__total {
+  color: var(--z-color-text-secondary);
+}
+
+.z-dtm__page {
+  min-width: 28px;
+  height: var(--z-input-height);
+  padding: 0 var(--z-space-2);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-bg);
+  color: var(--z-color-text);
+  font-size: var(--z-font-size-sm);
+  cursor: pointer;
+  transition: var(--z-transition-fast);
+}
+
+.z-dtm__page:hover:not(:disabled) {
+  border-color: var(--z-color-primary);
+  color: var(--z-color-primary);
+}
+
+.z-dtm__page--active {
+  background: var(--z-color-primary-solid);
+  border-color: var(--z-color-primary-solid);
+  color: var(--z-color-primary-text);
+}
+
+.z-dtm__page:disabled {
+  color: var(--z-color-text-disabled);
+  cursor: not-allowed;
+}

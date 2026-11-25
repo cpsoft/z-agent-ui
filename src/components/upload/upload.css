@@ -1,0 +1,126 @@
+/* ===== z-upload ===== */
+/* [WHY] 2026-10-25 系统审计：本文件是旧色板/旧 token 残留最重的一处
+   (--z-text-color / --z-bg-subtle / --z-border-color / --z-radius / --z-font-size 全部
+   依赖裸 hex fallback 生效，暗色主题下不跟随)。按 component-style-standard 全量归位：
+   fallback 一律删除，间距/字号/圆角全部走 token。
+   See: wiki/reference/component-style-standard.md */
+
+:host {
+  display: block;
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+}
+
+.z-upload {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-2);
+}
+
+.z-upload--disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.z-upload__dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--z-space-6) var(--z-space-4);
+  border: 1px dashed var(--z-color-border-hover);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg-secondary);
+  cursor: pointer;
+  transition: border-color var(--z-transition-fast), background var(--z-transition-fast);
+  min-height: 64px;
+  box-sizing: border-box;
+}
+
+.z-upload__dropzone:hover {
+  border-color: var(--z-color-primary);
+}
+
+.z-upload__dropzone--drag {
+  border-color: var(--z-color-primary);
+  background: var(--z-color-primary-soft);
+}
+
+.z-upload__hint {
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-sm);
+  pointer-events: none;
+}
+
+.z-upload__input {
+  /* [WHY] 不能用 display:none：部分浏览器拒绝触发 click()；用视觉隐藏保留可点性 */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.z-upload__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-1);
+}
+
+.z-upload__item {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  padding: 6px var(--z-space-2);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-bg-secondary);
+  font-size: var(--z-font-size-sm);
+}
+
+.z-upload__item--error {
+  color: var(--z-color-danger);
+}
+
+.z-upload__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.z-upload__meta {
+  color: var(--z-color-text-disabled);
+  font-size: var(--z-font-size-xs);
+}
+
+.z-upload__status {
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-xs);
+  min-width: 3em;
+  text-align: right;
+}
+
+.z-upload__item--success .z-upload__status {
+  color: var(--z-color-success);
+}
+
+.z-upload__item--error .z-upload__status {
+  color: var(--z-color-danger);
+}
+
+.z-upload__remove {
+  border: none;
+  background: none;
+  color: var(--z-color-text-disabled);
+  font-size: var(--z-font-size-md);
+  line-height: 1;
+  padding: 2px var(--z-space-1);
+  cursor: pointer;
+  border-radius: var(--z-radius-sm);
+}
+
+.z-upload__remove:hover {
+  color: var(--z-color-danger);
+  background: var(--z-color-danger-soft);
+}

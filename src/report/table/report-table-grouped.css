@@ -1,0 +1,105 @@
+/* 分组表头（`col group=`，issue IKX0CE P1-5）单独一册。
+   [WHY 不留在 report-table.css] 那个文件卡在行数基线上（只减不增），而这条能力要
+   两行表头的 sticky 偏移、组间竖线、组头底色三组规则。混进去就得为了腾地方删别的
+   注释，而那些注释都在解释「为什么是这样」——比这册文件更难复原。 */
+
+/* ── 分组表头（`col group=`，issue IKX0CE P1-5）──
+
+   两行表头：组头行在上、列名行在下。两行都是 `position: sticky`，所以 `top` 必须错开 ——
+   都写 `top: 0` 就会在同一处重叠（纵向滚动时组头压住列名，整张表看起来「没有列名」）。
+
+   [WHY 用定高而不是 JS 量出来再回写] 组头行是单行 `nowrap` 文本，高度只由
+   `--z-rpt-group-row-h` 一处决定；量一遍再回写会多一次强制布局，而且首帧会跳。
+   两行之间只差这一个偏移，值得用一个变量把它锁住。 */
+.z-rpt--grouped {
+  --z-rpt-group-row-h: 28px;
+}
+.z-rpt__headrow--group .z-rpt__th {
+  top: 0;
+  height: var(--z-rpt-group-row-h);
+  padding-block: 0;
+  /* 组头下面的线是「组内继续」，不该是 2px 的强分隔 —— 强分隔属于列名行 */
+  border-bottom: 1px solid var(--z-color-border);
+  color: var(--z-color-text);
+  background: var(--z-color-bg-tertiary);
+}
+.z-rpt__headrow--cols .z-rpt__th {
+  top: var(--z-rpt-group-row-h);
+}
+/* 组与组之间一条竖线：没有它，30 天的组头和隔壁「合计」组头连成一片，只能靠猜 */
+.z-rpt__th--group {
+  border-left: 1px solid var(--z-color-border);
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.z-rpt__headrow--group > .z-rpt__th--group:first-of-type {
+  border-left: none;
+}
+
+/* ── 组头色相（`col group-tone=`）──
+
+   三件事一起做，只做一半会显得脏：
+   1. 组头底色（12% 色相压在 tertiary 上）+ 文字同色相 —— 让「这一组到哪儿为止」一眼可数；
+   2. 组间竖线跟着色相（55%）—— 纯灰线在彩底之间会消失；
+   3. 字重 600 —— 组名是「分类标签」不是数据，靠颜色之外还得靠重量站住。
+
+   [WHY 独立一套色相名而不是 dangerously 那套语义色] 这两个问题不一样：
+   分类色回答「它属于哪一组」（订货组是紫的，跟好坏无关），语义色回答「要不要处理」。
+   把订货组染成 danger，等于整张表在报警。zWorker 业绩页的 `g-sales/g-order/ratio-col`
+   也是这个分法（蓝 / 紫 / 青），不随数据变化。
+
+   [WHY color-mix 而不是另存一组 12% 的浅色变量] 主题切换（深色）时底色必须跟着
+   `--z-color-bg-tertiary` 走；把 mix 写死成浅色 hex，深色主题下组头会变成一块亮斑。 */
+.z-rpt__th--group[data-group-tone] {
+  color: var(--z-rpt-grp);
+  font-weight: 600;
+  background: color-mix(in srgb, var(--z-rpt-grp) 12%, var(--z-color-bg-tertiary));
+}
+/* 色相变量挂在 `[data-group-tone]` 本身、不再限定组头格：组内列名格也要解析到它
+   （见下面「组色贯穿整块表头」）。只限定 `--group` 会让列名格 background 里那个
+   `var(--z-rpt-grp)` 落空 —— 整条声明失效，底色静默变回灰底，而没有任何报错。 */
+.z-rpt__th[data-group-tone="blue"] {
+  --z-rpt-grp: var(--z-color-blue-600);
+}
+.z-rpt__th[data-group-tone="purple"] {
+  --z-rpt-grp: var(--z-color-purple-500);
+}
+.z-rpt__th[data-group-tone="green"] {
+  --z-rpt-grp: var(--z-color-green-600);
+}
+.z-rpt__th[data-group-tone="yellow"] {
+  --z-rpt-grp: var(--z-color-yellow-700);
+}
+.z-rpt__th[data-group-tone="red"] {
+  --z-rpt-grp: var(--z-color-red-600);
+}
+.z-rpt__th[data-group-tone="gray"] {
+  --z-rpt-grp: var(--z-color-gray-600);
+}
+
+/* ── 组色贯穿整块表头（2026-11-23）──
+
+   组头一格染 12% 时，下面 5~8 个列名格还是灰底 —— 色带在组头下沿就断了，28 列的表里
+   「这一组从哪儿到哪儿」又退回靠猜。zWorker 原版是单层表头（每个 `thead th` 都带组色底），
+   这里两行，就把列名行按组继承。
+
+   [WHY 与组头同一个浓度、而不是更淡一档] 试过 8%：深色主题下 tertiary 是 #334155，
+   8% 的紫只把 R 从 0.200 抬到 0.236 —— 肉眼分不出，等于没做。同浓度才是「一个块」：
+   组头行靠字重 600 + 同色相文字与列名行区分，不靠底色深浅。
+   [WHY 只染底不染字] 列名染色会让人以为「这一列有问题」；原版也只有组名前缀上色
+   （`.th-grp.sales`），列名本体是默认色。 */
+.z-rpt__headrow--cols .z-rpt__th[data-group-tone] {
+  background: color-mix(in srgb, var(--z-rpt-grp) 12%, var(--z-color-bg-tertiary));
+}
+
+/* 组边界：组头行的组格与列名行的组首列是**同一条线**，宽度与浓度必须一致，
+   否则竖线在两行之间断成两截，看着像两处独立的错位。 */
+.z-rpt__th--group[data-group-tone],
+.z-rpt__th--group-start[data-group-tone] {
+  border-left: 2px solid color-mix(in srgb, var(--z-rpt-grp) 55%, transparent);
+}
+/* 与组头行同一条规矩：首组的左边不画线（左边是跨两行的日期格，画上去就是双线） */
+.z-rpt__headrow--cols > .z-rpt__th--group-start:first-child {
+  border-left: none;
+}
+

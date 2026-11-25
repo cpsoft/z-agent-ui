@@ -1,0 +1,176 @@
+/* ===== z-modal ===== */
+
+:host {
+  display: contents;
+  /* [WHY] 多模态堆叠 [[REQ-011-modal-framework]]: 每实例入栈时由 host 内联覆盖 */
+  --z-modal-stack-index: 0;
+}
+
+/* ── Overlay ── */
+
+.z-modal__overlay {
+  position: fixed;
+  inset: 0;
+  /* [WHY] 堆叠 z-index: 栈序 × 10, 见 [[REQ-011-modal-framework]] */
+  z-index: calc(var(--z-z-modal) + var(--z-modal-stack-index, 0) * 10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  /* [WHY] 本地补丁：--z-transition-normal 含 timing function（250ms ease），animation 简写引用后展开为双 timing function → 声明无效 → animation:none → 退场 animationend 永不触发 → confirm 回调挂起（2026-08-12 真实浏览器 E2E 发现） */
+  animation: z-modal-fade-in var(--z-duration-quick) var(--z-ease-enter);
+  padding: var(--z-space-4);
+}
+
+@keyframes z-modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 退场动画（关闭转移触发, animationend 后组件隐藏, 见 [[REQ-011-modal-framework]]） */
+.z-modal__overlay--closing {
+  animation: z-modal-fade-out var(--z-duration-quick) var(--z-ease-exit) forwards;
+  pointer-events: none;
+}
+
+@keyframes z-modal-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ── Panel ── */
+
+.z-modal__panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 500px;
+  max-height: calc(100vh - var(--z-space-8) * 2);
+  background: var(--z-color-popover);
+  border-radius: var(--z-radius-lg);
+  box-shadow: var(--z-shadow-xl);
+  animation: z-modal-scale-in var(--z-duration-quick) var(--z-ease-enter);
+  outline: none;
+}
+
+@keyframes z-modal-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.z-modal__panel--closing {
+  animation: z-modal-scale-out var(--z-duration-quick) var(--z-ease-exit) forwards;
+}
+
+@keyframes z-modal-scale-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-8px);
+  }
+}
+
+/* ── Title ── */
+
+.z-modal__title {
+  margin: 0;
+  font-size: inherit;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Header ── */
+
+.z-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--z-space-4) var(--z-space-5);
+  border-bottom: 1px solid var(--z-color-border);
+  font-weight: 600;
+  font-size: var(--z-font-size-base);
+  flex-shrink: 0;
+  gap: var(--z-space-3);
+}
+
+.z-modal__header:empty {
+  display: none;
+}
+
+/* Header without slot content — only close button */
+.z-modal__header:has(.z-modal__close:only-child) {
+  padding: var(--z-space-2) var(--z-space-2) 0 var(--z-space-5);
+  border-bottom: none;
+  justify-content: flex-end;
+}
+
+.z-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: var(--z-control-h-sm);
+  border: none;
+  border-radius: var(--z-radius-sm);
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--z-transition-fast);
+}
+
+.z-modal__close:hover {
+  background: var(--z-color-hover);
+  color: var(--z-color-text);
+}
+
+/* ── Body ── */
+
+.z-modal__body {
+  padding: var(--z-space-5);
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ── Footer ── */
+
+.z-modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--z-space-3);
+  padding: var(--z-space-3) var(--z-space-5);
+  border-top: 1px solid var(--z-color-border);
+  flex-shrink: 0;
+}
+
+.z-modal__footer:empty {
+  display: none;
+}
+
+/* ── Sizes ── */
+
+:host([size="sm"]) .z-modal__panel {
+  max-width: 400px;
+}
+
+:host([size="lg"]) .z-modal__panel {
+  max-width: 640px;
+}
+
+:host([full]) .z-modal__panel {
+  max-width: calc(100vw - var(--z-space-8) * 2);
+  max-height: calc(100vh - var(--z-space-8) * 2);
+}

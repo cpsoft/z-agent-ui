@@ -1,0 +1,42 @@
+/* Shadow styles: host + trigger wrapper. Panel styles are injected globally (see Datepicker.ts). */
+:host {
+  display: inline-flex;
+}
+
+.z-datepicker__trigger {
+  display: inline-flex;
+  /* 清除钮绝对定位在右端，锚点是这个 wrapper */
+  position: relative;
+  /* [WHY 必须显式撑满] 触发框是个 slot，消费方给它 `width: 100%`。但百分比宽度要相对
+     「有确定宽度的包含块」才有意义 —— 这个 wrapper 是 inline-flex（宽度 auto），
+     于是 input 的 100% 退回它的固有宽度（约 177px，浏览器默认 20 字符），比容器窄 71px。
+     加清除钮之前看不出来（10 字符的日期填得下），加了之后最后两位被盖住。
+     宿主是 block 100%（筛选格）时这里铺满；宿主是 inline-flex auto（表单）时 100% 解析为 auto，
+     与不加这一行等价。 */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 清除入口：覆盖在触发框右端，**不参与布局**。
+   触发框是个 slot，宽度由消费方决定（筛选格里是 100%，表单里是 max-width）；
+   把叉插进文档流会把它挤窄 —— 表现出来是「日期显示不全」或「叉掉到下一行」。 */
+.z-datepicker__clear {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  color: var(--z-color-text-secondary);
+  cursor: pointer;
+  flex: none;
+}
+
+.z-datepicker__clear:hover {
+  background: var(--z-color-bg-secondary);
+  color: var(--z-color-text);
+}

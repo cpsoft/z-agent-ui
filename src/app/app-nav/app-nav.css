@@ -1,0 +1,186 @@
+/* ===== z-app-nav（[[REQ-040-app-nav]] 统一应用导航）=====
+ *
+ * 只引 token，不写裸值：宿主要改观感就改 token（主题定制面已覆盖 --z-app-shell-*），
+ * 而不是回来覆盖我的类名 —— 覆盖类名是「第二套样式」的开始，两边一改就分叉。
+ */
+
+:host {
+  display: block;
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  color: var(--z-app-shell-sidebar-text);
+}
+
+.z-app-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-1);
+  padding: var(--z-space-2);
+}
+
+.z-app-nav__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.z-app-nav__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-1);
+}
+
+.z-app-nav__group + .z-app-nav__group,
+.z-app-nav__list + .z-app-nav__group {
+  margin-top: var(--z-space-2);
+}
+
+.z-app-nav__group-title {
+  /* 组标题是「分区说明」不是「可点项」：更小的字号 + 次级文字色，避免和菜单项抢注意力 */
+  padding: var(--z-space-1) var(--z-space-2);
+  font-size: var(--z-font-size-xs);
+  font-weight: var(--z-font-weight-medium);
+  color: var(--z-app-shell-text-secondary);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.z-app-nav__item {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--z-space-2);
+  border: none;
+  border-radius: var(--z-radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--z-transition-fast), color var(--z-transition-fast);
+}
+
+.z-app-nav__item:hover {
+  background: var(--z-color-hover);
+}
+
+.z-app-nav__item:focus-visible {
+  outline: var(--z-focus-ring-outline);
+  outline-offset: -2px;
+}
+
+/* 选中态：底色 + 主色文字。两处一起上色是必要的 —— 只换底色时，
+   深色侧栏（宿主给 --sidebar 铺深底）上的当前项几乎看不出来（zEtl 实测过）。 */
+.z-app-nav__item[aria-current="page"] {
+  background: var(--z-color-hover-strong);
+  color: var(--z-color-primary);
+  font-weight: var(--z-font-weight-medium);
+}
+
+.z-app-nav__item[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.z-app-nav__item[aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+.z-app-nav__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+}
+
+.z-app-nav__svg {
+  width: 20px;
+  height: 20px;
+}
+
+.z-app-nav__initial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-bg-tertiary);
+  font-size: var(--z-font-size-xs);
+  font-weight: var(--z-font-weight-medium);
+  line-height: 1;
+}
+
+.z-app-nav__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.z-app-nav__badge {
+  flex: 0 0 auto;
+  min-width: 18px;
+  padding: 0 var(--z-space-1);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-bg-tertiary);
+  color: var(--z-app-shell-text-secondary);
+  font-size: var(--z-font-size-xs);
+  line-height: 18px;
+  text-align: center;
+}
+
+/* ===== 收起态 =====
+ *
+ * [WHY 文字用 visibility/尺寸而不是 `display: none` 一刀切] 读屏在收起态必须仍能念出
+ * 条目名（`aria-label` 保底），但**视觉上不能留白**。这里选择「文字宽度归零 + 不可见」，
+ * 行高与图标对齐仍由 icon 决定，于是收起后的行是 20px 图标 + 原 padding，不会跳。
+ */
+:host([collapsed]) .z-app-nav {
+  padding: var(--z-space-1);
+  align-items: center;
+}
+
+:host([collapsed]) .z-app-nav__text,
+:host([collapsed]) .z-app-nav__badge {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* 收起态的分组标题：只留一条分隔线，说明「这里开始换组」但不占标题文字的位置。
+   完全不渲染会让六个图标挤成一片，人分不清哪几个是一组（zEtl 图标轨的实测反馈）。 */
+:host([collapsed]) .z-app-nav__group-title {
+  height: 1px;
+  padding: 0;
+  margin: var(--z-space-1) var(--z-space-2);
+  background: var(--z-app-shell-sidebar-border);
+  font-size: 0;
+  color: transparent;
+}
+
+:host([collapsed]) .z-app-nav__group + .z-app-nav__group,
+:host([collapsed]) .z-app-nav__list + .z-app-nav__group {
+  margin-top: 0;
+}
+
+:host([collapsed]) .z-app-nav__item {
+  justify-content: center;
+  gap: 0;
+  padding: var(--z-space-2);
+}

@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>H5 组件套件 — zAgentUI</title>
+  <link rel="stylesheet" href="./demo.css" />
+  <style>
+    /* 构建后 vite 会把 <link demo.css> 移到页面内联 <style> 之后，
+       与 demo.css 同名的类会被反超（flow-editor 踩过，见它 fe- 前缀的注释）。 */
+    .h5kit-board {
+      display: grid; gap: 22px; align-items: start;
+      grid-template-columns: minmax(0, 1fr) 280px;
+    }
+    .h5kit-board__phones {
+      display: grid; gap: 22px;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 340px));
+      align-items: start;
+    }
+    .h5kit-phone {
+      width: 375px; max-width: 100%; height: 720px; margin: 0;
+      display: flex; flex-direction: column;
+      border: 1px solid var(--z-color-border); border-radius: 28px; overflow: hidden;
+      background: var(--z-color-bg-secondary);
+      box-shadow: 0 8px 28px rgba(16, 24, 40, .10);
+      /* 手机壳里有 position:fixed 的组件（tabbar / 操作条 /
+         数字键盘 / 浮动按钮）。fixed 的包含块在没有 transform/filter/will-change 的祖先是**视口**，
+         不给这层 transform，它们会钉在浏览器窗口上，从手机壳里「逃」出去。 */
+      transform: translateZ(0);
+    }
+    .h5kit-phone__scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 24px; }
+    .h5kit-phone__scroll--bar { padding-bottom: 96px; }
+    .h5kit-sec { padding: 14px 0 4px; }
+    .h5kit-sec__t { padding: 0 16px 8px; font-size: 12px; color: var(--z-color-text-secondary); }
+    .mpv-thumb {
+      width: 84px; height: 84px; border-radius: 8px; object-fit: cover;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    .h5kit-log {
+      position: sticky; top: calc(var(--demo-header-h) + 16px);
+      max-height: calc(100vh - var(--demo-header-h) - 48px); overflow: auto;
+      border: 1px solid var(--z-color-border); border-radius: 12px; background: var(--z-color-surface);
+    }
+    .h5kit-log__head { position: sticky; top: 0; display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px; border-bottom: 1px solid var(--z-color-border);
+      background: var(--z-color-surface); font-size: 12px; font-weight: 500; }
+    .h5kit-log__head button { margin-left: auto; }
+    .h5kit-log__body { padding: 10px 12px; display: flex; flex-direction: column; gap: 6px;
+      font-family: var(--z-font-mono); font-size: 11px; line-height: 1.5; }
+    .h5kit-log__item { padding: 6px 8px; border-radius: 6px; background: var(--z-color-bg-secondary); word-break: break-all; }
+    .h5kit-log__item b { color: var(--z-color-primary); font-weight: 500; }
+    .h5kit-log__empty { color: var(--z-color-text-disabled); }
+    .h5kit-note { margin-top: 20px; font-size: 12px; color: var(--z-color-text-secondary); line-height: 1.7; }
+    /* 索引分组的吸顶标题：m-index-bar 只管索引与滚动，「标题吸顶」是分组自己的样式。 */
+    .h5kit-idx {
+      position: sticky; top: 0; z-index: 1;
+      padding: 4px 16px;
+      background: var(--z-color-bg-secondary);
+      color: var(--z-color-text-secondary);
+      font-size: 12px; font-weight: 500;
+    }
+    /* 单件模式（?only=m-x）：只留一个手机、一个组件。H5 页的「组件浏览器」用它做切片。 */
+    /* ] 手机壳是 `display:flex`、组件块是普通 div —— 作者样式会盖掉
+       UA 的 `[hidden]{display:none}`，于是「隐藏」的手机照样占位，切片出来的画框高得离谱。 */
+    .h5kit-phone[hidden],
+    .h5kit-sec[hidden] { display: none !important; }
+    [data-solo] .demo-section__header,
+    [data-solo] .h5kit-note { display: none; }
+    /* 被嵌进 H5 页时，画框标题栏已经写了页名，框里再挂一个同名 h1 只是重复 */
+    [data-embed] #h5-kit > .demo-section__header h1 { display: none; }
+    /* 单件模式下手机壳收缩到内容高度：一个 cell 配 720px 的空壳，看起来像「页面没加载完」 */
+    [data-solo] .h5kit-phone { height: auto; min-height: 300px; max-height: 720px; }
+    /* view=screen：壳铺满 iframe，去掉所有装饰（圆角/边框/阴影由外层手机模型画） */
+    /* ] 构建后 <link demo.css> 排在本段 <style> 之后，
+       `[data-embed] .demo-main` 与 `[data-screen] .demo-main` 同权重时后写者赢。
+       加一个元素选择器把权重提上去，才不会被反超。 */
+    html[data-screen] .demo-main { padding: 0; }
+    /* 页头也去掉：手机模型上方已经写了当前组件，框里再来自我介绍只会被圆角裁掉 */
+    html[data-screen] .demo-section__header { display: none; }
+    [data-screen] .h5kit-board { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    [data-screen] .h5kit-log { display: none; }
+    /* 锁死 html/body 高度：屏幕模式下手机壳就是视口，文档本身不该能滚；
+       否则 `scrollIntoView` 滚的是 iframe 文档，手机壳跟着在框里上下跑。 */
+    html[data-screen],
+    html[data-screen] body { height: 100%; overflow: hidden; }
+    /* 只显示当前手机：5 个壳都高 100vh，一列竖排会出现两层滚动条。 */
+    [data-screen] .h5kit-phone { display: none; }
+    [data-screen] .h5kit-phone[data-current] {
+      display: flex; width: 100%; max-width: none; height: 100vh;
+      border: 0; border-radius: 0; box-shadow: none;
+    }
+    /* 演示页的标注不进手机屏幕：手机里应该是这个 app 本身，不是「第 N 段示例」 */
+    [data-screen] .h5kit-sec__t,
+    [data-screen] .ex-phone__hint,
+    [data-screen] .h5kit-note { display: none; }
+    /* 单件时两栏贴着居中：左栏用 1fr 会让手机和日志之间拉开一大条空白 */
+    [data-solo] .h5kit-board { grid-template-columns: 340px 260px; justify-content: center; }
+    [data-solo] .h5kit-log { position: static; max-height: 240px; }
+    @media (max-width: 1080px) {
+      .h5kit-board { grid-template-columns: minmax(0, 1fr); }
+      .h5kit-log { position: static; max-height: 260px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <main class="demo-main">
+    <section class="demo-section" id="h5-kit">
+      <div class="demo-section__header">
+        <h1>H5 组件套件</h1>
+        <p>
+          <b>点一下任何控件</b>，右侧日志会打出发出的事件与它的值 —— 这是判断「控件到底有没有响应」最快的方法。
+          单个组件的参数与用法见 <a href="./h5.html#browser">移动端 H5 · 逐个组件</a>。
+        </p>
+      </div>
+
+      <div class="h5kit-board">
+        <div class="h5kit-board__phones">
+
+          <figure class="h5kit-phone" data-phone="base">
+            <m-navbar title="门店看板" showback></m-navbar>
+            <div class="h5kit-phone__scroll">
+
+              <div class="h5kit-sec" data-tag="m-notice-bar">
+                <div class="h5kit-sec__t">m-notice-bar · 通告条（可关闭）</div>
+                <m-notice-bar id="notice" text="今日盘点截止 18:00，请提前提交" closable></m-notice-bar>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-search">
+                <div class="h5kit-sec__t">m-search · 输入防抖 200ms，回车立即搜索；action 加框内「搜索」按钮</div>
+                <m-search id="search" placeholder="搜索门店 / 编码"></m-search>
+                <m-search id="search-go" placeholder="带按钮：iOS 中文输入法下也能提交" action></m-search>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-grid">
+                <div class="h5kit-sec__t">m-grid · 4 列宫格（子项 m-grid-item）</div>
+                <m-grid id="grid" columns="4">
+                  <m-grid-item id="gi1" label="今日任务" badge="3">
+                    <svg slot="icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path d="M4 5h12M4 10h12M4 15h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                    </svg>
+                  </m-grid-item>
+                  <m-grid-item id="gi2" label="盘点">
+                    <svg slot="icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <rect x="4" y="3.5" width="12" height="13" rx="2" stroke="currentColor" stroke-width="1.6" />
+                      <path d="M7 8h6M7 11.5h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                    </svg>
+                  </m-grid-item>
+                  <!-- 留一个没有图标的，验证「没有图标时不留灰方块」 -->
+                  <m-grid-item id="gi3" label="报损"></m-grid-item>
+                  <m-grid-item id="gi4" label="禁用项" disabled></m-grid-item>
+                </m-grid>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-cell-group">
+                <div class="h5kit-sec__t">m-cell-group · 分组列表（子项 m-cell，分隔线自动加）</div>
+                <m-cell-group id="cg" heading="门店设置" desc="修改后立即生效">
+                  <m-cell id="c1" label="门店名称" value="西湖店" arrow clickable></m-cell>
+                  <m-cell id="c2" label="门店编码" value="S1" divider></m-cell>
+                  <m-cell id="c3" label="说明" desc="仅总店可改"></m-cell>
+                </m-cell-group>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-stepper">
+                <div class="h5kit-sec__t">m-stepper · 整数与小数两种步长</div>
+                <div style="padding: 0 16px; display: flex; gap: 12px; align-items: center;">
+                  <m-stepper id="step1" value="3" min="0" max="9" step="1"></m-stepper>
+                  <m-stepper id="step2" value="0.1" min="0" max="1" step="0.1"></m-stepper>
+                </div>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-price">
+                <div class="h5kit-sec__t">m-price · 现价、划线原价、空值</div>
+                <div style="padding: 0 16px; display: flex; gap: 16px; align-items: baseline; flex-wrap: wrap;">
+                  <m-price value="9.9"></m-price>
+                  <m-price value="1288" size="lg"></m-price>
+                  <m-price value="19.9" strike></m-price>
+                  <m-price value="" empty-text="面议"></m-price>
+                </div>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-checkbox">
+                <div class="h5kit-sec__t">m-checkbox · 选中 / 半选 / 禁用</div>
+                <div style="padding: 0 16px; display: flex; flex-direction: column;">
+                  <m-checkbox id="ck1" checked>已选中</m-checkbox>
+                  <m-checkbox id="ck2" indeterminate>半选（全选里的两件）</m-checkbox>
+                  <m-checkbox id="ck3" disabled>禁用</m-checkbox>
+                </div>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-radio">
+                <div class="h5kit-sec__t">m-radio · 组内互斥</div>
+                <div style="padding: 0 16px;">
+                  <m-radio-group id="pay" value="wx">
+                    <m-radio value="wx" label="微信支付"></m-radio>
+                    <m-radio value="ali" label="支付宝"></m-radio>
+                    <m-radio value="card" label="银行卡（暂不支持）" disabled></m-radio>
+                  </m-radio-group>
+                </div>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-tabs">
+                <div class="h5kit-sec__t">m-tabs · 带角标，切换上报 key</div>
+                <m-tabs id="otabs" active="all"
+                  items="all|全部,unpaid|待付款|2,shipped|待发货,review|评价"></m-tabs>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-goods-card">
+                <div class="h5kit-sec__t">m-goods-card · 两列网格 / 横排</div>
+                <div style="padding: 0 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+                  <m-goods-card value="p1" title="武夷岩茶 大红袍 250g" desc="岩骨花香 · 春茶"
+                    price="128" origin="168" tags="包邮|新品" sales="已售 1200"></m-goods-card>
+                  <m-goods-card value="p2" title="正山小种 礼盒装" desc="传统烟熏 · 二级"
+                    price="89.6" tags="满减" sold-out></m-goods-card>
+                </div>
+                <div style="padding: 12px 16px 0;">
+                  <m-goods-card value="p3" mode="row" title="金骏眉 50g 罐装" desc="规格：50g"
+                    price="268" origin="328" tags="包邮"></m-goods-card>
+                </div>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-checkout-bar">
+                <div class="h5kit-sec__t">m-checkout-bar · 全选 / 合计 / 去结算</div>
+                <div style="padding: 0 16px;">
+                  <m-checkout-bar id="cbar" inline count="2" total="217.60"></m-checkout-bar>
+                </div>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-swiper">
+                <div class="h5kit-sec__t">m-swiper · 自动播 + 圆点，可拖动 / ←→</div>
+                <div style="padding: 0 16px;">
+                  <m-swiper id="bnr" height="150px"
+                    items="public/banner-a.svg|public/banner-b.svg|public/store.svg"
+                    alt="春茶上新|满减活动|门店实拍" autoplay="3500"></m-swiper>
+                </div>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-sku-picker">
+                <div class="h5kit-sec__t">m-sku-picker · 规格与库存联动，缺一维不能提交</div>
+                <div style="padding: 0 16px;">
+                  <m-cell id="skuCell" label="规格" value="请选择" arrow clickable></m-cell>
+                </div>
+                <m-sku-picker id="sku" image="public/store.svg" price="128" origin="168"
+                  confirm-text="加入购物车"></m-sku-picker>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-image-preview">
+                <div class="h5kit-sec__t">m-image-preview · 点缩略图进大图：左右翻 / 缩放 / 下滑关</div>
+                <div style="padding: 0 16px; display: flex; gap: 8px;">
+                  <img class="mpv-thumb" data-idx="0" src="public/banner-a.svg" alt="春茶上新" />
+                  <img class="mpv-thumb" data-idx="1" src="public/banner-b.svg" alt="满减活动" />
+                  <img class="mpv-thumb" data-idx="2" src="public/store.svg" alt="门店实拍" />
+                </div>
+                <m-image-preview id="mpv" label="商品图"
+                  items="public/banner-a.svg|public/banner-b.svg|public/store.svg"
+                  alt="春茶上新|满减活动|门店实拍"></m-image-preview>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-countdown">
+                <div class="h5kit-sec__t">m-countdown · 时:分:秒 / 分:秒 / 天+时分秒</div>
+                <div style="padding: 0 16px; display: flex; gap: 16px; align-items: baseline; flex-wrap: wrap;">
+                  <m-countdown id="cdEnd" label="距结束" seconds="3725" format="hms"></m-countdown>
+                  <m-countdown seconds="1730" format="ms"></m-countdown>
+                  <m-countdown seconds="93600" format="dhms"></m-countdown>
+                </div>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-coupon">
+                <div class="h5kit-sec__t">m-coupon · 满减 / 折扣 / 免运费，可用与失效</div>
+                <div style="padding: 0 12px; display: flex; flex-direction: column; gap: 10px;">
+                  <m-coupon id="cp1" value="20" threshold="99" title="新客专享" desc="全场茶叶可用"
+                    valid="2026-11-01 至 11-30" action="立即领取" clickable></m-coupon>
+                  <m-coupon value="8.5" kind="discount" threshold="199" title="会员日 85 折"
+                    desc="限茶具类目" valid="每周三可用" action="领取"></m-coupon>
+                  <m-coupon id="cp3" value="12" threshold="59" title="满减券" desc="全场通用"
+                    valid="2026-10-01 至 10-31" status="used"></m-coupon>
+                  <m-coupon kind="freight" title="免运费券" desc="单笔订单限用一张"
+                    valid="领取后 7 天有效" action="立即领取"></m-coupon>
+                </div>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-picker">
+                <div class="h5kit-sec__t">m-picker · 点开单选，取消不改值</div>
+                <div style="padding: 0 16px;">
+                  <m-cell id="pickCell" label="城市" value="请选择" arrow clickable></m-cell>
+                </div>
+                <m-picker id="picker" heading="选择城市"></m-picker>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-swipe-cell">
+                <div class="h5kit-sec__t">m-swipe-cell · 左滑露出操作（键盘：Tab 到行 → Enter 展开）</div>
+                <m-swipe-cell id="sw1">
+                  <m-cell label="望江店" value="营业中" desc="店长 王芳 · 今日 128 单"></m-cell>
+                  <button type="button" slot="actions" data-tag="望江店">删除</button>
+                </m-swipe-cell>
+                <m-swipe-cell id="sw2">
+                  <m-cell label="湖滨店" value="已打烊" desc="店长 李强 · 今日 96 单" divider></m-cell>
+                  <button type="button" slot="actions" data-tag="湖滨店">删除</button>
+                  <button type="button" slot="actions" data-tag="湖滨店">置顶</button>
+                </m-swipe-cell>
+                <m-swipe-cell id="sw3" disabled>
+                  <m-cell label="拱宸桥店（disabled）" value="已归档" desc="滑动与键盘都不可用"></m-cell>
+                  <button type="button" slot="actions">删除</button>
+                </m-swipe-cell>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-index-bar">
+                <div class="h5kit-sec__t">m-index-bar · 点按或在索引条上滑动定位</div>
+                <m-index-bar id="ib" style="max-height: 232px; overflow-y: auto;">
+                  <div data-index="A" class="h5kit-idx">A</div>
+                  <m-cell label="安吉店" value="12 单"></m-cell>
+                  <m-cell label="安庆店" value="7 单" divider></m-cell>
+                  <div data-index="B" class="h5kit-idx">B</div>
+                  <m-cell label="滨江店" value="31 单"></m-cell>
+                  <m-cell label="北苑店" value="9 单" divider></m-cell>
+                  <div data-index="G" class="h5kit-idx">G</div>
+                  <m-cell label="拱宸桥店" value="44 单"></m-cell>
+                  <m-cell label="古荡店" value="18 单" divider></m-cell>
+                  <div data-index="H" class="h5kit-idx">H</div>
+                  <m-cell label="湖滨店" value="52 单"></m-cell>
+                  <m-cell label="和平店" value="6 单" divider></m-cell>
+                  <div data-index="W" class="h5kit-idx">W</div>
+                  <m-cell label="望江店" value="128 单"></m-cell>
+                  <m-cell label="文三店" value="23 单"></m-cell>
+                </m-index-bar>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-number-keyboard">
+                <div class="h5kit-sec__t">m-number-keyboard · 金额规则内置（点「退款金额」）</div>
+                <div style="padding: 0 16px;">
+                  <m-cell id="amountCell" label="退款金额" value="0.00" arrow clickable></m-cell>
+                </div>
+                <m-number-keyboard id="kb" title="退款金额" extra-key extra-key-text="确定"></m-number-keyboard>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-uploader">
+                <div class="h5kit-sec__t">m-uploader · 最多 3 张，超出截断</div>
+                <m-uploader id="up" max="3" multiple add-label="加照片"></m-uploader>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-uploader">
+                <div class="h5kit-sec__t">m-uploader · 拍照 + 相册双入口，长边缩到 1600（真机点一下直接开相机）</div>
+                <m-uploader id="up-shot" capture="environment" max="4" multiple max-edge="1600"></m-uploader>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-uploader">
+                <div class="h5kit-sec__t">m-uploader · 录像（点「录像」直入摄像机，单条 40MB 上限，超限走 z-reject）</div>
+                <m-uploader id="up-video" accept="video/*" capture="environment" max="2" max-size="41943040"></m-uploader>
+              </div>
+
+            </div>
+          </figure>
+
+          <figure class="h5kit-phone" data-phone="list">
+            <m-navbar title="订单列表"></m-navbar>
+            <div class="h5kit-phone__scroll">
+
+              <div class="h5kit-sec" data-tag="m-chip">
+                <div class="h5kit-sec__t">m-chip · 筛选标签（选中态由宿主写回，点一下看日志）</div>
+                <div class="ex-chip-row" id="chips" style="padding: 0 16px;">
+                  <m-chip label="全部" selected></m-chip>
+                  <m-chip label="待审核"></m-chip>
+                  <m-chip label="已通过" tone="success"></m-chip>
+                  <m-chip label="异常" tone="danger"></m-chip>
+                </div>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-card">
+                <div class="h5kit-sec__t">m-card · 点一下 / 长按是两个事件</div>
+                <div style="padding: 0 16px; display: grid; gap: 8px;">
+                  <m-card clickable padding="md">
+                    <div class="ex-card-hd">上海静安嘉里中心</div>
+                    <div class="ex-card-sub">今日 128 单 · ¥12,580.50</div>
+                  </m-card>
+                  <m-card padding="md">
+                    <div class="ex-card-hd">杭州湖滨银泰</div>
+                    <div class="ex-card-sub">今日 96 单 · ¥9,240.00</div>
+                  </m-card>
+                </div>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-collapse">
+                <div class="h5kit-sec__t">m-collapse · 折叠面板</div>
+                <m-collapse title="筛选条件" summary="华东 · 今日">
+                  区域 华东 · 门店 全部 · 日期 今日
+                </m-collapse>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-list">
+                <div class="h5kit-sec__t">m-list · 滚到底自动取下一页（这里已 finished）</div>
+                <m-list finished>
+                  <m-cell label="待发货 12 单" desc="其中 3 单已超 24 小时"></m-cell>
+                  <m-cell label="待审核 4 单" desc="金额合计 ¥3,120"></m-cell>
+                  <m-cell label="异常 1 单" desc="支付成功但未出库"></m-cell>
+                </m-list>
+              </div>
+
+              <div class="h5kit-sec" data-tag="m-empty">
+                <div class="h5kit-sec__t">m-empty · 空 / 错误 / 无权限，一套版式</div>
+                <m-empty type="empty" title="这里还没有数据" description="换个筛选条件，或新建一条"></m-empty>
+              </div>
+
+            </div>
+          </figure>
+
+          <figure class="h5kit-phone" data-phone="tabbar">
+            <m-navbar title="门店"></m-navbar>
+            <div class="h5kit-phone__scroll h5kit-phone__scroll--bar">
+
+              <div class="h5kit-sec" data-tag="m-tabbar">
+                <div class="h5kit-sec__t">m-tabbar · 用 items 给标签，点一下切换（角标在「订单」上）</div>
+                <p class="ex-phone__hint" style="padding: 0 16px;">
+                  底栏固定在手机壳底边，不随内容滚动。当前选中项由 <code>active</code> 控制。
+                </p>
+              </div>
+
+              <!-- 底栏上面得有一屏真实内容：空壳演示不出「它钉在页面底部」这件事 -->
+              <m-cell label="今日营业额" value="¥12,580.50" desc="较昨日 +8.2%"></m-cell>
+              <m-cell label="待处理订单" value="12 单" divider></m-cell>
+              <m-cell label="库存预警" value="3 项" desc="其中 1 项已断货"></m-cell>
+              <m-cell label="门店公告" value="2 条" divider></m-cell>
+
+              <div class="h5kit-sec" data-tag="m-floating-button">
+                <div class="h5kit-sec__t">m-floating-button · 右下角悬浮按钮</div>
+                <p class="ex-phone__hint" style="padding: 0 16px;">
+                  点右下角 + 号，日志会记录 <code>z-click</code>。
+                </p>
+              </div>
+
+            </div>
+            <m-tabbar id="tabbar"></m-tabbar>
+            <m-floating-button id="fab" icon="+" position="br"></m-floating-button>
+          </figure>
+
+          <figure class="h5kit-phone" data-phone="bar">
+            <m-navbar title="订单详情"></m-navbar>
+            <m-pull-refresh id="refresh" style="display:flex; flex-direction:column; flex:1; min-height:0;">
+              <div class="h5kit-phone__scroll h5kit-phone__scroll--bar">
+
+                <div class="h5kit-sec" data-tag="m-pull-refresh">
+                  <div class="h5kit-sec__t">m-pull-refresh · 在这个壳里往下拉</div>
+                  <p class="ex-phone__hint" style="padding: 0 16px;">
+                    拉过阈值松手 → 发 <code>z-refresh</code>；转圈 900ms 后自动收起。
+                  </p>
+                  <m-cell label="今日订单" value="128 单" desc="其中 12 单待发货"></m-cell>
+                  <m-cell label="待审核" value="4 单" divider></m-cell>
+                  <m-cell label="异常单" value="1 单" desc="支付成功但未出库"></m-cell>
+                </div>
+
+                <div class="h5kit-sec" data-tag="m-action-bar">
+                  <div class="h5kit-sec__t">m-action-bar · inline（跟随内容）与默认 fixed（钉在壳底）</div>
+                  <m-action-bar inline align="between">
+                    <span slot="left" class="ex-phone__hint">inline 操作条</span>
+                    <z-button size="sm" appearance="outline">次要</z-button>
+                  </m-action-bar>
+                  <m-cell label="门店 A" desc="已提交"></m-cell>
+                  <m-cell label="门店 B" desc="待提交"></m-cell>
+                </div>
+
+                <div class="h5kit-sec" data-tag="m-action-sheet">
+                  <div class="h5kit-sec__t">m-action-sheet · 底部动作面板</div>
+                  <div style="padding: 0 16px;">
+                    <z-button id="sheetOpen" size="sm" appearance="outline">打开操作面板</z-button>
+                  </div>
+                </div>
+
+              </div>
+              <m-action-bar id="bar" align="between">
+                <span slot="left" class="ex-phone__sum">合计 ¥12,580</span>
+                <z-button size="sm">提交</z-button>
+              </m-action-bar>
+            </m-pull-refresh>
+            <m-action-sheet id="sheet" title="选择操作"></m-action-sheet>
+          </figure>
+
+          <figure class="h5kit-phone" id="k-m-navbar" data-phone="skeleton" data-tag="m-navbar">
+            <m-navbar title="门店设置" showback></m-navbar>
+            <div class="h5kit-phone__scroll">
+              <div class="h5kit-sec">
+                <div class="h5kit-sec__t">m-navbar · 左返回 / 中标题 / 右侧插槽</div>
+                <p class="ex-phone__hint" style="padding: 0 16px;">
+                  顶栏就是它。点左侧「‹」发 <code>z-back</code>；
+                  <code>back-label</code> 可换无障碍名，右侧插槽放操作按钮。
+                </p>
+              </div>
+              <!-- 顶栏下面要有内容，否则看不出「它吸在页面顶端、内容在下面滚」 -->
+              <m-cell label="门店名称" value="西湖店" arrow clickable></m-cell>
+              <m-cell label="门店编码" value="S1" divider></m-cell>
+              <m-cell label="营业时间" value="09:00 – 22:00"></m-cell>
+              <m-cell label="店长" value="王芳" divider></m-cell>
+            </div>
+          </figure>
+
+        </div>
+
+        <div class="h5kit-log">
+          <div class="h5kit-log__head">
+            <span>事件日志</span>
+            <button id="clear" type="button">清空</button>
+          </div>
+          <div class="h5kit-log__body" id="log"><span class="h5kit-log__empty">点一下左边任意控件…</span></div>
+        </div>
+      </div>
+
+      <p class="h5kit-note">
+        三个容易踩的点，都能在这里验：<br />
+        ① 步进器到边界按钮置灰，继续点<b>不发</b> <code>change</code>；<code>step=0.1</code> 时不出现 0.30000000000000004；<br />
+        ② 搜索框防抖 <code>debounce=200</code>，连续输入只发最后一次，回车立即结算；<br />
+        ③ picker 取消不改值（草稿回滚），确定才发 <code>z-confirm</code>；上传超过 <code>max</code> 截断而不是全收。
+      </p>
+    </section>
+  </main>
+</div>
+
+<script type="module" src="./h5-kit.ts"></script>
+</body>
+</html>

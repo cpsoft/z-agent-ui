@@ -1,0 +1,56 @@
+/* ===== m-stepper ===== */
+
+:host {
+  display: inline-flex;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-stepper {
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--z-color-border-control);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-surface);
+}
+
+.m-stepper--disabled {
+  opacity: 0.5;
+}
+
+.m-stepper__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* [WHY 44px] 触控下限。这里不能沿用 --z-control-h（36px）：
+     两个按钮挨着，36px 时手指很容易一次按到两个或按到中间的数字上。 */
+  width: var(--z-touch-min);
+  height: var(--z-touch-min-sm);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--z-color-text);
+  cursor: pointer;
+}
+
+.m-stepper__btn:active:not(:disabled) {
+  background: var(--z-color-fill-secondary);
+}
+
+.m-stepper__btn:disabled {
+  color: var(--z-color-text-disabled);
+  cursor: default;
+}
+
+.m-stepper__value {
+  min-width: 40px;
+  padding: 0 var(--z-space-1);
+  border-right: 1px solid var(--z-color-border-control);
+  border-left: 1px solid var(--z-color-border-control);
+  color: var(--z-color-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-base);
+  line-height: var(--z-touch-min-sm);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}

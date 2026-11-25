@@ -1,0 +1,74 @@
+/* ===== m-notice-bar ===== */
+
+:host {
+  display: block;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-notice-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  min-height: var(--z-touch-min-sm);
+  padding: var(--z-space-2) var(--z-m-gutter);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  line-height: 1.4;
+}
+
+/* [WHY 每档同时给底色与前景色] 只给底色时，暗色主题下文字仍是深色，压在深底上看不清。
+   四档都成对写，与 m-chip 的 selected 态同一个坑（那里曾写死 white）。
+
+   [WHY 前景色是 `-strong` 而不是 `-text`] `--z-color-*-text` 是**实心底上的白字**
+   （`var(--info-foreground, var(--z-color-white))`）。压在 `-soft` 这种 50 号浅底上，
+   对比度约 1.2:1 —— 提示条上的字等于隐形，而结构、脚本、控制台全都正常，
+   只有看屏幕才发现。`-strong` 是同一语气的深色变体（亮色 #1d4ed8 on #eff6ff ≈ 7.9:1，
+   暗色自动换浅），与 alert / badge / tag 的既有写法一致。 */
+.m-notice-bar--info {
+  background: var(--z-color-info-soft);
+  color: var(--z-color-info-strong);
+}
+
+.m-notice-bar--success {
+  background: var(--z-color-success-soft);
+  color: var(--z-color-success-strong);
+}
+
+.m-notice-bar--warning {
+  background: var(--z-color-warning-soft);
+  color: var(--z-color-warning-strong);
+}
+
+.m-notice-bar--danger {
+  background: var(--z-color-danger-soft);
+  color: var(--z-color-danger-strong);
+}
+
+.m-notice-bar__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.m-notice-bar__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.m-notice-bar__close {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--z-touch-min-sm);
+  height: var(--z-touch-min-sm);
+  margin-right: calc(var(--z-space-1) * -1);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+}

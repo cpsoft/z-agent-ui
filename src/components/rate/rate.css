@@ -1,0 +1,64 @@
+/* ===== z-rate ===== */
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.z-rate {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  outline: none;
+}
+
+/* ── Star ── */
+
+.z-rate__star {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  color: var(--z-color-gray-300);
+  transition: color var(--z-transition-fast), transform var(--z-transition-fast);
+}
+
+.z-rate__star-bg,
+.z-rate__star-fg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.z-rate__star-fg {
+  color: var(--z-rate-color, #f59e0b);
+}
+
+.z-rate__star:hover,
+.z-rate--hovering .z-rate__star {
+  transform: scale(1.1);
+}
+
+.z-rate--hovering .z-rate__star-fg {
+  color: var(--z-rate-color, #f59e0b);
+}
+
+/* ── States ── */
+
+.z-rate--disabled {
+  opacity: 0.5;
+}
+
+.z-rate--disabled .z-rate__star,
+.z-rate--readonly .z-rate__star {
+  cursor: default;
+  transform: none;
+}
+
+.z-rate--readonly .z-rate__star:hover {
+  transform: none;
+}

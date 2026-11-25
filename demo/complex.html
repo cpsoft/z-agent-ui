@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Complex Components — zAgentUI</title>
+  <link rel="stylesheet" href="./demo.css" />
+  <link rel="stylesheet" href="./complex.css" />
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+
+  <!-- Sidebar（shell.ts 渲染，Complex 组含本页 11 个 section 锚点） -->
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <!-- Main Content -->
+  <main class="demo-main">
+
+    <section class="demo-hero">
+      <h1 data-i18n="complexPage.title">Complex Components</h1>
+      <p data-i18n="complexPage.subtitle">Advanced UI components beyond basic form elements.</p>
+    </section>
+
+    <!-- ==================== Markdown ==================== -->
+
+    <section id="markdown" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="nav.markdown">Markdown</h2>
+        <p data-i18n="complexPage.subtitle">Advanced UI components beyond basic form elements.</p>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div class="live-editor">
+            <z-code-editor id="md-input" language="markdown" style="width:100%;height:400px;"></z-code-editor>
+            <div class="live-editor__output" id="md-output"></div>
+          </div>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-code-editor</span> <span class="attr">language</span>=<span class="val">"markdown"</span><span class="tag">&gt;&lt;/z-code-editor&gt;</span>
+<span class="tag">&lt;z-markdown</span> <span class="attr">id</span>=<span class="val">"live"</span><span class="tag">&gt;&lt;/z-markdown&gt;</span>
+<span class="cmt">// 编辑器 z-input 事件实时驱动渲染：</span>
+<span class="txt">editor.addEventListener("z-input", (e) =&gt; { live.content = e.detail.value; });</span></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-markdown id="md-basic"
+            content="## Hello **World**&#10;&#10;This is a paragraph with `inline code` and a [link](https://example.com).&#10;&#10;> A blockquote with *emphasis*.">
+          </z-markdown>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-markdown</span>
+  <span class="attr">content</span>=<span class="val">"## Hello **World**
+
+This is a paragraph with `inline code` and a [link](https://example.com).
+
+&gt; A blockquote with *emphasis*."</span>
+<span class="tag">&gt;&lt;/z-markdown&gt;</span></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-markdown id="md-table"
+            content="| Left | Center | Right |
+|:-----|:------:|------:|
+| A    | B      | C     |
+| Long content left | Centered | Right aligned |
+| 1 | 2 | 3 |">
+          </z-markdown>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-markdown</span>
+  <span class="attr">content</span>=<span class="val">"| Left | Center | Right |
+|:-----|:------:|------:|
+| A    | B      | C     |
+| ... | ... | ... |"</span>
+<span class="tag">&gt;&lt;/z-markdown&gt;</span></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-markdown id="md-code"
+            content="```ts
+// TypeScript example
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+async function fetchUser(id: number): Promise&lt;User&gt; {
+  const res = await fetch(`/api/users/${id}`);
+  return res.json();
+}
+```
+
+```css
+/* CSS example */
+.z-card {
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--z-color-bg);
+}
+```
+
+```bash
+# Shell example
+npm install z-agent-ui
+npm run dev
+```">
+          </z-markdown>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-markdown</span> <span class="attr">content</span>=<span class="val">"```ts ... ```"</span><span class="tag">&gt;&lt;/z-markdown&gt;</span></code></pre>
+        </div>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-markdown id="md-tasks"
+            content="## Sprint Backlog
+
+### In Progress
+- [x] Design system tokens
+- [x] Button component
+- [x] Input component
+- [ ] Date picker
+
+### Todo
+- [ ] File upload
+- [ ] Rich text editor
+- [ ] Virtual scroll
+
+### Nested
+- [x] Core library
+  - [x] BaseElement class
+  - [x] @property decorator
+  - [x] Template engine
+- [ ] React wrappers
+  - [x] Basic wrapper
+  - [ ] SSR support">
+          </z-markdown>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-markdown</span>
+  <span class="attr">content</span>=<span class="val">"- [x] Done task
+- [ ] Pending task"</span>
+<span class="tag">&gt;&lt;/z-markdown&gt;</span></code></pre>
+        </div>
+      </div>
+
+      <div style="margin-top:32px;">
+        <div class="demo-section__header"><h3 data-i18n="complexPage.propsAndEvents">Properties &amp; Events</h3></div>
+        <table class="cmplx-api-table">
+          <thead>
+            <tr>
+              <th data-i18n="complexPage.property">Property</th>
+              <th data-i18n="complexPage.type">Type</th>
+              <th data-i18n="complexPage.default">Default</th>
+              <th data-i18n="complexPage.description">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>content</code></td>
+              <td>string</td>
+              <td>""</td>
+              <td data-i18n="complexPage.propContent">Markdown source text to render</td>
+            </tr>
+            <tr>
+              <td><code>highlight</code></td>
+              <td>(code, lang) =&gt; string</td>
+              <td>null</td>
+              <td data-i18n-html="complexPage.propHighlight">Optional code highlighting callback</td>
+            </tr>
+          </tbody>
+        </table>
+        <h4 style="margin:24px 0 8px;font-size:14px;" data-i18n="complexPage.events">Events</h4>
+        <table class="cmplx-api-table">
+          <thead>
+            <tr>
+              <th data-i18n="complexPage.event">Event</th>
+              <th data-i18n="complexPage.detail">Detail</th>
+              <th data-i18n="complexPage.description">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>z-render</code></td>
+              <td>{ html: string }</td>
+              <td data-i18n="complexPage.eventZRender">Fired after each render with the parsed HTML</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==================== Login ==================== -->
+
+    <section id="login" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="nav.login">Login</h2>
+        <p data-i18n="complexPage.loginHint">Composable login card built with z-input, z-button, and z-checkbox.</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-login id="login-demo"></z-login>
+          <div id="login-result" style="margin-top:12px;font-size:13px;color:var(--z-color-text-secondary);"></div>
+        </div>
+        <div class="demo-preview__actions">
+          <z-button appearance="ghost" size="sm" class="js-code-toggle" data-i18n="button.showCode">Show Code</z-button>
+        </div>
+        <div class="demo-preview__code">
+<pre><code><span class="tag">&lt;z-login</span>
+  <span class="attr">title</span>=<span class="val">"Welcome Back"</span>
+  <span class="attr">username-label</span>=<span class="val">"Username"</span>
+  <span class="attr">password-label</span>=<span class="val">"Password"</span>
+  <span class="attr">submit-label</span>=<span class="val">"Sign In"</span>
+<span class="tag">&gt;&lt;/z-login&gt;</span>
+<span class="cmt">// 提交事件 z-login（detail: username/password/remember），loading 由 JS 控制</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Form Basics ==================== -->
+
+    <section id="form-basics" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="nav.form-basics">Form Basics</h2>
+        <p>z-textarea / z-number-input / z-slider / z-rate（W13-FORM-BASICS）</p>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live">
+          <z-textarea id="ta1" label="备注" placeholder="输入多行内容…" autosize counter maxlength="200" style="width:320px"></z-textarea>
+          <z-textarea label="固定高度（resize=vertical）" rows="4" style="width:320px"></z-textarea>
+          <z-textarea label="禁用" value="不可编辑" disabled style="width:320px"></z-textarea>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live">
+          <z-number-input id="ni1" label="数量" value="5" min="0" max="100" step="5"></z-number-input>
+          <z-number-input label="单价" value="0.1" step="0.1" precision="2"></z-number-input>
+          <z-number-input label="禁用" value="3" disabled></z-number-input>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live">
+          <z-slider id="sl1" value="40" show-tooltip style="width:320px"></z-slider>
+          <z-slider value="60" min="0" max="100" step="10" marks='[{"value":0,"label":"0"},{"value":50,"label":"50"},{"value":100,"label":"100"}]' style="width:320px"></z-slider>
+          <div style="height:160px;"><z-slider vertical value="70" show-tooltip></z-slider></div>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live">
+          <z-rate id="rate1" value="3" label="评分"></z-rate>
+          <z-rate value="2.5" allow-half label="半星"></z-rate>
+          <z-rate value="4" clearable label="可清除"></z-rate>
+          <z-rate value="5" readonly label="只读"></z-rate>
+        </div>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <pre id="fb-log" class="demo-log">（交互后在此显示 z-input / z-change）</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Form ==================== -->
+
+    <section id="form" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="nav.form">Form</h2>
+        <p>z-form / z-form-item（W14-FORM）— 事件监听校验，零控件改动</p>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-form id="f1">
+            <z-form-item name="email" label="邮箱" required required-message="邮箱必填" pattern="^[^@]+@[^@]+$" message="邮箱格式不正确">
+              <z-input type="email" placeholder="user@example.com"></z-input>
+            </z-form-item>
+            <z-form-item name="age" label="年龄" min="18" max="65" message="年龄须在 18-65 之间" trigger="blur">
+              <z-number-input value="25"></z-number-input>
+            </z-form-item>
+            <z-form-item name="nickname" label="昵称" minlength="2" maxlength="8" message="昵称 2-8 个字符">
+              <z-input placeholder="2-8 个字符"></z-input>
+            </z-form-item>
+            <z-form-item name="agree" label="同意条款" required required-message="请先同意条款">
+              <z-checkbox>我已阅读并同意</z-checkbox>
+            </z-form-item>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+              <z-button id="btn-submit" type="primary">提交</z-button>
+              <z-button id="btn-reset">重置</z-button>
+            </div>
+          </z-form>
+          <div class="demo-log" id="form-log" style="margin-top:12px;">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Date ==================== -->
+
+    <section id="date" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="nav.date">Date</h2>
+        <p>z-calendar / z-date-range / z-time-picker（W15-DATE）— 复用 calendar.ts 纯逻辑，键盘全支持</p>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-calendar id="cal" value="2026-08-15" min="2026-08-01" max="2026-12-31" show-outside></z-calendar>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live">
+          <z-date-range id="range" start="2026-08-10" min="2026-08-01" max="2026-12-31">
+            <z-button type="default" slot="trigger">选择日期区间</z-button>
+          </z-date-range>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live">
+          <z-time-picker id="tp24" value="14:30:45" second>
+            <z-button type="default" slot="trigger">选择时间（24h）</z-button>
+          </z-time-picker>
+          <z-time-picker id="tp12" value="14:30" format="12">
+            <z-button type="default" slot="trigger">选择时间（12h）</z-button>
+          </z-time-picker>
+        </div>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div class="demo-log" id="date-log">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Nav ==================== -->
+
+    <section id="nav" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="nav.nav">Nav</h2>
+        <p>z-drawer / z-steps / z-anchor（W16-NAV）— drawer 镜像 Modal API，anchor 用 IntersectionObserver scrollspy</p>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live">
+          <z-button type="default" id="btn-left">左侧抽屉</z-button>
+          <z-button type="default" id="btn-right">右侧抽屉（title + footer）</z-button>
+          <z-button type="default" id="btn-top">顶部抽屉</z-button>
+          <z-button type="default" id="btn-bottom">底部抽屉</z-button>
+          <z-button type="primary" id="btn-prog">编程式 ZDrawer.open</z-button>
+        </div>
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-drawer id="dr-left" placement="left" width="360px" title="左侧抽屉" close-label="关闭">
+            <div class="drawer-content">
+              <p>placement="left"，width="360px"。</p>
+              <z-button type="default" id="dr-left-close">关闭</z-button>
+            </div>
+          </z-drawer>
+          <z-drawer id="dr-right" placement="right" title="提交配置" close-label="关闭">
+            <div class="drawer-content">
+              <p>右侧抽屉，title + footer 槽位 + beforeClose 守卫。</p>
+            </div>
+            <div slot="footer">
+              <z-button type="default" id="dr-right-cancel">取消</z-button>
+              <z-button type="primary" id="dr-right-ok">保存</z-button>
+            </div>
+          </z-drawer>
+          <z-drawer id="dr-top" placement="top" height="260px" title="顶部抽屉"></z-drawer>
+          <z-drawer id="dr-bottom" placement="bottom" height="240px" size="lg" title="底部抽屉"></z-drawer>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live">
+          <z-steps id="steps" clickable></z-steps>
+          <div style="display: flex; gap: 8px;">
+            <z-button type="default" id="prev">上一步</z-button>
+            <z-button type="default" id="next">下一步</z-button>
+            <z-button type="danger" id="set-err">置错误</z-button>
+            <z-button type="default" id="reset-steps">重置</z-button>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block anchor-page">
+          <!-- items 是 Array 属性（attribute:false），须 JS 赋值，见本页脚本 -->
+          <z-anchor class="anchor-nav" id="anchor" smooth offset="16"></z-anchor>
+          <div class="anchor-body">
+            <section id="sec-a"><h3>项目概览</h3><p>滚动页面时左侧锚点自动高亮当前章节。</p></section>
+            <section id="sec-b"><h3>技术方案</h3><p>点击锚点平滑滚动到对应章节。</p></section>
+            <section id="sec-c"><h3>里程碑</h3><p>Wave 1-3 已完成，Wave 4-7 进行中。</p></section>
+            <section id="sec-d"><h3>风险清单</h3><p>execCommand 弃用、contenteditable 与响应式渲染冲突等。</p></section>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div class="demo-log" id="nav-log">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Data ==================== -->
+
+    <section id="data" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="nav.data">Data</h2>
+        <p>z-timeline / z-statistic / z-empty / z-result / z-image（W17-DATA）</p>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-timeline id="timeline" pending="进行中"></z-timeline>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live stat-row">
+          <z-statistic id="stat1" value="128900" separator prefix="¥" suffix="成交额"></z-statistic>
+          <z-statistic id="stat2" value="9876.5" separator precision="2" count-up duration="1500" prefix="访问量 "></z-statistic>
+          <z-statistic value="98.2" precision="1" suffix="%"></z-statistic>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live">
+          <z-empty image="search" description="未找到相关记录">
+            <z-button type="primary" slot="actions">新建记录</z-button>
+          </z-empty>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live">
+          <z-result status="success" title="提交成功" subtitle="您的申请已受理，将在 1 个工作日内处理。">
+            <z-button type="primary" slot="actions">返回首页</z-button>
+          </z-result>
+          <z-result status="error" title="提交失败" subtitle="网络异常，请稍后重试。">
+            <z-button type="danger" slot="actions">重试</z-button>
+          </z-result>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live">
+          <z-image class="img-box" id="img1" src="https://picsum.photos/seed/z-agent-ui/400/300" alt="示例图" fit="cover" preview zoom></z-image>
+          <z-image class="img-box" src="https://picsum.photos/seed/z-agent-ui2/200/400" alt="竖图" fit="contain" preview></z-image>
+          <z-image class="img-box" src="https://bad-host.invalid/nope.png" alt="坏图" fit="cover" fallback="图片加载失败"></z-image>
+          <z-image class="img-box" src="https://picsum.photos/seed/z-agent-ui3/300/300" alt="懒加载" fit="cover" lazy placeholder="加载中…"></z-image>
+        </div>
+        <div class="demo-preview__live demo-preview__live--block">
+          <p class="demo-log">提示：灯箱内按 +/-/0 缩放，点击关闭。</p>
+        </div>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div class="demo-log" id="data-log">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Enterprise ==================== -->
+
+    <section id="enterprise" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="nav.enterprise">Enterprise</h2>
+        <p>z-watermark / z-command / z-virtual-list / z-json-viewer（W18-ENTERPRISE）</p>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div class="wm-host">
+            <z-watermark id="wm1"></z-watermark>
+            <div class="wm-card">
+              <strong>机密文档</strong><br />
+              <span style="font-size: 12px; color: var(--z-color-text-secondary);">水印随内容平铺,pointer-events:none</span>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+            <z-button id="wm-rotate" size="sm">旋转 45°</z-button>
+            <z-button id="wm-gap" size="sm">间距 160</z-button>
+            <z-button id="wm-color" size="sm">红色水印</z-button>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live">
+          <p class="demo-log" style="width:100%;">按 <code>Ctrl+K</code> 或点击下方按钮打开面板,方向键导航 + Enter 执行。</p>
+          <z-button id="cmd-open" type="primary">打开命令面板 (Ctrl+K)</z-button>
+          <z-command id="cmd"></z-command>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div style="display:flex; gap:8px; margin-bottom:12px;">
+            <z-button id="vl-top" size="sm">回到顶部</z-button>
+            <z-button id="vl-5000" size="sm">跳到 5000 行</z-button>
+          </div>
+          <div class="vlist-host">
+            <z-virtual-list id="vl1" item-height="40" height="320" overscan="6"></z-virtual-list>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div style="display:flex; gap:8px; width:100%; margin-bottom:12px;">
+            <z-button id="jv-expand" size="sm">全部展开</z-button>
+            <z-button id="jv-collapse" size="sm">全部折叠</z-button>
+            <z-checkbox id="jv-lines" label="行号"></z-checkbox>
+          </div>
+          <z-json-viewer id="jv1" copyable style="width:100%"></z-json-viewer>
+        </div>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div class="demo-log" id="ent-log">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Rich Text ==================== -->
+
+    <section id="rich-text" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="nav.rich-text">Rich Text</h2>
+        <p>z-rich-text（零依赖 execCommand,编辑区持久化,不随属性变更重建）</p>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div class="rt-host">
+            <z-rich-text id="rt1" placeholder="在这里输入内容..."></z-rich-text>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+            <z-button id="rt-set" size="sm">设置值 (JS)</z-button>
+            <z-button id="rt-html" size="sm">打印 getHTML()</z-button>
+            <z-button id="rt-text" size="sm">打印 getText()</z-button>
+            <z-checkbox id="rt-readonly" label="只读"></z-checkbox>
+            <z-checkbox id="rt-disabled" label="禁用"></z-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div class="rt-host">
+            <z-rich-text id="rt2"></z-rich-text>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div class="demo-log" id="rt-log">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Data List ==================== -->
+
+    <section id="data-list" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="nav.data-list">Data List</h2>
+        <p>z-data-list（字段驱动：分页 + 列显示控制 + 按字段类型筛选；client 内部分页过滤 / server 只转发事件）</p>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div class="dl-toolbar" style="width:100%;">
+            <span class="mode-badge">模式：</span>
+            <z-button id="mode-client" size="sm">Client</z-button>
+            <z-button id="mode-server" size="sm" appearance="outline">Server（模拟延迟）</z-button>
+            <span style="flex:1"></span>
+            <z-button id="dl-reset" size="sm" appearance="ghost">重置筛选</z-button>
+            <z-button id="dl-clear-cfg" size="sm" appearance="ghost">清除本地列配置</z-button>
+          </div>
+          <div class="dl-host">
+            <z-data-list id="dl"
+              locale="zh-CN"
+              show-info show-page-size selectable row-key="id" max-height="480px"
+              all-text="全部" yes-text="是" no-text="否" reset-text="重置"
+              min-placeholder="最小" max-placeholder="最大"></z-data-list>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div class="dl-log-area">
+            <div class="demo-log" id="dl-log">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Upload ==================== -->
+
+    <section id="upload" class="demo-section">
+      <div class="demo-section__header">
+        <h2 data-i18n="nav.upload">Upload</h2>
+        <p>z-upload（W14-FORM）— 拖拽 + XHR 进度（本地模式：action 留空仅管理文件列表）</p>
+      </div>
+
+      <div class="demo-preview" style="margin-bottom:24px;">
+        <div class="demo-preview__live demo-preview__live--block">
+          <z-upload id="up1" multiple drag action="" label="点击或拖拽文件到此区域（本地模式，不上传）" style="width:100%"></z-upload>
+        </div>
+      </div>
+
+      <div class="demo-preview">
+        <div class="demo-preview__live demo-preview__live--block">
+          <div class="demo-log" id="up-log">—</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script type="module" src="./complex-page.ts"></script>
+
+</body>
+</html>

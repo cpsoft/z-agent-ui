@@ -1,0 +1,69 @@
+:host {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  width: 100%;
+}
+
+.z-progress {
+  flex: 1;
+}
+
+.z-progress__track {
+  width: 100%;
+  overflow: hidden;
+  background: var(--z-color-track);
+  border-radius: var(--z-radius-full);
+}
+
+.z-progress__fill {
+  height: 100%;
+  border-radius: var(--z-radius-full);
+  transition: width var(--z-transition-normal);
+  min-width: 0;
+}
+
+/* ── Sizes ── */
+.z-progress--sm .z-progress__track { height: 4px; }
+.z-progress--md .z-progress__track { height: 8px; }
+
+/* ── Variants ── */
+.z-progress__fill--default { background: var(--z-color-primary); }
+.z-progress__fill--success { background: var(--z-color-success); }
+.z-progress__fill--warning { background: var(--z-color-warning); }
+.z-progress__fill--danger { background: var(--z-color-danger); }
+
+/* ── Striped ── */
+.z-progress__fill--striped {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 1em 1em;
+}
+
+.z-progress__fill--animated {
+  /* motion-check-ignore: 1s 是条纹流动的固有节奏。并入 loop-slow(1500) 慢 50%，
+     条纹会从「流动」变「卡顿」—— 这是 REQ-039 D4 明确判为不可接受的一处。 */
+  animation: z-progress-stripes 1s linear infinite;
+}
+
+@keyframes z-progress-stripes {
+  0% { background-position: 1em 0; }
+  100% { background-position: 0 0; }
+}
+
+/* ── Label ── */
+.z-progress__label {
+  flex-shrink: 0;
+  font-size: var(--z-font-size-xs);
+  color: var(--z-color-text-secondary);
+  min-width: 2.5em;
+  text-align: right;
+}

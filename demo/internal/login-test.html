@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Test</title>
+  <link rel="stylesheet" href="../demo.css" />
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand"><span>z</span>AgentUI <small>Login Test</small></div>
+</header>
+
+<div style="max-width:600px;margin:80px auto;padding:24px;">
+  <z-login id="login-demo"></z-login>
+  <div id="login-result" style="margin-top:12px;font-size:13px;color:var(--z-color-text-secondary);"></div>
+</div>
+
+<script type="module">
+  import "../../src/theme/index.js";
+  import "../../src/app/login/index.js";
+  import { mountBackHome } from "../shell.js";
+
+  mountBackHome();
+  const loginDemo = document.getElementById("login-demo");
+  const loginResult = document.getElementById("login-result");
+
+  loginDemo.addEventListener("z-login", (e) => {
+    console.log("[z-login]", e.detail);
+    loginResult.textContent = "Login submitted: " + JSON.stringify(e.detail);
+    loginDemo.loading = true;
+    setTimeout(() => { loginDemo.loading = false; }, 1500);
+  });
+</script>
+
+</body>
+</html>

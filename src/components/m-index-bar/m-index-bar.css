@@ -1,0 +1,121 @@
+/* ===== m-index-bar ===== */
+
+/*
+ * 布局：body 占满宽度，索引条叠在它右侧。
+ *
+ * [WHY 用 flex + sticky + 负 margin，而不是 absolute] 索引条要**跟着视口**待着，
+ * 而不是跟着内容跑到屏幕外。absolute 相对宿主定位，宿主高度等于全部内容高度，
+ * 滚到第三屏时索引条早就出了视口。sticky 才能做到「内容在滚、索引条停住」；
+ * 负 margin 让它不占宽度 —— 索引条是浮在内容上的，不该把行挤窄。
+ */
+:host {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.z-m-index-bar__body {
+  flex: 1 1 auto;
+  /* [WHY min-width 0] flex 子项默认 min-width:auto，长内容会把 body 撑得比容器还宽，
+     索引条随即被挤出视口。 */
+  min-width: 0;
+  /*
+   * [WHY 右侧留 20px] 索引条是**叠在**内容上的浮层（负 margin）。不留白时，行右端的值
+   * 文案（「12 单」「128 单」）会被字母压住 —— 实测「7 单」只剩「7」，而列表本身
+   * 看起来是正常的，只有对着截图才看得出来。20px 是索引条宽度减去行内已有 padding 后的余量。
+   */
+  padding-right: 20px;
+}
+
+.z-m-index-bar__rail {
+  position: sticky;
+  /*
+   * [WHY 用 50% 而不是 50vh] 这里最容易踩的坑：索引条的父容器通常是
+   * `max-height + overflow-y:auto` 的列表，而 **overflow 的容器会裁剪 sticky 子元素**。
+   * 用 50vh（= 450px）定位时，索引条被推到容器外面，容器裁掉它 —— 视觉上它还在
+   * 原来的位置附近（被后面兄弟元素盖住），实际点上去命中的是**后面的元素**：
+   * 表现为「点字母没反应」，而 elementFromPoint 一看命中的是别的组件。
+   * 50% 是相对 containing block（可滚动的那层）算的，永远落在容器内。
+   */
+  top: 50%;
+  transform: translateY(-50%);
+  /* 叠到内容上：宽度由字母撑开，负 margin 抵消它的占位。
+     [WHY -26px 而不是 -22px] 负得不够时，索引条会占掉列表 4px 宽、并被推到内容里；
+     字母于是压在右侧的值文案上（「7 单」后面直接是「A」）。负满自身宽度才能完全叠在最右缘。 */
+  margin-left: -26px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 6px 3px;
+  border-radius: 12px;
+  /* [WHY 92% 而不是 72%] 索引条是浮在列表内容上的半透明底；太淡时白色字母背景压不住
+     下面的行文字，字母与业务文案混在一起。 */
+  background: color-mix(in srgb, var(--z-color-surface) 92%, transparent);
+  /* 索引条本身不接指针事件以外的滚动，滚轮划过时应当滚页面 */
+  touch-action: none;
+}
+
+.z-m-index-bar__item {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  width: 20px;
+  /* [WHY 10px 字号 + 16px 行高] 索引条常见 26 项，44px 的触摸下限在这里不成立
+     （26 × 44 = 1144px）。它的可点性靠**滑动**而不是精确点中某一项 ——
+     真正需要精确点击的场合，用户会改用搜索。 */
+  height: 16px;
+  line-height: 16px;
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-xs);
+  font-weight: var(--z-font-weight-medium);
+  color: var(--z-color-text-secondary);
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  user-select: none;
+}
+
+/* 当前分组：与「点上去」的视觉反馈同一套，避免出现两种「选中」样式 */
+.z-m-index-bar__item[aria-current="true"] {
+  color: var(--z-color-primary);
+  background: var(--z-color-primary-soft);
+}
+
+.z-m-index-bar__item:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: 1px;
+}
+
+/*
+ * 气泡：滑动索引条时手指会盖住它，所以把「当前在哪」搬到屏幕中央。
+ * [WHY fixed 而不是跟随索引条] 手指按着索引条的时候，气泡放在它旁边就会被手挡住 ——
+ * 这正是这个气泡存在的理由。
+ */
+.z-m-index-bar__bubble {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  border-radius: var(--z-radius-lg);
+  background: color-mix(in srgb, var(--z-color-text) 78%, transparent);
+  color: var(--z-color-bg);
+  font-family: var(--z-font-sans);
+  font-size: 30px;
+  font-weight: var(--z-font-weight-medium);
+  pointer-events: none;
+  z-index: var(--z-z-tooltip);
+}
+
+.z-m-index-bar__bubble[data-visible] {
+  display: flex;
+}

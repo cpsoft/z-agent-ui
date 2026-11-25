@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doc Template — zAgentUI</title>
+  <link rel="stylesheet" href="./demo.css" />
+  <style>
+    .demo-content { padding: 24px; max-width: 1400px; }
+    .demo-titlebar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0 8px; }
+    .demo-content h1 { font-size: 1.5rem; font-weight: 700; margin: 0; color: var(--z-color-text); }
+    .demo-section { margin: 24px 0; display: flex; flex-direction: column; gap: 12px; }
+    .demo-section h2 { font-size: 1rem; font-weight: 600; color: var(--z-color-text-secondary); }
+    .demo-panel { padding: 16px; border: 1px solid var(--z-color-border); border-radius: var(--z-radius-md); background: var(--z-color-bg); }
+    .demo-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .demo-log { font-family: var(--z-font-mono); font-size: 12px; color: var(--z-color-text-secondary); white-space: pre-wrap; }
+    .demo-log-area { max-height: 160px; overflow: auto; border: 1px solid var(--z-color-border); border-radius: 6px; padding: 8px; }
+    .demo-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+    .demo-fields label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--z-color-text-secondary); }
+    .demo-fields z-input { flex: 1; min-width: 0; }
+    /* 表格行录入：列结构随编辑器里该表配置的展示字段变化 */
+    .demo-table-cfg { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px; }
+    .demo-table-cfg > .demo-row { font-size: 13px; }
+    .demo-table-edit { border-collapse: collapse; font-size: 13px; }
+    .demo-table-edit th,
+    .demo-table-edit td { border: 1px solid var(--z-color-border); padding: 2px 4px; text-align: left; }
+    .demo-table-edit th { font-weight: 500; color: var(--z-color-text-secondary); }
+    .demo-table-edit th span { margin-left: 6px; font-size: 11px; font-family: var(--z-font-mono, monospace); }
+    .demo-table-edit z-input { width: 100%; min-width: 70px; }
+  </style>
+</head>
+<body>
+  <main class="demo-content">
+    <div class="demo-titlebar">
+      <h1>文档模板 z-doc-template</h1>
+      <!-- 主题切换由 shell.ts mountBackHome 注入 -->
+    </div>
+    <p class="demo-log">纯前端模块：数据源适配器注入（无后端实现） · 建模板 → 编辑 → 填数据 → 预览 → 打印 → 导出 docx · 文档纸张固定白底，不随主题翻转</p>
+
+    <section class="demo-section">
+      <h2>1. 模板管理（z-doc-template-manager，适配器注入）</h2>
+      <div class="demo-panel">
+        <z-doc-template-manager id="mgr" page-size="5" categories='["合同","通知函","报价单"]'></z-doc-template-manager>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>2. 模板编辑器（z-doc-template-editor，块结构 + 占位符 + 中文排版 + 表格配置）</h2>
+      <div class="demo-panel demo-row">
+        <z-button id="btn-save" size="sm">保存模板</z-button>
+        <z-button id="btn-keys" size="sm" appearance="outline">提取占位符 key</z-button>
+        <span id="edit-status" class="demo-log">未选择模板</span>
+      </div>
+      <div class="demo-panel">
+        <z-doc-template-editor id="editor"></z-doc-template-editor>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>3. 数据填充 + 预览 / 打印 / 导出（z-doc-preview）</h2>
+      <div class="demo-panel demo-row">
+        <z-button id="btn-sample" size="sm" appearance="outline">填充示例数据</z-button>
+        <z-button id="btn-clear" size="sm" appearance="ghost">清空数据</z-button>
+        <span class="demo-log">数据键由模板内容反向提取；表格行按模板里配置的展示字段录入</span>
+      </div>
+      <div class="demo-panel">
+        <div class="demo-fields" id="data-fields"></div>
+      </div>
+      <div class="demo-panel">
+        <z-doc-preview id="preview" export-name="合同模板示例"></z-doc-preview>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>事件日志</h2>
+      <div class="demo-panel demo-log-area"><div class="demo-log" id="log">—</div></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import "../src/theme/index.js";
+    import { themeController } from "../src/theme/index.js";
+    import "../src/components/button/index.js";
+    import "../src/components/input/index.js";
+    import { ZDocTemplateManager } from "../src/doc/index.js";
+    import { ZDocTemplateEditor } from "../src/doc/index.js";
+    import { ZDocPreview } from "../src/doc/index.js";
+    import { DEFAULT_FORMAT_CONFIG, parseFormatConfig } from "../src/doc/index.js";
+    import { mountBackHome } from "./shell.js";
+
+    themeController.init();
+    mountBackHome();
+
+    const logEl = document.getElementById("log");
+    const append = (s) => (logEl.textContent = `${new Date().toLocaleTimeString()}  ${s}\n` + logEl.textContent);
+
+    // ── 占位符定义表（宿主注入；生产环境来自后端字段字典） ──
+    const PLACEHOLDERS = [
+      { key: "partyA", label: "甲方名称", type: "text", sample: "金华数字化改造有限公司" },
+      { key: "partyB", label: "乙方名称", type: "text", sample: "浙江智造科技有限公司" },
+      { key: "amount", label: "合同金额", type: "number", sample: "128000.00" },
+      { key: "signDate", label: "签署日期", type: "date", sample: "2026-09-24" },
+      { key: "period", label: "服务期限", type: "text", sample: "12 个月" },
+      { key: "items", label: "标的明细表", type: "table", sample: "结构行数据 / HTML 片段",
+        // 表的列结构由宿主字段字典提供, 编辑器属性面板的「字段」下拉据此列出可选展示字段
+        fields: [
+          { key: "name", label: "项目名称" },
+          { key: "qty", label: "数量" },
+          { key: "price", label: "单价(元)" },
+          { key: "amount", label: "金额(元)" },
+        ] },
+    ];
+
+    const seedBlocks = (title) => JSON.stringify([
+      { id: "b1", type: "heading", level: 1, text: title },
+      { id: "b2", type: "paragraph", align: "right", text: "合同编号：{{contractNo}}" },
+      { id: "b3", type: "paragraph", text: "甲方（委托方）：{{partyA}}" },
+      { id: "b4", type: "paragraph", text: "乙方（受托方）：{{partyB}}" },
+      { id: "b5", type: "paragraph", text: "经双方友好协商，就数字化改造服务事宜达成如下约定，合同金额为人民币 {{amount}} 元，服务期限 {{period}}。" },
+      { id: "b6", type: "table", dataKey: "items", columns: [
+        { key: "name", label: "项目名称", width: 180 },
+        { key: "qty", label: "数量", width: 60 },
+        { key: "price", label: "单价(元)", width: 100 },
+      ], rows: [["", "", ""]] },
+      { id: "b7", type: "list", ordered: true, items: ["甲方按合同金额 30% 支付预付款；", "项目验收后 15 个工作日内结清尾款；", "乙方提供为期 {{period}} 的运维支持。"] },
+      { id: "b8", type: "paragraph", text: "本协议自双方签署之日起生效，签署日期：{{signDate}}。" },
+      { id: "b9", type: "signature", left: "甲方（签章）：", right: "乙方（签章）：" },
+    ]);
+
+    // ── 数据源适配器（宿主自行对接后端；此处内存 mock） ──
+    let seq = 3;
+    const DB = [
+      { id: "t1", name: "数字化改造服务合同", description: "标准服务合同模板（含标的明细表）", category: "合同",
+        content: seedBlocks("数字化改造服务合同"), formatConfig: JSON.stringify(DEFAULT_FORMAT_CONFIG), isDefault: true, updatedAt: "2026-09-20 10:12" },
+      { id: "t2", name: "项目验收通知函", description: "验收结果通知（无表格）", category: "通知函",
+        content: JSON.stringify([
+          { id: "c1", type: "heading", level: 1, text: "项目验收通知函" },
+          { id: "c2", type: "paragraph", text: "{{partyA}}：" },
+          { id: "c3", type: "paragraph", text: "贵司委托的数字化改造项目已于 {{signDate}} 完成验收，服务期限 {{period}}。" },
+          { id: "c4", type: "signature", left: "", right: "{{partyB}}" },
+        ]), formatConfig: JSON.stringify({ ...DEFAULT_FORMAT_CONFIG, lineHeight: 1.5 }), isDefault: false, updatedAt: "2026-09-18 16:40" },
+      { id: "t3", name: "HTML 降级内容模板", description: "content 直接存 HTML（渲染优先级降级链路）", category: "报价单",
+        content: `<h1>报价单</h1><p>客户：{{partyA}}</p><table><thead><tr><th>项目</th><th>金额</th></tr></thead><tbody><tr><td>软件开发</td><td>{{amount}}</td></tr></tbody></table>`,
+        formatConfig: JSON.stringify(DEFAULT_FORMAT_CONFIG), isDefault: false, updatedAt: "2026-09-15 09:05" },
+    ];
+
+    const dataSource = {
+      async list({ page, size, keyword, category }) {
+        let rows = DB.slice();
+        if (keyword) rows = rows.filter((r) => r.name.includes(keyword));
+        if (category) rows = rows.filter((r) => r.category === category);
+        return { data: rows.slice((page - 1) * size, page * size), total: rows.length };
+      },
+      async get(id) { return DB.find((r) => r.id === id); },
+      async create(t) { const item = { formatConfig: JSON.stringify(DEFAULT_FORMAT_CONFIG), isDefault: false, content: "[]", ...t, id: `t${seq++}` }; DB.push(item); return item; },
+      async update(id, patch) { const i = DB.findIndex((r) => r.id === id); DB[i] = { ...DB[i], ...patch }; },
+      async remove(id) { const i = DB.findIndex((r) => r.id === id); DB.splice(i, 1); },
+    };
+
+    // ── 导出适配器（docx 生成由宿主决定；此处 mock blob） ──
+    const renderAdapter = {
+      async renderDocx(template, data) {
+        append(`renderDocx → ${template.name}（${Object.keys(data).length} 个数据键）`);
+        // 演示用 mock：真实项目此处调用自有后端渲染服务, 返回 docx Blob
+        return new Blob([`mock docx for ${template.name}\n${JSON.stringify(data, null, 2)}`],
+          { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+      },
+    };
+
+    // ── 装配 ──
+    const mgr = document.getElementById("mgr");
+    const editor = document.getElementById("editor");
+    const preview = document.getElementById("preview");
+    const statusEl = document.getElementById("edit-status");
+    const fieldsEl = document.getElementById("data-fields");
+    const editorDefaults = { content: "", formatConfig: JSON.stringify(DEFAULT_FORMAT_CONFIG) };
+
+    let current = null;   // 当前编辑中的模板
+    let dataValues = {};
+
+    mgr.dataSource = dataSource;
+    mgr.categories = ["合同", "通知函", "报价单"];
+    mgr.addEventListener("z-edit", (e) => {
+      current = e.detail.template;
+      editor.loadTemplate(current);
+      preview.template = current;
+      statusEl.textContent = `编辑中：${current.name}`;
+      syncFromEditor();
+      append(`z-edit: ${current.name}`);
+    });
+    mgr.addEventListener("z-create", async (e) => {
+      const t = await dataSource.create({ name: `新建模板 ${seq}`, category: e.detail.category, content: "[]" });
+      await mgr.refresh(1);
+      current = t;
+      editor.loadTemplate(t);
+      preview.template = t;
+      statusEl.textContent = `新建：${t.name}`;
+      append(`z-create: ${t.name}`);
+    });
+    mgr.addEventListener("z-error", (e) => append(`z-error: ${e.detail.error?.message ?? e.detail.error}`));
+    mgr.addEventListener("z-refresh", (e) => append(`z-refresh: 共 ${e.detail.total} 条`));
+
+    editor.placeholders = PLACEHOLDERS;
+    editor.addEventListener("z-change", () => syncFromEditor());
+    editor.addEventListener("z-placeholder-click", (e) => append(`z-placeholder-click: {{${e.detail.key}}}`));
+    editor.addEventListener("z-block-select", (e) => {
+      const b = e.detail.block;
+      if (b) append(`z-block-select: ${b.type}`);
+    });
+
+    preview.renderAdapter = renderAdapter;
+    preview.template = DB[0];
+    preview.addEventListener("z-generate", () => append("z-generate"));
+    preview.addEventListener("z-print", () => append("z-print"));
+    preview.addEventListener("z-export", (e) => append(e.detail.error ? `z-export 失败: ${e.detail.error}` : "z-export 成功"));
+
+    /** 编辑器 → 预览 + 数据表单（数据键由内容反向提取） */
+    function syncFromEditor() {
+      preview.content = editor.getContent();
+      preview.formatConfig = editor.getFormatConfigJSON();
+      renderDataFields(editor.extractPlaceholderKeys());
+    }
+
+    const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+    const defOf = (key) => PLACEHOLDERS.find((p) => p.key === key);
+    const isTable = (key) => defOf(key)?.type === "table";
+
+    /**
+     * 表格型 key 的展示字段：优先取编辑器里该表当前配置的列（改列后录入表立即跟着变），
+     * 表块不存在时退回宿主字段字典的 fields。
+     */
+    function tableColumns(key) {
+      const block = editor.getBlocks().find((b) => b.type === "table" && b.dataKey === key);
+      if (block?.columns?.length) return block.columns.map((c) => ({ key: c.key, label: c.label || c.key }));
+      return (defOf(key)?.fields ?? []).map((f) => ({ key: f.key, label: f.label || f.key }));
+    }
+
+    // 表格样例值（按列 key 给；键名对不上的列留空）
+    const TABLE_SAMPLE = {
+      items: {
+        name: ["需求调研与方案设计", "系统开发与联调", "上线部署与培训"],
+        qty: ["1", "1", "1"],
+        price: ["28000", "76000", "24000"],
+        amount: ["28000", "76000", "24000"],
+      },
+    };
+
+    /**
+     * 行数据按当前展示字段对齐：保留用户输入（被删的列丢弃、新增的列补空），
+     * 首次进入该表或点「填充示例数据」时用样例值。
+     */
+    function alignRows(key, force = false) {
+      const cols = tableColumns(key);
+      const src = TABLE_SAMPLE[key] ?? {};
+      const known = Array.isArray(dataValues[key]);
+      const prev = known ? dataValues[key] : [];
+      const n = force ? 3 : known ? prev.length : 3;
+      dataValues[key] = Array.from({ length: n }, (_, i) => {
+        const row = {};
+        for (const c of cols) row[c.key] = force || !known ? src[c.key]?.[i] ?? "" : prev[i]?.[c.key] ?? "";
+        return row;
+      });
+    }
+
+    function renderDataFields(keys) {
+      const keep = {};
+      for (const k of keys) {
+        const prev = dataValues[k];
+        keep[k] = Array.isArray(prev) ? prev : typeof prev === "string" ? prev : "";
+      }
+      dataValues = keep;
+      for (const k of keys) if (isTable(k)) alignRows(k);
+      if (keys.length === 0) {
+        fieldsEl.innerHTML = `<span class="demo-log">当前模板未使用占位符</span>`;
+      } else {
+        fieldsEl.innerHTML = keys.map((k) => {
+          const def = defOf(k);
+          const label = def ? `${def.label} (${k})` : k;
+          return isTable(k) ? tableRowsHtml(k, label) : `<label>${label}<z-input data-key="${k}" value="${esc(dataValues[k])}" placeholder="${esc(def?.sample)}"></z-input></label>`;
+        }).join("");
+      }
+      preview.setData(buildData());
+    }
+
+    /** 表格行录入：列 = 编辑器里该表配置的展示字段（增删列后自动重排） */
+    function tableRowsHtml(key, label) {
+      const cols = tableColumns(key);
+      if (cols.length === 0) {
+        return `<div class="demo-table-cfg"><b>${esc(label)}</b><span class="demo-log">该表未配置展示字段：在编辑器属性面板「字段」下拉里选</span></div>`;
+      }
+      const rows = Array.isArray(dataValues[key]) ? dataValues[key] : [];
+      const body = rows
+        .map(
+          (r, ri) =>
+            `<tr>${cols.map((c) => `<td><z-input data-row="${ri}" data-col-key="${esc(c.key)}" value="${esc(r[c.key])}"></z-input></td>`).join("")}<td><z-button data-tbl-op="remove-row" data-tbl-key="${esc(key)}" data-row="${ri}" size="sm" appearance="ghost" title="删行">✕</z-button></td></tr>`,
+        )
+        .join("");
+      return `<div class="demo-table-cfg" data-tbl="${esc(key)}">
+        <div class="demo-row">
+          <b>${esc(label)}</b>
+          <span class="demo-log">列取自编辑器里该表配置的展示字段</span>
+          <z-button data-tbl-op="add-row" data-tbl-key="${esc(key)}" size="sm" appearance="outline">加行</z-button>
+        </div>
+        <table class="demo-table-edit">
+          <thead><tr>${cols.map((c) => `<th>${esc(c.label)}<span>${esc(c.key)}</span></th>`).join("")}<th></th></tr></thead>
+          <tbody>${body}</tbody>
+        </table>
+      </div>`;
+    }
+
+    /** 数据整体交给预览：标量直接传, 表格传对象行数组（对象行按 columns[].key 取数） */
+    function buildData() {
+      return { ...dataValues };
+    }
+
+    // 录入面板用 z-input / z-button，事件走组件冒泡的 z-input / z-click（e.target 即宿主元素）
+    fieldsEl.addEventListener("z-input", (e) => {
+      const input = e.target.closest("z-input");
+      if (!input) return;
+      if (input.dataset.colKey) {
+        const key = input.closest("[data-tbl]").dataset.tbl;
+        const ri = Number(input.dataset.row);
+        if (!Array.isArray(dataValues[key])) dataValues[key] = [];
+        while (dataValues[key].length <= ri) dataValues[key].push({});
+        dataValues[key][ri][input.dataset.colKey] = e.detail.value;
+      } else if (input.dataset.key) {
+        dataValues[input.dataset.key] = e.detail.value;
+      } else return;
+      preview.setData(buildData());
+    });
+
+    fieldsEl.addEventListener("z-click", (e) => {
+      const btn = e.target.closest("z-button[data-tbl-op]");
+      if (!btn) return;
+      const key = btn.dataset.tblKey;
+      if (!Array.isArray(dataValues[key])) dataValues[key] = [];
+      if (btn.dataset.tblOp === "add-row") dataValues[key].push({});
+      else dataValues[key].splice(Number(btn.dataset.row), 1);
+      renderDataFields(editor.extractPlaceholderKeys());
+    });
+
+    // ── 工具按钮 ──
+    document.getElementById("btn-save").addEventListener("z-click", async () => {
+      if (!current) { append("请先在列表中选择模板"); return; }
+      await dataSource.update(current.id, {
+        content: editor.getContent(),
+        formatConfig: editor.getFormatConfigJSON(),
+        updatedAt: new Date().toLocaleString(),
+      });
+      await mgr.refresh();
+      append(`已保存：${current.name}`);
+    });
+
+    document.getElementById("btn-keys").addEventListener("z-click", () => {
+      const keys = editor.extractPlaceholderKeys();
+      const undefinedKeys = editor.getUndefinedPlaceholderKeys();
+      append(`占位符 key: [${keys.join(", ")}]${undefinedKeys.length ? ` · 未定义: [${undefinedKeys.join(", ")}]` : ""}`);
+    });
+
+    document.getElementById("btn-sample").addEventListener("z-click", () => {
+      const sample = {
+        partyA: "金华数字化改造有限公司",
+        partyB: "浙江智造科技有限公司",
+        amount: "128000.00",
+        signDate: "2026-09-24",
+        period: "12 个月",
+        contractNo: "HT-2026-0924",
+      };
+      for (const [k, v] of Object.entries(sample)) if (k in dataValues) dataValues[k] = v;
+      const keys = editor.extractPlaceholderKeys();
+      for (const k of keys) if (isTable(k)) alignRows(k, true);
+      renderDataFields(keys);
+      append("已填充示例数据");
+    });
+
+    document.getElementById("btn-clear").addEventListener("z-click", () => {
+      dataValues = {};
+      const keys = editor.extractPlaceholderKeys();
+      // 显式置空数组: 置 undefined 会被 alignRows 当成「首次进入」而重新填样例值
+      for (const k of keys) if (isTable(k)) dataValues[k] = [];
+      renderDataFields(keys);
+      append("已清空数据");
+    });
+
+    // 初始：载入首个模板跑通全流程
+    (async () => {
+      await mgr.refresh(1);
+      current = DB[0];
+      editor.loadTemplate(current);
+      preview.template = current;
+      statusEl.textContent = `编辑中：${current.name}`;
+      syncFromEditor();
+      append(`初始化完成：${DB.length} 个模板 · 排版默认行距 ${parseFormatConfig(editor.getFormatConfigJSON()).lineHeight}`);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400" role="img" aria-label="满减活动（示意）">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#b45309"/>
+      <stop offset="1" stop-color="#9d174d"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="400" fill="url(#bg2)"/>
+  <g fill="#ffffff" opacity="0.1">
+    <rect x="520" y="-40" width="120" height="480" transform="rotate(18 580 200)"/>
+    <rect x="660" y="-40" width="60" height="480" transform="rotate(18 690 200)"/>
+  </g>
+  <text x="64" y="160" font-family="system-ui, sans-serif" font-size="64" fill="#ffffff">满 ¥99 减 ¥20</text>
+  <text x="64" y="214" font-family="system-ui, sans-serif" font-size="24" fill="#fde68a">全场茶叶 / 茶具参与</text>
+  <text x="64" y="286" font-family="system-ui, sans-serif" font-size="20" fill="#ffffff" opacity="0.75">活动至 12 月 31 日</text>
+</svg>

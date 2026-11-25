@@ -1,0 +1,225 @@
+/* ===== m-sku-picker ===== */
+
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-z-modal);
+  -webkit-tap-highlight-color: transparent;
+  /* 隐藏态整块不能挡触摸：host 是 fixed 全屏盒子，不透传会吃掉整页点击 */
+  pointer-events: none;
+}
+
+.m-sku__overlay {
+  pointer-events: auto;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  background: var(--z-color-bg-overlay);
+  animation: m-sku-fade-in var(--z-anim-duration-fast) var(--z-ease-standard);
+}
+
+.m-sku__panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 85vh;
+  background: var(--z-color-bg-secondary);
+  border-radius: var(--z-radius-lg) var(--z-radius-lg) 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: var(--z-shadow-lg);
+  outline: none;
+  animation: m-sku-slide-up var(--z-anim-duration-normal) var(--z-ease-standard);
+}
+
+.m-sku__head {
+  position: relative;
+  display: flex;
+  gap: var(--z-space-3);
+  padding: var(--z-space-4);
+  border-bottom: 1px solid var(--z-color-border);
+}
+
+.m-sku__media {
+  flex: none;
+  width: 88px;
+  height: 88px;
+  overflow: hidden;
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-gray-100);
+}
+
+.m-sku__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.m-sku__img--empty {
+  background: var(--z-color-gray-100);
+}
+
+.m-sku__info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--z-space-1);
+  /* 价格与已选文案都可能很长，必须可收缩，否则把关闭按钮挤出屏幕 */
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-right: 36px;
+}
+
+.m-sku__picked,
+.m-sku__stock {
+  margin: 0;
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  line-height: 1.4;
+  color: var(--z-color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.m-sku__stock {
+  font-size: var(--z-font-size-xs);
+  color: var(--z-color-text-placeholder);
+}
+
+.m-sku__close {
+  position: absolute;
+  top: var(--z-space-1);
+  right: var(--z-space-1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--z-touch-min);
+  height: var(--z-touch-min);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  cursor: pointer;
+}
+
+.m-sku__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-4);
+  /* 规格一多就得自己滚；min-height:0 缺了会把 foot 顶出面板 */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--z-space-4);
+  -webkit-overflow-scrolling: touch;
+}
+
+.m-sku__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-2);
+}
+
+.m-sku__name {
+  margin: 0;
+  color: var(--z-color-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-base);
+  font-weight: var(--z-font-weight-medium);
+  line-height: 1.4;
+}
+
+.m-sku__opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--z-space-2);
+}
+
+.m-sku__opt {
+  min-height: 36px;
+  padding: 0 var(--z-space-4);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-full);
+  background: var(--z-color-fill-secondary);
+  color: var(--z-color-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background var(--z-anim-duration-fast) var(--z-ease-standard),
+    border-color var(--z-anim-duration-fast) var(--z-ease-standard);
+}
+
+.m-sku__opt.is-active {
+  border-color: var(--z-color-primary);
+  background: var(--z-color-primary-soft);
+  color: var(--z-color-primary);
+  font-weight: var(--z-font-weight-medium);
+}
+
+/* 不可选：降价透明度而不是纯灰 —— 灰字在白底上会被读成「已禁用但可以点」 */
+.m-sku__opt:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.m-sku__foot {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-3);
+  padding: var(--z-space-3) var(--z-space-4);
+  border-top: 1px solid var(--z-color-border);
+}
+
+.m-sku__qty {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  flex: none;
+}
+
+.m-sku__qty-label {
+  color: var(--z-color-text-secondary);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  white-space: nowrap;
+}
+
+.m-sku__confirm {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: var(--z-touch-min);
+  padding: 0 var(--z-space-4);
+  border: none;
+  border-radius: var(--z-radius-full);
+  background: var(--z-color-primary);
+  color: var(--z-color-primary-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-base);
+  font-weight: var(--z-font-weight-medium);
+  cursor: pointer;
+}
+
+/* 不可点：主色降透明度而不是换浅灰底 —— 浅灰按钮在白面板上看着像一行文字，
+   用户不知道这里本该有个按钮 */
+.m-sku__confirm:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+@keyframes m-sku-fade-in {
+  from {
+    background: transparent;
+  }
+}
+
+@keyframes m-sku-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+}

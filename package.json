@@ -1,0 +1,190 @@
+{
+  "name": "z-agent-ui",
+  "version": "1.0.0",
+  "description": "Framework-agnostic Web Components for business UIs — form, table, chart, flow, doc. No runtime dependencies.",
+  "type": "module",
+  "main": "./dist/z-agent-ui.js",
+  "module": "./dist/z-agent-ui.js",
+  "types": "./dist/types/index.d.ts",
+  "sideEffects": [
+    "./dist/**/*.js",
+    "./dist/**/*.css",
+    "./src/**/*.ts",
+    "./src/**/*.css"
+  ],
+  "keywords": [
+    "web-components",
+    "ui-library",
+    "custom-elements",
+    "framework-agnostic",
+    "components",
+    "design-system"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/cpsoft13/z-agent-ui.git"
+  },
+  "bugs": {
+    "url": "https://gitee.com/cpsoft13/z-agent-ui/issues"
+  },
+  "homepage": "https://gitee.com/cpsoft13/z-agent-ui",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/z-agent-ui.js"
+    },
+    "./react": {
+      "types": "./dist/types/react/index.d.ts",
+      "import": "./dist/react.js"
+    },
+    "./theme": {
+      "types": "./dist/types/theme/index.d.ts",
+      "import": "./dist/theme.js"
+    },
+    "./components/*": {
+      "types": "./dist/types/components/*/index.d.ts",
+      "import": "./dist/components/*.js"
+    },
+    "./doc": {
+      "types": "./dist/types/doc/index.d.ts",
+      "import": "./dist/doc.js"
+    },
+    "./doc/manager": {
+      "types": "./dist/types/doc/DocTemplateManager.d.ts",
+      "import": "./dist/doc/manager.js"
+    },
+    "./doc/editor": {
+      "types": "./dist/types/doc/DocTemplateEditor.d.ts",
+      "import": "./dist/doc/editor.js"
+    },
+    "./doc/preview": {
+      "types": "./dist/types/doc/DocPreview.d.ts",
+      "import": "./dist/doc/preview.js"
+    },
+    "./content": {
+      "types": "./dist/types/content/index.d.ts",
+      "import": "./dist/content.js"
+    },
+    "./content/*": {
+      "types": "./dist/types/content/*/index.d.ts",
+      "import": "./dist/content/*.js"
+    },
+    "./property": {
+      "types": "./dist/types/property/index.d.ts",
+      "import": "./dist/property.js"
+    },
+    "./property/*": {
+      "types": "./dist/types/property/*/index.d.ts",
+      "import": "./dist/property/*.js"
+    },
+    "./primitives": {
+      "types": "./dist/types/primitives/index.d.ts",
+      "import": "./dist/primitives.js"
+    },
+    "./primitives/*": {
+      "types": "./dist/types/primitives/*/index.d.ts",
+      "import": "./dist/primitives/*.js"
+    },
+    "./core/*": {
+      "types": "./dist/types/core/*.d.ts",
+      "import": "./dist/core/*.js"
+    },
+    "./z-agent-ui.css": "./dist/z-agent-ui.css",
+    "./app": {
+      "types": "./dist/types/app/index.d.ts",
+      "import": "./dist/app.js"
+    },
+    "./app/*": {
+      "types": "./dist/types/app/*/index.d.ts",
+      "import": "./dist/app/*.js"
+    },
+    "./flow": {
+      "types": "./dist/types/flow/index.d.ts",
+      "import": "./dist/flow.js"
+    },
+    "./report": {
+      "types": "./dist/types/report/index.d.ts",
+      "import": "./dist/report.js"
+    },
+    "./report/*": {
+      "types": "./dist/types/report/*/index.d.ts",
+      "import": "./dist/report/*.js"
+    },
+    "./report/core": {
+      "types": "./dist/types/report/core/index.d.ts",
+      "import": "./dist/report/core.js"
+    },
+    "./report/core/*": {
+      "types": "./dist/types/report/core/*.d.ts",
+      "import": "./dist/report/core/*.js"
+    },
+    "./report/card": {
+      "types": "./dist/types/report/elements/index.d.ts",
+      "import": "./dist/report/card.js"
+    }
+  },
+  "files": [
+    "dist/",
+    "src/components/",
+    "registry/",
+    "bin/"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && npm run build:types && node bin/stamp-build.mjs",
+    "build:types": "tsc -p tsconfig.json",
+    "type:check": "tsc -p tsconfig.typetest.json",
+    "prepublishOnly": "npm run build && npm test && npm run check",
+    "preview": "vite preview",
+    "build:demo": "vite build --config vite.demo.config.ts",
+    "preview:demo": "vite preview --config vite.demo.config.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "manifest": "vitest run --config vitest.gen.config.ts tests/tools/manifest.gen.test.ts",
+    "manifest:check": "node bin/manifest-check.mjs",
+    "exports:check": "node bin/exports-check.mjs",
+    "motion:check": "node bin/motion-check.mjs",
+    "layer:check": "node bin/layer-guard.mjs",
+    "lines:check": "node bin/lines-guard.mjs",
+    "check": "npm run exports:check && npm run manifest:check && npm run motion:check && npm run layer:check && npm run lines:check",
+    "check:guards": "node bin/check-guards.mjs",
+    "hooks:install": "node bin/install-hooks.mjs",
+    "prepare": "node bin/install-hooks.mjs",
+    "visual:check": "smoke/ego/run.sh",
+    "visual:update": "smoke/ego/run.sh --update",
+    "interact:check": "smoke/ego/interact.sh",
+    "pack:z-agent-ui": "node bin/pack-z-agent-ui.mjs"
+  },
+  "peerDependencies": {
+    "marked": ">=18.0.0",
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "marked": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "happy-dom": "^20.10.6",
+    "jsdom": "^29.1.1",
+    "marked": "^18.0.6",
+    "playwright": "^1.61.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0",
+    "vitest": "^4.1.10"
+  }
+}

@@ -1,0 +1,83 @@
+/* ===== m-grid-item ===== */
+
+:host {
+  display: block;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-grid-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* [WHY 要居中] 宫格是一行等高的（grid stretch），而项内是 column 布局。
+     没有图标的那一格内容只有一行标签，flex-start 会把标签**贴到格子顶部**——
+     与有图标的邻居差一整行（实测 42px）。同一行里标签不齐，看起来像布局坏了。 */
+  justify-content: center;
+  /* [WHY 要撑满 host] `:host` 是 block，被宫格 stretch 到行高；而里面这个 div 的高度
+     只到内容高度。只写 justify-content: center 是在「36px 的盒子」里居中，
+     实际效果为零（实测标签仍在顶部 13px 处，与有图标的邻居差 43px）。 */
+  height: 100%;
+  box-sizing: border-box;
+  gap: var(--z-space-2);
+  padding: var(--z-space-2) var(--z-space-1);
+  border-radius: var(--z-radius-md);
+  color: var(--z-color-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  cursor: pointer;
+  user-select: none;
+  /* 触控面积：文字短也要够 44px，否则按不准 */
+  min-height: var(--z-touch-min);
+  box-sizing: border-box;
+  transition: background-color var(--z-transition-fast);
+}
+
+.m-grid-item:active {
+  background: var(--z-color-fill-secondary);
+}
+
+.m-grid-item:focus-visible {
+  outline: var(--z-focus-ring-outline);
+  outline-offset: -2px;
+}
+
+.m-grid-item--disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.m-grid-item__icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg-secondary);
+  color: var(--z-color-primary);
+  font-size: var(--z-font-size-xl);
+}
+
+.m-grid-item__badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--z-radius-full);
+  background: var(--z-color-danger);
+  color: var(--z-color-danger-text);
+  font-size: 11px;
+  line-height: 16px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.m-grid-item__label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

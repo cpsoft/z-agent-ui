@@ -1,0 +1,175 @@
+/* ===== z-table ===== */
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.z-table__wrapper {
+  overflow-x: auto;
+  border-radius: var(--z-radius-md);
+}
+
+.z-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+  line-height: var(--z-line-height);
+}
+
+/* ── Header ── */
+
+.z-table__th {
+  /* [WHY] 紧凑商务风表头（REQ-010）：12/16 → 6/12 */
+  padding: 6px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--z-color-text-secondary);
+  background: var(--z-color-bg-secondary);
+  border-bottom: 2px solid var(--z-color-border);
+  white-space: nowrap;
+  user-select: none;
+  transition: background var(--z-transition-fast), color var(--z-transition-fast);
+}
+
+.z-table__th--sortable {
+  cursor: pointer;
+}
+
+.z-table__th--sortable:hover {
+  background: var(--z-color-hover);
+  color: var(--z-color-text);
+}
+
+.z-table__th--sorted {
+  color: var(--z-color-primary);
+}
+
+/* ── Sort icon ── */
+
+.z-table__sort-icon {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 4px;
+  vertical-align: middle;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+}
+
+.z-table__th--sorted-asc .z-table__sort-icon {
+  border-bottom: 5px solid var(--z-color-primary);
+  border-top: none;
+}
+
+.z-table__th--sorted-desc .z-table__sort-icon {
+  border-top: 5px solid var(--z-color-primary);
+  border-bottom: none;
+}
+
+.z-table__th--sortable:not(.z-table__th--sorted) .z-table__sort-icon {
+  border-top: 5px solid var(--z-color-gray-300);
+  border-bottom: none;
+}
+
+/* ── Body cells ── */
+
+.z-table__td {
+  /* [WHY] 紧凑商务风单元格（REQ-010）：12/16 → 8/12 */
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--z-color-border);
+  background: var(--z-color-bg);
+  transition: background var(--z-transition-fast);
+}
+
+.z-table__row:last-child .z-table__td {
+  border-bottom: none;
+}
+
+/* ── Alignment ── */
+
+.z-table__cell--center {
+  text-align: center;
+}
+
+.z-table__cell--right {
+  text-align: right;
+}
+
+/* ── Button group in cells ── */
+
+/* [WHY] 操作列常用: 按钮/图标按钮水平排列并垂直居中, 见 [[REQ-001]] */
+.z-table__btn-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--z-space-2);
+}
+
+.z-table__btn-group z-button {
+  line-height: 0;
+}
+
+/* ── Striped ── */
+
+.z-table--striped .z-table__row:nth-child(even) .z-table__td {
+  background: var(--z-color-bg-secondary);
+}
+
+/* ── Bordered ── */
+
+.z-table--bordered {
+  border: 1px solid var(--z-color-border);
+}
+
+.z-table--bordered .z-table__th {
+  border: 1px solid var(--z-color-border);
+}
+
+.z-table--bordered .z-table__td {
+  border: 1px solid var(--z-color-border);
+}
+
+/* ── Small size ── */
+
+.z-table--sm .z-table__th,
+.z-table--sm .z-table__td {
+  padding: var(--z-space-1-5) var(--z-space-3);
+  font-size: var(--z-font-size-xs);
+}
+
+/* ── States ── */
+
+.z-table__empty-cell,
+.z-table__loading-cell {
+  padding: var(--z-space-8) var(--z-space-4);
+  text-align: center;
+  color: var(--z-color-text-secondary);
+}
+
+.z-table--loading .z-table__body {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ── Row hover ── */
+
+.z-table__row:hover .z-table__td {
+  background: var(--z-color-hover-subtle);
+}
+
+.z-table--striped .z-table__row:hover .z-table__td {
+  background: var(--z-color-hover);
+}
+
+/* ── 键盘焦点 ── */
+/* [WHY 必须有这一条] 表头与单元格现在都能通过 Tab / 方向键到达，但浏览器对
+   `<td>` / `<th>` 的默认焦点圈在表格里几乎看不见（内层表格线把它切掉一半）。
+   没有可见焦点时，键盘用户会以为「按了没反应」—— 而实际上焦点已经在动了。
+   outline-offset 用负值：表格边框贴着单元格，正的偏移会画到相邻单元格上。 */
+.z-table__th:focus-visible,
+.z-table__td:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: -2px;
+}

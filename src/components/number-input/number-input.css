@@ -1,0 +1,96 @@
+/* ===== z-number-input ===== */
+
+:host {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.z-number-input {
+  display: inline-flex;
+  align-items: stretch;
+  height: var(--_h, var(--z-input-height));
+  /* 同 input：默认 content-box 会让 28 的 height 实际渲染 30（多算上下边框） */
+  box-sizing: border-box;
+  border: var(--z-input-border-width) solid var(--z-color-border-control);
+  border-radius: var(--z-input-radius);
+  background-color: var(--z-color-bg);
+  transition: border-color var(--z-transition-fast), box-shadow var(--z-transition-fast);
+  overflow: hidden;
+}
+
+.z-number-input:hover:not(.z-number-input--disabled) {
+  border-color: var(--z-color-border-control-hover);
+}
+
+.z-number-input--focused {
+  border-color: var(--z-color-primary);
+  box-shadow: var(--z-focus-ring);
+}
+
+.z-number-input--disabled {
+  opacity: 0.5;
+  background-color: var(--z-color-bg-secondary);
+  cursor: not-allowed;
+}
+
+/* ── Field ── */
+
+.z-number-input__field {
+  flex: 1;
+  width: 72px;
+  border: none;
+  outline: none;
+  padding: 0 var(--z-input-padding-x);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-input-font-size);
+  color: var(--z-color-text);
+  background: transparent;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.z-number-input__field::placeholder {
+  color: var(--z-color-text-placeholder);
+}
+
+.z-number-input__field:disabled {
+  cursor: not-allowed;
+  color: var(--z-color-text-disabled);
+}
+
+/* ── Controls ── */
+
+.z-number-input__controls {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--z-color-border-control);
+  flex-shrink: 0;
+}
+
+.z-number-input__step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  width: 24px;
+  border: none;
+  padding: 0;
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  cursor: pointer;
+  transition: background var(--z-transition-fast), color var(--z-transition-fast);
+}
+
+.z-number-input__step:hover:not(:disabled) {
+  background: var(--z-color-hover);
+  color: var(--z-color-text);
+}
+
+.z-number-input__step--up {
+  border-bottom: 1px solid var(--z-color-border-control);
+}
+
+.z-number-input__step:disabled {
+  cursor: not-allowed;
+  color: var(--z-color-text-disabled);
+}

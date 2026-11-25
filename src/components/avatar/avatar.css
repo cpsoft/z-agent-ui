@@ -1,0 +1,58 @@
+:host {
+  display: inline-flex;
+  vertical-align: middle;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.z-avatar {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.z-avatar--circle {
+  border-radius: var(--z-radius-full);
+}
+
+.z-avatar--square {
+  border-radius: var(--z-radius-lg);
+}
+
+.z-avatar__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity var(--z-transition-normal);
+}
+
+.z-avatar__image--loaded {
+  opacity: 1;
+}
+
+.z-avatar__fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* [保留 primitive] 头像字母占位底比 badge/chip 的 `-bg-tertiary`（gray-100）深两档，
+     语义层没有「深一档占位面」这个角色，硬套 -bg-tertiary 会让头像圆块明显变浅。
+     标准 3.1 允许在无对应角色时降级使用 primitive，前提是写清原因（本条即）。 */
+  background: var(--z-color-gray-300);
+  color: var(--z-color-text-secondary);
+  font-weight: var(--z-font-weight-semibold);
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.z-avatar--xs { width: 24px; height: 24px; font-size: 10px; }
+.z-avatar--sm { width: 32px; height: 32px; font-size: var(--z-font-size-xs); }
+.z-avatar--md { width: 40px; height: 40px; font-size: var(--z-font-size-sm); }
+.z-avatar--lg { width: 56px; height: 56px; font-size: var(--z-font-size-lg); }
+.z-avatar--xl { width: 72px; height: 72px; font-size: var(--z-font-size-xl); }

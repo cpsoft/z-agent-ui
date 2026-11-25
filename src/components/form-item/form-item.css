@@ -1,0 +1,42 @@
+/* ===== z-form-item ===== */
+/* [WHY] 2026-10-25 系统审计：消除旧 token 别名 (--z-text-color / --z-text-secondary /
+   --z-font-size) 与裸 hex fallback；表单标签/错误的字号统一走 typography token。
+   See: wiki/reference/component-style-standard.md */
+
+:host {
+  display: block;
+}
+
+.z-form-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-input-label-gap);
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+}
+
+.z-form-item__label {
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-sm);
+  user-select: none;
+}
+
+.z-form-item__required {
+  color: var(--z-color-danger);
+  margin-left: 2px;
+}
+
+.z-form-item__control {
+  min-width: 0;
+}
+
+.z-form-item__error {
+  color: var(--z-color-danger);
+  font-size: var(--z-font-size-xs);
+  line-height: 14px;
+  min-height: 14px;
+}
+
+.z-form-item__error--hidden {
+  visibility: hidden;
+}

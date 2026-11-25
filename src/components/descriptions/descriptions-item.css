@@ -1,0 +1,35 @@
+/* ===== z-descriptions-item ===== */
+
+/*
+  [为什么横排/竖排由 JS 判定父容器的 bordered 决定] CSS 无法「读父组件的属性」——
+  `:host` 选择器只看自己。`@container style(--x)` 目前兼容性还不够（Safari 17+），
+  所以布局方向由 willUpdate 里 `closest("z-descriptions")` 的结果写进 `--_dir`。
+  代价：父组件**运行时**切 bordered 时，已渲染的子项不会跟着变 —— 而这个属性
+  在实际使用中都是页面加载时确定的（详情页的展示形态不会中途切换）。
+*/
+:host {
+  grid-column: span var(--_span, 1);
+  display: flex;
+  flex-direction: var(--_dir, column);
+  align-items: var(--_align, flex-start);
+  gap: var(--_item-gap, var(--z-space-1));
+  padding: var(--_pad, var(--z-space-2) 0);
+  background: var(--z-color-bg);
+  min-width: 0;
+}
+
+.z-descriptions-item__label {
+  flex: var(--_label-flex, 0 0 auto);
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text-secondary);
+  white-space: var(--_label-ws, nowrap);
+}
+
+.z-descriptions-item__value {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--z-font-size-base);
+  color: var(--z-color-text);
+  /* 长文本（备注、地址）默认折行，而不是撑破栅格 */
+  word-break: break-word;
+}

@@ -1,0 +1,56 @@
+/* ===== z-divider ===== */
+
+:host {
+  display: block;
+}
+
+.z-divider {
+  display: flex;
+  align-items: center;
+  border: none;
+}
+
+.z-divider--horizontal {
+  width: 100%;
+  height: 1px;
+  background: var(--z-color-border);
+  margin: var(--z-space-4) 0;
+}
+
+.z-divider--horizontal::before,
+.z-divider--horizontal::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--z-color-border);
+}
+
+.z-divider--horizontal .z-divider__label {
+  padding: 0 var(--z-space-3);
+  font-size: var(--z-font-size-xs);
+  color: var(--z-color-text-secondary);
+  background: var(--z-color-bg);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.z-divider--horizontal .z-divider__label:empty {
+  display: none;
+}
+
+.z-divider--horizontal:has(.z-divider__label:empty)::before {
+  display: none;
+}
+
+.z-divider--vertical {
+  display: inline-block;
+  width: 1px;
+  height: 1em;
+  background: var(--z-color-border);
+  margin: 0 var(--z-space-2);
+  vertical-align: middle;
+}
+
+.z-divider--vertical .z-divider__label {
+  display: none;
+}

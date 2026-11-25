@@ -1,0 +1,91 @@
+/* ===== m-radio ===== */
+
+:host {
+  display: inline-flex;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  min-height: var(--z-touch-min);
+  color: var(--z-color-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-base);
+  line-height: 1.4;
+  cursor: pointer;
+  user-select: none;
+}
+
+.m-radio--bare {
+  gap: 0;
+  min-width: var(--z-touch-min);
+  justify-content: center;
+}
+
+.m-radio__native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.m-radio__dot {
+  position: relative;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--z-color-border-control);
+  border-radius: 50%;
+  background: var(--z-color-surface);
+  transition: border-color var(--z-duration-fast) var(--z-ease-standard);
+}
+
+/* 选中：环变主色，中间一颗实心点（用伪元素画，省一个 DOM 节点） */
+.m-radio--checked .m-radio__dot {
+  border-color: var(--z-color-primary);
+}
+
+.m-radio--checked .m-radio__dot::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--z-color-primary);
+}
+
+.m-radio__label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.m-radio--disabled {
+  color: var(--z-color-text-disabled);
+  cursor: default;
+}
+
+.m-radio--disabled .m-radio__dot {
+  border-color: var(--z-color-border);
+  background: var(--z-color-fill-secondary);
+}
+
+.m-radio--disabled.m-radio--checked .m-radio__dot::after {
+  background: var(--z-color-text-disabled);
+}
+
+.m-radio__native:focus-visible + .m-radio__dot {
+  outline: 2px solid var(--z-focus-ring-color);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m-radio__dot {
+    transition: none;
+  }
+}

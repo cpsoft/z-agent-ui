@@ -1,0 +1,68 @@
+/* report-table 页面样式。 */
+
+    .rpt-page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 80px 24px 64px;
+    }
+    /* 不设页内「返回主页」：shell.ts mountBackHome 已注入到页头右侧。 */
+    .rpt-page__title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .rpt-page__subtitle {
+      color: var(--z-color-text-secondary);
+      margin-bottom: 48px;
+      font-size: var(--z-font-size-lg);
+    }
+    .rpt-section {
+      margin-bottom: 48px;
+      border: 1px solid var(--z-color-border);
+      border-radius: var(--z-radius-lg);
+      overflow: hidden;
+    }
+    .rpt-section__header {
+      padding: 16px 20px;
+      background: var(--z-color-bg-secondary);
+      border-bottom: 1px solid var(--z-color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .rpt-section__header h3 {
+      font-size: var(--z-font-size-md);
+      font-weight: 600;
+    }
+    .rpt-section__body {
+      padding: 24px;
+      overflow-x: auto;
+    }
+    .rpt-info-row {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--z-color-text-secondary);
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .rpt-api-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .rpt-api-table th {
+      text-align: left;
+      padding: 8px 12px;
+      border-bottom: 2px solid var(--z-color-border);
+    }
+    .rpt-api-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--z-color-border);
+      vertical-align: top;
+    }
+    .rpt-api-table code {
+      font-family: var(--z-font-mono);
+      font-size: 13px;
+      color: var(--z-color-primary);
+    }

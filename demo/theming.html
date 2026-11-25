@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Theming — zAgentUI</title>
+  <link rel="stylesheet" href="./demo.css" />
+  <style>
+    /* 本页专属：控制面板与 token 表（不进 demo.css，避免污染其他页） */
+    .theming-controls {
+      display: grid;
+      gap: var(--z-space-4);
+      padding: var(--z-space-5);
+      border: 1px solid var(--z-color-border);
+      border-radius: var(--demo-radius);
+      background: var(--z-color-bg-secondary);
+    }
+
+    .theming-field {
+      display: grid;
+      grid-template-columns: 140px minmax(0, 1fr);
+      align-items: center;
+      gap: var(--z-space-4);
+    }
+
+    .theming-field__label {
+      font-size: var(--z-font-size-sm);
+      font-weight: var(--z-font-weight-medium);
+      color: var(--z-color-text-secondary);
+    }
+
+    .theming-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--z-space-2);
+    }
+
+    .theming-swatch {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border: 0;
+      border-radius: var(--z-radius-md);
+      cursor: pointer;
+      background: var(--swatch);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+      transition: transform var(--z-transition-fast), box-shadow var(--z-transition-fast);
+    }
+
+    .theming-swatch:hover {
+      transform: translateY(-1px);
+    }
+
+    .theming-swatch[aria-pressed="true"] {
+      box-shadow: 0 0 0 2px var(--z-color-bg), 0 0 0 4px var(--z-color-text);
+    }
+
+    .theming-swatch[aria-pressed="true"]::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-6'/%3E%3C/svg%3E") center / 18px no-repeat;
+    }
+
+    .theming-segment {
+      display: inline-flex;
+      /* 作为 grid item 默认 align/justify 为 stretch，会被拉满整行宽度，
+         视觉上像输入框而不是分段控件。按内容宽并左对齐。 */
+      justify-self: start;
+      width: fit-content;
+      padding: 3px;
+      gap: 2px;
+      border: 1px solid var(--z-color-border);
+      border-radius: var(--z-radius-md);
+      background: var(--z-color-bg);
+    }
+
+    .theming-segment button {
+      padding: 5px var(--z-space-3);
+      border: 0;
+      border-radius: calc(var(--z-radius-md) - 2px);
+      background: transparent;
+      color: var(--z-color-text-secondary);
+      font: inherit;
+      font-size: var(--z-font-size-sm);
+      cursor: pointer;
+      transition: background var(--z-transition-fast), color var(--z-transition-fast);
+      white-space: nowrap;
+    }
+
+    .theming-segment button:hover {
+      color: var(--z-color-text);
+    }
+
+    .theming-segment button[aria-pressed="true"] {
+      background: var(--z-color-primary-soft);
+      color: var(--z-color-primary);
+      font-weight: var(--z-font-weight-medium);
+    }
+
+    .theming-preview {
+      display: grid;
+      gap: var(--z-space-4);
+      padding: var(--z-space-6);
+      border: 1px solid var(--z-color-border);
+      border-top: 0;
+      border-radius: 0 0 var(--demo-radius) var(--demo-radius);
+    }
+
+    .theming-preview__row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--z-space-3);
+    }
+
+    .theming-code {
+      font-family: var(--z-font-mono);
+      font-size: var(--z-font-size-xs);
+      color: var(--z-color-text-secondary);
+    }
+
+    /* token 名与值都是等宽长串且不换行，390px 窄屏下最小宽度超出视口 26px；
+       给它一个独立横向滚动区，而不是压缩字号或强制断行（断行会读不出 token 名）。 */
+    .theming-tokens-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .theming-tokens {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--z-font-size-sm);
+    }
+
+    .theming-tokens th {
+      text-align: left;
+      padding: var(--z-space-2) var(--z-space-3);
+      font-size: var(--z-font-size-xs);
+      font-weight: var(--z-font-weight-semibold);
+      color: var(--z-color-text-secondary);
+      border-bottom: 1px solid var(--z-color-border);
+    }
+
+    .theming-tokens td {
+      padding: var(--z-space-2) var(--z-space-3);
+      border-bottom: 1px solid var(--z-color-border);
+      vertical-align: middle;
+    }
+
+    .theming-tokens th:last-child,
+    .theming-tokens td:last-child {
+      width: 44px;
+      text-align: center;
+    }
+
+    .theming-tokens td:first-child {
+      font-family: var(--z-font-mono);
+      font-size: var(--z-font-size-xs);
+      color: var(--z-color-primary);
+      white-space: nowrap;
+    }
+
+    .theming-tokens td:nth-child(2) {
+      font-family: var(--z-font-mono);
+      font-size: var(--z-font-size-xs);
+      color: var(--z-color-text-secondary);
+    }
+
+    .theming-chip {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border-radius: var(--z-radius-sm);
+      vertical-align: middle;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    .theming-hint {
+      margin-top: var(--z-space-2);
+      font-size: var(--z-font-size-xs);
+      color: var(--z-color-text-secondary);
+    }
+
+    @media (max-width: 720px) {
+      .theming-field {
+        grid-template-columns: 1fr;
+        gap: var(--z-space-2);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <main class="demo-main">
+    <section class="demo-section" id="theming">
+      <div class="demo-section__header">
+        <h1 data-i18n="theming.title">Theming</h1>
+        <p data-i18n="theming.desc">
+          Every visual decision in zAgentUI is a CSS custom property. Override a handful of tokens
+          on :root to rebrand the whole library — no rebuild, no theme compiler.
+        </p>
+      </div>
+
+      <!-- 控制面板 -->
+      <div class="theming-controls">
+        <div class="theming-field">
+          <span class="theming-field__label" data-i18n="theming.palette">Brand color</span>
+          <div class="theming-swatches" id="palette-group" role="group" aria-label="Brand color"></div>
+        </div>
+
+        <div class="theming-field">
+          <span class="theming-field__label" data-i18n="theming.radius">Corner radius</span>
+          <div class="theming-segment" id="radius-group" role="group" aria-label="Corner radius"></div>
+        </div>
+
+        <div class="theming-field">
+          <span class="theming-field__label" data-i18n="theming.density">Density</span>
+          <div class="theming-segment" id="density-group" role="group" aria-label="Density"></div>
+        </div>
+
+        <div class="theming-field">
+          <span class="theming-field__label" data-i18n="theming.appearance">Appearance</span>
+          <div class="theming-segment" id="appearance-group" role="group" aria-label="Appearance"></div>
+        </div>
+      </div>
+
+      <!-- 实时预览 -->
+      <div class="theming-preview">
+        <div class="theming-preview__row">
+          <z-button>Primary</z-button>
+          <z-button tone="default">Secondary</z-button>
+          <z-button appearance="outline">Outline</z-button>
+          <z-button appearance="ghost">Ghost</z-button>
+          <z-button tone="danger">Danger</z-button>
+          <z-button loading>Loading</z-button>
+        </div>
+
+        <div class="theming-preview__row">
+          <z-input placeholder="Placeholder" style="width:180px"></z-input>
+          <z-select placeholder="Select" style="width:150px">
+            <z-option value="a">Option A</z-option>
+            <z-option value="b">Option B</z-option>
+          </z-select>
+          <z-checkbox checked>Checked</z-checkbox>
+          <z-switch checked></z-switch>
+          <z-tag tone="primary" closable>Tag</z-tag>
+          <z-badge tone="primary">Badge</z-badge>
+          <z-badge tone="success">Success</z-badge>
+        </div>
+
+        <div class="theming-preview__row">
+          <z-progress value="62" show-label style="flex:1;min-width:200px"></z-progress>
+        </div>
+
+        <z-alert tone="info" title="Semantic colors">Alert follows the same token chain.</z-alert>
+
+        <div class="theming-preview__row">
+          <z-card bordered shadow style="flex:1;min-width:220px">
+            <span slot="header">Card</span>
+            <span style="color:var(--z-color-text-secondary)">
+              Radius, border and shadow all derive from tokens.
+            </span>
+          </z-card>
+          <z-card bordered shadow style="flex:1;min-width:220px">
+            <span slot="header">Nested density</span>
+            <span style="color:var(--z-color-text-secondary)">
+              Control height changes with the density setting.
+            </span>
+          </z-card>
+        </div>
+      </div>
+
+      <!-- 生效中的 token -->
+      <h2 style="margin-top:var(--z-space-8);font-size:var(--z-font-size-lg);font-weight:var(--z-font-weight-semibold)"
+          data-i18n="theming.tokens">Active tokens</h2>
+      <p class="theming-hint" data-i18n="theming.tokenHint">
+        These are read from the live DOM — change anything above and watch the values update.
+      </p>
+      <div class="theming-tokens-wrap">
+      <table class="theming-tokens">
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Computed value</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="token-rows"></tbody>
+      </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+  import { initShell } from "./shell.js";
+  import { t, getLang, updatePage } from "./i18n.js";
+  import { themeController } from "../src/theme/index.js";
+
+  import "../src/components/button/index.js";
+  import "../src/components/badge/index.js";
+  import "../src/components/card/index.js";
+  import "../src/components/input/index.js";
+  import "../src/components/select/index.js";
+  import "../src/components/option/index.js";
+  import "../src/components/checkbox/index.js";
+  import "../src/components/switch/index.js";
+  import "../src/components/tag/index.js";
+  import "../src/components/alert/index.js";
+  import "../src/components/progress/index.js";
+
+  initShell();
+
+  // ── 可选主题配置 ─────────────────────────────────────
+  // 明暗两套值分开给：token 覆写必须同时命中 :root 与 [data-theme="dark"]，
+  // 否则切到暗色时 inline/覆写层会盖掉暗色 token，出现「暗底亮蓝但 hover 更暗」的错配。
+  const PALETTES = [
+    {
+      key: "blue", label: "Blue", swatch: "#2563eb",
+      light: { p: "#2563eb", h: "#1d4ed8", a: "#1e40af", soft: "#eff6ff", ring: "rgba(37,99,235,0.15)" },
+      dark: { p: "#3b82f6", h: "#60a5fa", a: "#93c5fd", soft: "rgba(59,130,246,0.16)", ring: "rgba(96,165,250,0.28)" },
+    },
+    {
+      key: "violet", label: "Violet", swatch: "#7c3aed",
+      light: { p: "#7c3aed", h: "#6d28d9", a: "#5b21b6", soft: "#f5f3ff", ring: "rgba(124,58,237,0.15)" },
+      dark: { p: "#a78bfa", h: "#c4b5fd", a: "#ddd6fe", soft: "rgba(167,139,250,0.18)", ring: "rgba(167,139,250,0.3)" },
+    },
+    {
+      key: "emerald", label: "Emerald", swatch: "#059669",
+      light: { p: "#059669", h: "#047857", a: "#065f46", soft: "#ecfdf5", ring: "rgba(5,150,105,0.15)" },
+      dark: { p: "#34d399", h: "#6ee7b7", a: "#a7f3d0", soft: "rgba(52,211,153,0.18)", ring: "rgba(52,211,153,0.3)" },
+    },
+    {
+      key: "rose", label: "Rose", swatch: "#e11d48",
+      light: { p: "#e11d48", h: "#be123c", a: "#9f1239", soft: "#fff1f2", ring: "rgba(225,29,72,0.15)" },
+      dark: { p: "#fb7185", h: "#fda4af", a: "#fecdd3", soft: "rgba(251,113,133,0.18)", ring: "rgba(251,113,133,0.3)" },
+    },
+    {
+      key: "amber", label: "Amber", swatch: "#d97706",
+      light: { p: "#d97706", h: "#b45309", a: "#92400e", soft: "#fffbeb", ring: "rgba(217,119,6,0.15)" },
+      dark: { p: "#fbbf24", h: "#fcd34d", a: "#fde68a", soft: "rgba(251,191,36,0.18)", ring: "rgba(251,191,36,0.3)" },
+    },
+  ];
+
+  const RADII = {
+    compact: { sm: "2px", md: "4px", lg: "6px" },
+    default: { sm: "4px", md: "8px", lg: "12px" },
+    relaxed: { sm: "6px", md: "12px", lg: "16px" },
+  };
+
+  const DENSITIES = {
+    compact: { h: "26px", py: "4px", px: "10px", inputPy: "4px" },
+    default: { h: "28px", py: "5px", px: "12px", inputPy: "5px" },
+    relaxed: { h: "32px", py: "7px", px: "14px", inputPy: "6px" },
+  };
+
+  const state = { palette: "blue", radius: "default", density: "default" };
+
+  const override = document.createElement("style");
+  override.id = "demo-theme-override";
+  document.head.appendChild(override);
+
+  function apply() {
+    const pal = PALETTES.find((p) => p.key === state.palette) ?? PALETTES[0];
+    const rad = RADII[state.radius];
+    const den = DENSITIES[state.density];
+
+    const vars = (c) => `
+      --z-color-primary: ${c.p};
+      --z-color-primary-hover: ${c.h};
+      --z-color-primary-active: ${c.a};
+      --z-color-primary-soft: ${c.soft};
+      --z-color-primary-text: var(--z-color-white);
+      --z-focus-ring-color: ${c.ring};
+      --z-radius-sm: ${rad.sm};
+      --z-radius-md: ${rad.md};
+      --z-radius-lg: ${rad.lg};
+      --z-input-height: ${den.h};
+      --z-input-padding-y: ${den.inputPy};
+      --z-input-padding-x: ${den.px};
+      --z-button-padding-y: ${den.py};
+      --z-button-padding-x: ${den.px};
+    `;
+
+    override.textContent = `:root, [data-theme="light"] { ${vars(pal.light)} }
+[data-theme="dark"] { ${vars(pal.dark)} }`;
+
+    // 选中态
+    document.querySelectorAll(".theming-swatch").forEach((el) => {
+      el.setAttribute("aria-pressed", String(el.dataset.key === state.palette));
+    });
+    ["radius", "density"].forEach((group) => {
+      document.querySelectorAll(`#${group}-group button`).forEach((el) => {
+        el.setAttribute("aria-pressed", String(el.dataset.key === state[group]));
+      });
+    });
+    const appBtn = document.querySelectorAll("#appearance-group button");
+    appBtn.forEach((el) => {
+      el.setAttribute("aria-pressed", String(el.dataset.key === themeController.theme));
+    });
+
+    renderTokens();
+  }
+
+  // ── 控件构建 ─────────────────────────────────────────
+  const paletteGroup = document.getElementById("palette-group");
+  for (const p of PALETTES) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "theming-swatch";
+    btn.dataset.key = p.key;
+    btn.title = p.label;
+    btn.setAttribute("aria-label", p.label);
+    btn.setAttribute("aria-pressed", "false");
+    btn.style.setProperty("--swatch", p.swatch);
+    btn.addEventListener("click", () => { state.palette = p.key; apply(); });
+    paletteGroup.appendChild(btn);
+  }
+
+  function buildSegment(hostId, options, current, onPick) {
+    const host = document.getElementById(hostId);
+    host.innerHTML = "";
+    for (const opt of options) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.dataset.key = opt.key;
+      btn.textContent = opt.label;
+      btn.setAttribute("aria-pressed", String(opt.key === current));
+      btn.addEventListener("click", () => onPick(opt.key));
+      host.appendChild(btn);
+    }
+  }
+
+  function rebuildSegments() {
+    buildSegment("radius-group", [
+      { key: "compact", label: t("theming.compact") },
+      { key: "default", label: t("theming.default") },
+      { key: "relaxed", label: t("theming.relaxed") },
+    ], state.radius, (k) => { state.radius = k; apply(); });
+
+    buildSegment("density-group", [
+      { key: "compact", label: t("theming.compact") },
+      { key: "default", label: t("theming.default") },
+      { key: "relaxed", label: t("theming.relaxed") },
+    ], state.density, (k) => { state.density = k; apply(); });
+
+    buildSegment("appearance-group", [
+      { key: "light", label: t("common.light") },
+      { key: "dark", label: t("common.dark") },
+    ], themeController.theme, (k) => {
+      if (themeController.theme !== k) themeController.toggle();
+      apply();
+    });
+  }
+
+  // ── Token 表（读实时计算值） ─────────────────────────
+  const TOKEN_KEYS = [
+    "--z-color-primary",
+    "--z-color-primary-hover",
+    "--z-color-primary-soft",
+    "--z-radius-md",
+    "--z-input-height",
+    "--z-color-bg",
+    "--z-color-border",
+    "--z-color-text",
+    "--z-focus-ring-color",
+  ];
+
+  function renderTokens() {
+    const cs = getComputedStyle(document.documentElement);
+    const tbody = document.getElementById("token-rows");
+    tbody.innerHTML = TOKEN_KEYS.map((k) => {
+      const v = cs.getPropertyValue(k).trim();
+      const isColor = /^(#|rgb|hsl|color-mix)/.test(v);
+      const chip = isColor ? `<span class="theming-chip" style="background:var(${k})"></span>` : "";
+      return `<tr><td>${k}</td><td>${v || "—"}</td><td>${chip}</td></tr>`;
+    }).join("");
+  }
+
+  rebuildSegments();
+  apply();
+
+  // 语言/主题切换后重建分段按钮文案（避免切语言后仍是旧词）
+  document.getElementById("lang-toggle")?.addEventListener("z-click", () => {
+    // shell 已绑定切换逻辑，这里排在它之后重建
+    setTimeout(() => { rebuildSegments(); apply(); }, 0);
+  });
+  document.getElementById("theme-toggle")?.addEventListener("z-click", () => {
+    setTimeout(() => { rebuildSegments(); apply(); }, 0);
+  });
+</script>
+</body>
+</html>

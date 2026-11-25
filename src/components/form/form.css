@@ -1,0 +1,11 @@
+:host {
+  display: block;
+}
+
+.z-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+}

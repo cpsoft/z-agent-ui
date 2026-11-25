@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>安装与入口 — zAgentUI</title>
+  <link rel="stylesheet" href="./demo.css" />
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+
+  <!-- Sidebar：由 shell.ts 从 nav.ts 渲染（单一数据源） -->
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <main class="demo-main">
+
+    <section class="demo-hero">
+      <h1>安装与入口</h1>
+      <p>零运行时依赖的 Web Components 库。装一次，按需引入口 —— <b>入口分两层</b>：
+      根入口 <code>z-agent-ui</code> 只给 L0 工具（基类、模板、词汇表），<b>一个组件都不注册</b>；
+      组件由域入口或单个组件入口注册，引哪个就注册哪些元素。
+      入口清单在下面，从 <code>package.json</code> 的 <code>exports</code> 现算，不是手写的表格：手写一定会过时。</p>
+      <p><b>只引根入口会看到「标签不渲染」</b>：未注册的自定义元素被当作行内元素处理 ——
+      不报错、样式不生效、内容直接消失。遇到这种情况，先查入口有没有引到，再查标签名有没有拼错。</p>
+    </section>
+
+    <section class="demo-section">
+      <div class="demo-section__header">
+        <h2>三行装好</h2>
+        <p>没有构建插件、没有 CSS-in-JS、没有 provider；自定义元素注册与样式表都由入口自己完成，
+        所以「引哪一行」决定了「哪些标签能用」。</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__code demo-preview__code--visible">
+<pre><code><span class="cmt"># 1. 装</span>
+npm i z-agent-ui
+
+<span class="cmt"># 2. 引样式 + 组件入口（根入口 z-agent-ui 只有 L0 工具，引它不会注册任何组件）</span>
+<span class="tag">import</span> <span class="txt">"z-agent-ui/z-agent-ui.css"</span>;
+<span class="tag">import</span> <span class="txt">"z-agent-ui/components/button"</span>;
+
+<span class="cmt"># 3. 直接用，标签即组件</span>
+<span class="tag">&lt;z-button</span> <span class="attr">variant</span>=<span class="val">"primary"</span><span class="tag">&gt;</span><span class="txt">保存</span><span class="tag">&lt;/z-button&gt;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="entries">
+      <div class="demo-section__header">
+        <h2>全部入口</h2>
+        <p>共 <b id="entry-count">—</b> 个组。带 <code>*</code> 的是子路径通配，可以细到单文件。</p>
+      </div>
+      <table class="demo-props">
+        <thead><tr><th style="width:150px">组</th><th>键</th><th style="width:38%">用法</th></tr></thead>
+        <tbody id="entry-body"></tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+  import { initShell } from "./shell.js";
+  import { exportGroups, STATS, VERSION } from "./manifest.js";
+
+  const groups = exportGroups();
+  document.getElementById("entry-count").textContent = String(groups.length);
+  document.getElementById("entry-body").innerHTML = groups
+    .map(function (g) {
+      const keys = g.keys.map(function (k) { return "<code>" + k + "</code>"; }).join(" ");
+      return "<tr><td><code>" + g.name + "</code></td><td>" + keys + "</td><td><code>" + g.sample + "</code></td></tr>";
+    })
+    .join("");
+
+  // 版本号与组件数取自清单，不写死
+  const ver = document.querySelector(".demo-header__version");
+  if (ver && VERSION) ver.textContent = "v" + VERSION;
+  document.title = "安装与入口 — zAgentUI " + STATS.components + " 个组件";
+
+  initShell();
+</script>
+</body>
+</html>

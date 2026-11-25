@@ -1,0 +1,88 @@
+/* ===== m-tabs ===== */
+
+:host {
+  display: block;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-tabs {
+  display: flex;
+  gap: var(--z-space-1);
+  /* 横滑：页签多于 4 个时按内容宽排，容器自己滚，不压缩文字（压缩会截断「待发货」） */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--z-color-border);
+  background: var(--z-color-surface);
+}
+
+.m-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.m-tabs--stretch .m-tabs__btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.m-tabs__btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--z-space-1);
+  flex: none;
+  /* 44px：见组件头注释 */
+  min-height: var(--z-touch-min);
+  padding: 0 var(--z-space-3);
+  border: 0;
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-base);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.m-tabs__btn.is-active {
+  color: var(--z-color-text);
+  font-weight: 600;
+}
+
+/* 指示条画在按钮内底部，不额外占 DOM —— 横滑时它跟着按钮走，不需要 JS 算位置 */
+.m-tabs__btn.is-active::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 24px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--z-color-primary);
+  transform: translateX(-50%);
+}
+
+.m-tabs__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--z-color-price);
+  color: var(--z-color-primary-text);
+  font-size: var(--z-font-size-xs);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.m-tabs__btn:focus-visible {
+  outline: 2px solid var(--z-focus-ring-color);
+  outline-offset: -2px;
+}
+
+.m-tabs--disabled .m-tabs__btn {
+  cursor: default;
+  opacity: 0.6;
+}

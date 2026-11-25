@@ -1,0 +1,32 @@
+:host {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: block;
+  border-radius: 6px;
+  box-shadow: 0 1px 6px rgba(15, 23, 42, 0.12);
+  cursor: pointer;
+  z-index: 20;
+  /* [WHY] flow 覆盖层 pointer-events:none，槽内元素继承后点击穿透（真实浏览器实测发现） */
+  pointer-events: auto;
+}
+
+.z-flow-minimap__svg {
+  display: block;
+}
+
+.z-flow-minimap__bg {
+  fill: var(--z-flow-minimap-bg, var(--z-color-bg));
+  stroke: var(--z-flow-minimap-border, var(--z-color-border));
+  stroke-width: 1;
+}
+
+.z-flow-minimap__node {
+  fill: var(--z-flow-minimap-node, var(--z-color-blue-400));
+}
+
+.z-flow-minimap__viewport {
+  fill: var(--z-flow-minimap-window-bg, rgba(59, 130, 246, 0.12));
+  stroke: var(--z-color-primary);
+  stroke-width: 1;
+}

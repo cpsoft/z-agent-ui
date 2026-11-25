@@ -1,0 +1,112 @@
+/* ===== z-report-group-table ===== */
+
+/* [WHY 自己画 table 而不是用 z-table / z-report-table] 见元素的头部注释：
+   分组表要在层级之间插入「算出来的」小计行，那两套组件的行模型都是「一条数据 = 一个 tr」。 */
+
+:host {
+  display: block;
+  min-width: 0;
+  height: 100%;
+}
+
+.wrap {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  overflow: auto;
+  /* 卡体是 flex 容器：给个 flex 值才能撑满又不顶大卡片 */
+  flex: 1 1 auto;
+}
+
+.gt {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+  background: var(--z-color-surface);
+}
+
+.gt th {
+  /* sticky：分组表行数多（层级 × 叶子），滚到中段还得知道哪列是金额 */
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--z-color-fill-secondary);
+  border-bottom: 1px solid var(--z-color-border);
+  padding: 6px 10px;
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.gt td {
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--z-color-border);
+  /* 不换行：小计行的数字与叶子行的数字必须能纵向对齐，换行会把行高打乱 */
+  white-space: nowrap;
+}
+
+.gt .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.gt .center {
+  text-align: center;
+}
+
+.gt tbody tr:hover {
+  background: var(--z-color-fill-tertiary);
+}
+
+/* 父级小计行：浅主色底 + 加粗（分组表的视觉锚点：一眼看出这行是汇总不是明细）
+   [配色别乱挑] 底色用 primary-soft（浅色底纹），文字用 primary（主色本身）。
+   写成 primary-text 会踩「primary-text 是给**实心主色底**用的白字」—— 白字压在
+   浅蓝底上，对比度约 1.1，小计行整行看不见，而 DOM/单测都完全正常。 */
+.gt tr.group td {
+  background: var(--z-color-primary-soft);
+  font-weight: 600;
+  color: var(--z-color-primary);
+}
+
+/* 总计行：灰底 + 更粗 + 上边框，与「某个组的小计」明确区分 */
+.gt tr.total td {
+  background: var(--z-color-fill-secondary);
+  font-weight: 700;
+  border-top: 2px solid var(--z-color-border);
+}
+
+/* 折叠按钮：16px 定宽，避免有无子级的两行文字起点差一个字符 */
+.tg {
+  width: 16px;
+  margin-right: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  font: inherit;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tg:hover {
+  color: var(--z-color-primary);
+}
+
+.tg:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: 1px;
+}
+
+.state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 8px;
+  color: var(--z-color-text-secondary);
+  text-align: center;
+}

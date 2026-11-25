@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>图表密度压力测试 — zAgentUI</title>
+  <!--
+    那一页每种图只有 3-8 个点，展示的是「画得出来」。这一页只有一件事：
+    把真实规模（534 家店）灌进去，量化「还能不能看」。两者的判据完全不同 ——
+    前者看形状对不对，后者看像素够不够。
+
+    每张卡片下方那行数字是脚本实测写回的，不是手写的期望值。
+  -->
+  <script>
+    if (new URLSearchParams(location.search).get("theme") === "dark") {
+      document.documentElement.dataset.theme = "dark";
+    }
+  </script>
+  <style>
+    :root, [data-theme="light"] {
+      --z-color-bg: #ffffff;
+      --z-color-surface: #ffffff;
+      --z-color-text: #0f172a;
+      --z-color-text-secondary: #64748b;
+      --z-color-border: #e2e8f0;
+      --z-chart-focus-ring-color: #2563eb;
+    }
+    [data-theme="dark"], .dark {
+      --z-color-bg: #0f172a;
+      --z-color-surface: #131d31;
+      --z-color-text: #f8fafc;
+      --z-color-text-secondary: #94a3b8;
+      --z-color-border: #24324a;
+      --z-chart-focus-ring-color: #60a5fa;
+    }
+    body {
+      margin: 0; padding: 24px 28px 64px;
+      background: var(--z-color-bg); color: var(--z-color-text);
+      font-family: system-ui, "PingFang SC", sans-serif;
+    }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    .lead { color: var(--z-color-text-secondary); font-size: 13px; margin: 0 0 20px; line-height: 1.7; max-width: 900px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); gap: 18px; max-width: 1200px; }
+    .card {
+      border: 1px solid var(--z-color-border); border-radius: 10px;
+      padding: 14px 14px 10px; background: var(--z-color-surface);
+    }
+    .card h2 { margin: 0 0 2px; font-size: 14px; font-weight: 600; }
+    .card code { font-size: 11px; color: var(--z-color-text-secondary); }
+    .m {
+      margin: 8px 0 0; font-size: 11px; line-height: 1.65;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: var(--z-color-text-secondary); white-space: pre-wrap;
+    }
+    .m b { color: var(--z-color-text); font-weight: 600; }
+    .bad b { color: #dc2626; }
+    .warn b { color: #d97706; }
+    .ok b { color: #059669; }
+  </style>
+</head>
+<body>
+  <h1>图表密度压力测试</h1>
+  <p class="lead">
+    每张卡下方的数字是渲染后从 shadow DOM 实测读回来的，不是手写期望值。
+    判据：<b>单根柱 &lt; 2px</b> 基本看不成柱、<b>&lt; 1px</b> 已在亚像素边缘；
+    tooltip 命中区小于 4px 时指针无法可靠选中。
+  </p>
+
+  <div class="grid">
+    <!-- 1. 横向柱 534 店：真实门店数 -->
+    <section class="card">
+      <h2>横向柱 · 534 店（真实规模）</h2>
+      <code>type=bar direction=horizontal</code>
+      <z-chart id="c-h534" type="bar" direction="horizontal" width="540" height="320">
+        <z-chart-series id="s-h534" name="营业额"></z-chart-series>
+      </z-chart>
+      <p class="m" id="m-h534">测量中…</p>
+    </section>
+
+    <!-- 2. 横向柱 30 店：找出可用上限 -->
+    <section class="card">
+      <h2>横向柱 · 30 店</h2>
+      <code>type=bar direction=horizontal</code>
+      <z-chart id="c-h30" type="bar" direction="horizontal" width="540" height="320">
+        <z-chart-series id="s-h30" name="营业额"></z-chart-series>
+      </z-chart>
+      <p class="m" id="m-h30">测量中…</p>
+    </section>
+
+    <!-- 3. 纵向柱 534 根：竖向对照，柱宽也是亚像素 -->
+    <section class="card">
+      <h2>纵向柱 · 534 根</h2>
+      <code>type=bar（竖向对照）</code>
+      <z-chart id="c-v534" type="bar" width="540" height="320">
+        <z-chart-series id="s-v534" name="营业额"></z-chart-series>
+      </z-chart>
+      <p class="m" id="m-v534">测量中…</p>
+    </section>
+
+    <!-- 4. 折线 365 天 -->
+    <section class="card">
+      <h2>折线 · 365 天</h2>
+      <code>type=line（一年日趋势）</code>
+      <z-chart id="c-l365" type="line" width="540" height="320">
+        <z-chart-series id="s-l365" name="营业额"></z-chart-series>
+      </z-chart>
+      <p class="m" id="m-l365">测量中…</p>
+    </section>
+
+    <!-- 5. 热力 3 指标 × 24 时段：当前能力上限（行=系列） -->
+    <section class="card">
+      <h2>热力 · 3 指标 × 24 时段</h2>
+      <code>type=heatmap（行=系列，当前唯一形态）</code>
+      <z-chart id="c-hm3" type="heatmap" width="540" height="320">
+        <z-chart-series id="s-hm3a" name="上午单量"></z-chart-series>
+        <z-chart-series id="s-hm3b" name="下午单量"></z-chart-series>
+        <z-chart-series id="s-hm3c" name="晚间单量"></z-chart-series>
+      </z-chart>
+      <p class="m" id="m-hm3">测量中…</p>
+    </section>
+
+    <!-- 6. 热力 30 系列：看行数上限在哪 -->
+    <section class="card">
+      <h2>热力 · 30 系列 × 24 时段</h2>
+      <code>type=heatmap（模拟「门店 × 时段」的一种凑法）</code>
+      <z-chart id="c-hm30" type="heatmap" width="540" height="320">
+        <z-chart-series id="s-hm30" name="系列"></z-chart-series>
+      </z-chart>
+      <p class="m" id="m-hm30">测量中…</p>
+    </section>
+  </div>
+
+<script type="module">
+  import "../../src/report/chart/index.js";
+
+  const set = (id, data) => { document.getElementById(id).data = data; };
+
+  // ── 造真实规模的数据 ───────────────────────────────────────────
+  // 534 是用户的真实门店数；店名按真实长度（6-9 字）造，因为左边距是
+  // 按最长店名算的 —— 用「店1、店2」这种短名字会让问题消失。
+  const DISTRICTS = ["湖滨银泰", "武林广场", "滨江天街", "城西银座", "下沙龙湖", "余杭万达",
+    "西湖文化广场", "钱江新城", "滨江星光大道", "拱宸桥东", "三墩", "转塘"];
+  const stores534 = Array.from({ length: 534 }, (_, i) => ({
+    label: `${DISTRICTS[i % DISTRICTS.length]}第${Math.floor(i / DISTRICTS.length) + 1}店`,
+    value: Math.round(8200 - i * 11 + Math.sin(i / 7) * 600),
+  }));
+  set("s-h534", stores534);
+  set("s-v534", stores534);
+  set("s-h30", stores534.slice(0, 30));
+
+  // 365 天：真实营业额有周内周期（周末高），不能是纯随机 —— 纯随机会让
+  // 「抽稀是否丢掉了峰值」这类问题看不出来。
+  set("s-l365", Array.from({ length: 365 }, (_, i) => {
+    const dow = (i + 3) % 7;
+    const weekend = dow === 5 || dow === 6 ? 1.22 : 1;
+    return { label: `d${i + 1}`, value: Math.round((4800 + Math.sin(i / 22) * 700) * weekend) };
+  }));
+
+  const hours = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, "0")}:00`);
+  // 茶饮的时段形状：早高峰 8-10、午高峰 12-14、下午茶 15-17、晚高峰 18-21
+  const shape = (h) => {
+    if (h >= 8 && h <= 10) return 1.0;
+    if (h >= 12 && h <= 14) return 0.92;
+    if (h >= 15 && h <= 17) return 0.74;
+    if (h >= 18 && h <= 21) return 0.86;
+    return 0.18;
+  };
+  const row = (seed) => hours.map((h, i) => ({
+    label: h,
+    value: Math.round(40 + shape(i) * (260 + seed * 18)),
+  }));
+  set("s-hm3a", row(0));
+  set("s-hm3b", row(1));
+  set("s-hm3c", row(2));
+
+  // 30 系列：模拟「把 30 家店铺成 30 行」。当前位置的 heatmap 只能这样凑，
+  // 而 534 家店就是 534 个 <z-chart-series> —— 这行数据本身也要测。
+  const hmHost = document.getElementById("c-hm30");
+  const proto = document.getElementById("s-hm30");
+  for (let r = 0; r < 30; r++) {
+    const el = r === 0 ? proto : document.createElement("z-chart-series");
+    el.name = `${DISTRICTS[r % DISTRICTS.length]}店`;
+    el.data = row(r % 6);
+    if (r > 0) hmHost.appendChild(el);
+  }
+
+  // ── 实测探针 ─────────────────────────────────────────────────
+  // 读的是渲染产物，不是模型里的数字 —— 只测「算出来多少」会漏掉「画出来多宽」。
+  function probe(id) {
+    const host = document.getElementById(id);
+    const sr = host.shadowRoot;
+    if (!sr) return { err: "no shadowRoot" };
+    const svg = sr.querySelector(".z-chart__svg");
+    const rects = [...(svg?.querySelectorAll("rect") ?? [])];
+    const ghosts = [...(sr.querySelectorAll(".z-chart__overlay [data-m]") ?? [])];
+    const texts = [...(svg?.querySelectorAll("text") ?? [])];
+    const labels = [...(sr.querySelectorAll(".z-chart__legend span") ?? [])];
+
+    // 柱/格子的「厚度」：横向看 height、纵向看 width。取中位数而不是平均，
+    // 因为一根被裁到 0 的柱子会把平均值拉偏。
+    const thick = rects.map((r) => {
+      const w = Number(r.getAttribute("width") || 0);
+      const h = Number(r.getAttribute("height") || 0);
+      return w <= h ? w : h;
+    }).sort((a, b) => a - b);
+    const median = thick.length ? thick[Math.floor(thick.length / 2)] : 0;
+
+    // tooltip 命中区最小边：小于 4px 指针就选不准
+    const ghostMin = ghosts.length
+      ? Math.min(...ghosts.map((g) => {
+          const r = g.getBoundingClientRect();
+          return Math.min(r.width, r.height);
+        }))
+      : 0;
+
+    return {
+      rects: rects.length,
+      ghosts: ghosts.length,
+      texts: texts.length,
+      legend: labels.length,
+      medianThick: Number(median.toFixed(2)),
+      ghostMin: Number(ghostMin.toFixed(2)),
+      empty: !!sr.querySelector(".z-chart__empty"),
+      svg: !!svg,
+    };
+  }
+
+  function fmt(id, extra) {
+    const p = probe(id);
+    if (p.err) return `⚠ ${p.err}`;
+    const lines = [
+      `rect ${p.rects} · 命中区 ${p.ghosts} · text ${p.texts}`,
+      `单根厚度中位数 <b>${p.medianThick}px</b> · 命中区最小边 <b>${p.ghostMin}px</b>`,
+    ];
+    if (extra) lines.push(extra(p));
+    return lines.join("\n");
+  }
+
+  function paint() {
+    const verdict = (median, threshold) =>
+      median < threshold ? "bad" : median < threshold * 3 ? "warn" : "ok";
+
+    const setHtml = (id, html, cls = "") => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.innerHTML = html;
+      el.className = "m " + cls;
+    };
+
+    const h534 = probe("c-h534");
+    setHtml("m-h534", fmt("c-h534",
+      (p) => `534 店被抽稀成 ${p.texts} 段 text（含轴/标注）`,
+    ), verdict(h534.medianThick, 1));
+
+    const h30 = probe("c-h30");
+    setHtml("m-h30", fmt("c-h30"), verdict(h30.medianThick, 2));
+
+    const v534 = probe("c-v534");
+    setHtml("m-v534", fmt("c-v534"), verdict(v534.medianThick, 1));
+
+    const l365 = probe("c-l365");
+    setHtml("m-l365", fmt("c-l365"), verdict(l365.ghostMin, 4));
+
+    const hm3 = probe("c-hm3");
+    setHtml("m-hm3", fmt("c-hm3"), verdict(hm3.medianThick, 8));
+
+    const hm30 = probe("c-hm30");
+    setHtml("m-hm30", fmt("c-hm30"), verdict(hm30.medianThick, 4));
+
+    // 供 playwright 一次性取走
+    window.__density = {
+      h534, h30, v534, l365, hm3, hm30,
+      series30: document.querySelectorAll("#c-hm30 z-chart-series").length,
+    };
+  }
+
+  // z-chart 在 connectedCallback 里异步 draw（ResizeObserver + 动画）。
+  // 两帧之后再测，否则量到的是空 SVG。
+  requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(paint, 400)));
+</script>
+</body>
+</html>

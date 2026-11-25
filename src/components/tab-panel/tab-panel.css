@@ -1,0 +1,9 @@
+/* ===== z-tab-panel ===== */
+
+:host {
+  display: block;
+}
+
+:host([hidden]) {
+  display: none;
+}

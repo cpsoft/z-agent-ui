@@ -1,0 +1,110 @@
+/* ===== z-doc-preview: A4 分页预览 + 打印/导出工具栏 ===== */
+
+:host {
+  display: block;
+}
+
+.z-docp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-3);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+}
+
+.z-docp__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+}
+
+.z-docp__title {
+  font-size: var(--z-font-size-md);
+  font-weight: var(--z-font-weight-semibold);
+}
+
+.z-docp__spacer {
+  flex: 1;
+}
+
+.z-docp__error {
+  color: var(--z-color-danger);
+  font-size: var(--z-font-size-xs);
+}
+
+.z-docp__btn {
+  height: var(--z-input-height);
+  padding: var(--z-button-padding-y) var(--z-button-padding-x);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-button-radius);
+  background: var(--z-color-bg);
+  color: var(--z-color-text);
+  font-size: var(--z-button-font-size);
+  cursor: pointer;
+  transition: var(--z-transition-fast);
+}
+
+.z-docp__btn:hover:not(:disabled) {
+  border-color: var(--z-color-primary);
+  color: var(--z-color-primary);
+}
+
+.z-docp__btn--primary {
+  background: var(--z-color-primary-solid);
+  border-color: var(--z-color-primary-solid);
+  color: var(--z-color-primary-text);
+}
+
+.z-docp__btn--primary:hover:not(:disabled) {
+  background: var(--z-color-primary-solid-hover);
+  border-color: var(--z-color-primary-solid-hover);
+  color: var(--z-color-primary-text);
+}
+
+.z-docp__zoom-pct {
+  min-width: 56px;
+}
+
+.z-docp__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── 纸张堆叠 ───────────────────────────────────────── */
+.z-docp__pages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--z-space-5);
+  padding: var(--z-space-4);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg-secondary);
+  /* [WHY] 不设 max-height 内滚（2026-09-25 实撞）：78vh + overflow:auto 把第 2 页
+     藏在折叠线以下且 macOS 浮层滚动条不可见 → 用户看到「没有第二页」。
+     纸张堆叠随内容长高, 整页滚动, 页序自然可见 */
+}
+
+.z-docp__page {
+  position: relative;
+}
+
+/* [WHY] 缩放经 transform: scale 等比视觉缩放（不触发重排, 折行/分页保持 100% 布局）:
+   包装层高度由 _compensateScale 按视觉高度撑回, 保证 z>1 时末页可滚到、z<1 无空白 */
+.z-docp__scale {
+  transform-origin: top center;
+}
+
+.z-docp__page-no {
+  margin-top: var(--z-space-2);
+  text-align: center;
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-xs);
+}
+
+.z-docp__empty {
+  padding: var(--z-space-10);
+  text-align: center;
+  color: var(--z-color-text-secondary);
+}

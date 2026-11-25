@@ -1,0 +1,71 @@
+:host {
+  position: absolute;
+  display: block;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+  z-index: 1;
+  /* [WHY] 配合 flow.css .z-flow__nodes { pointer-events: none }，恢复节点指针命中
+     （pointer-events 会被父层继承） */
+  pointer-events: auto;
+}
+
+:host(.z-flow-node--dragging) {
+  cursor: grabbing;
+  z-index: 2;
+}
+
+/*
+  [WHY :focus-visible 而非 :focus] 鼠标点节点也会 focus（点击后焦点要在节点上，
+  否则随后的 Delete 到不了画布），用 :focus 会让每个被点过的节点都留一圈键盘环。
+  [WHY outline 而非 box-shadow] 选中的节点已经用 box-shadow 画了 ring，再叠一层
+  两者会互相覆盖 —— box-shadow 一次只能有一条声明生效。
+*/
+:host(:focus-visible) {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: 2px;
+  border-radius: var(--z-flow-node-radius, 8px);
+}
+
+:host(.z-flow-node--no-drag) {
+  cursor: default;
+}
+
+.z-flow-node__box {
+  box-sizing: border-box;
+  min-width: 120px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--z-flow-node-border, var(--z-color-border));
+  border-radius: var(--z-flow-node-radius, 8px);
+  background: var(--z-flow-node-bg, var(--z-color-bg));
+  box-shadow: var(--z-flow-node-shadow, 0 1px 3px rgba(15, 23, 42, 0.08));
+  color: var(--z-color-text);
+  font-size: 13px;
+  line-height: 1.5;
+  transition: box-shadow var(--z-transition-fast);
+}
+
+.z-flow-node__box--input,
+.z-flow-node__box--output {
+  border-radius: 16px;
+}
+
+.z-flow-node__box--input {
+  border-color: var(--z-flow-node-border-input, var(--z-color-blue-300));
+}
+
+.z-flow-node__box--output {
+  border-color: var(--z-flow-node-border-output, var(--z-color-green-300));
+}
+
+.z-flow-node__box--selected {
+  border-color: var(--z-color-primary);
+  box-shadow: 0 0 0 2px var(--z-flow-node-selected-ring, var(--z-color-primary-soft));
+}
+
+/* [WHY] 状态类特异性必须高于基础类，否则静默失效（css-specificity-override lesson） */
+.z-flow-node__box--selected.z-flow-node__box--input,
+.z-flow-node__box--selected.z-flow-node__box--output {
+  border-color: var(--z-color-primary);
+}

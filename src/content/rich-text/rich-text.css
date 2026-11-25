@@ -1,0 +1,101 @@
+/* ===== z-rich-text ===== */
+
+:host {
+  display: block;
+}
+
+.z-rt {
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg);
+  overflow: hidden;
+}
+
+.z-rt:focus-within {
+  border-color: var(--z-color-primary);
+  box-shadow: var(--z-focus-ring);
+}
+
+.z-rt__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--z-color-border);
+  background: var(--z-color-bg-secondary);
+}
+
+.z-rt__btn {
+  min-width: 28px;
+  padding: 3px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--z-radius-sm);
+  background: transparent;
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+  cursor: pointer;
+}
+
+.z-rt__btn:hover:not(:disabled) {
+  background: var(--z-color-hover);
+  border-color: var(--z-color-border);
+}
+
+.z-rt__btn:active:not(:disabled) {
+  background: var(--z-color-hover-strong);
+}
+
+.z-rt__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/*
+ * [WHY 用 [aria-pressed] 做视觉态，而不是再加一个 class] 加粗/斜体有没有生效原本
+ * **完全没有**视觉反馈 —— 用户只能盯着字形粗细猜。把样式挂在语义属性上，读屏听到的
+ * 「已按下」和眼睛看到的浅蓝底就是同一份状态，不会出现「看起来是按下的、读屏说没按」
+ * 这种两套真相。
+ */
+.z-rt__btn[aria-pressed="true"] {
+  background: var(--z-color-primary-soft);
+  border-color: var(--z-color-primary);
+  color: var(--z-color-primary-strong);
+}
+
+.z-rt__btn[aria-pressed="true"]:hover:not(:disabled) {
+  background: var(--z-color-primary-tint-hover);
+}
+
+.z-rt__content {
+  padding: 10px 12px;
+}
+
+.z-rt__editor {
+  min-height: 140px;
+  outline: none;
+  font-size: var(--z-font-size-md);
+  line-height: 1.7;
+  color: var(--z-color-text);
+}
+
+.z-rt__editor blockquote {
+  margin: 6px 0;
+  padding-left: 12px;
+  border-left: 3px solid var(--z-color-gray-300);
+  color: var(--z-color-text-secondary);
+}
+
+.z-rt__editor a {
+  color: var(--z-color-primary);
+}
+
+/* [WHY] 占位符: :empty 才生效,清空归一在 input 处理器（浏览器会留 <br>） */
+.z-rt__editor:empty::before {
+  content: attr(data-placeholder);
+  color: var(--z-color-gray-400);
+  pointer-events: none;
+}
+
+.z-rt--disabled {
+  opacity: 0.6;
+}

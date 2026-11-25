@@ -1,0 +1,197 @@
+:host {
+  display: inline-flex;
+  flex-direction: column;
+  font-family: var(--z-chart-font-family);
+  color: var(--z-chart-title-color);
+  outline: none;
+}
+
+:host(:focus-visible) {
+  outline: 2px solid var(--z-chart-focus-ring-color);
+  outline-offset: 2px;
+}
+
+.z-chart__title {
+  font-size: var(--z-chart-title-font-size);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.z-chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--z-chart-legend-gap);
+  margin-top: 8px;
+}
+
+.z-chart__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: var(--z-chart-legend-font-size);
+  color: var(--z-chart-legend-color);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.z-chart__legend-item:hover {
+  background: var(--z-color-fill);
+}
+
+.z-chart__legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex: none;
+}
+
+.z-chart__legend-item--hidden {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.z-chart__plot {
+  position: relative;
+  line-height: 0;
+}
+
+.z-chart__svg,
+.z-chart__canvas {
+  display: block;
+}
+
+.z-chart__overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+.z-chart__overlay [data-m] {
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.z-chart__focus-ring {
+  position: absolute;
+  border: 2px solid var(--z-chart-focus-ring-color);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* 框选选区（brushable）。与 focus-ring 同样定位，但**半透明填充**：
+   只有描边时，框住一片柱图读者分不清哪几根在内 —— 填充把「选中的区域」直接画出来。
+   pointer-events: none 是必须的：否则框会盖住 overlay 的 [data-m] 命中区。
+
+   [WHY 这里不再带 fallback（2026-11-19）] 原来写的是
+   `var(--z-chart-focus-ring-color, #2563eb)`，理由是「宿主没加载 tokens 时整条声明被丢弃，
+   选区画成全透明」。那个理由只在**这一条声明**上成立：同一个文件里这个令牌还有三处
+   （10 / 81 / 179 行）一直**没有**兜底，也就是说「带兜底」从来不是本文件的规则。
+   而令牌缺失时，本组件依赖的另外两百多条 `--z-*`（文字色、网格线、坐标轴）同样全部失效
+   —— 那时图表整体是坏的，唯独框选有颜色，只会让「theme 没加载」这件事更难被发现。
+   正确做法是让宿主引 `src/theme`（demo 与文档页都引了），而不是给单条声明垫一个
+   与真值已经漂移的色值（#2563eb ≠ 浅色主题的 --z-color-primary #3b82f6）。
+   判据见 `tests/unit/theme-token-guard.test.ts` 的「引用全局令牌时不得带 fallback」。 */
+.z-chart__brush {
+  position: absolute;
+  pointer-events: none;
+  border: 1.5px solid var(--z-chart-focus-ring-color);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--z-chart-focus-ring-color) 18%, transparent);
+}
+
+.z-chart__brush[hidden] {
+  display: none;
+}
+
+/* 开了框选的图禁止选中文本。拖拽时浏览器默认会把 SVG 里的轴标签当文本选中，
+   高亮成一片蓝色 —— 看上去像「选区只盖住了文字」。只对 brushable 生效：
+   没开框选的图里，用户仍可以选中数值来复制。 */
+:host([brushable]) .z-chart__plot {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.z-chart__focus-ring[hidden] {
+  display: none;
+}
+
+/* ── 缩放条（zoomable） ──
+   [WHY touch-action: none] 触屏上拖动窗口会被页面滚动抢走，表现为「一拖整页跟着滚」。
+   局部关掉手势可以让 pointermove 连续到达组件。 */
+.z-chart__zoom {
+  position: relative;
+  height: 22px;
+  /* 与 x 轴刻度之间的呼吸：贴太近时 11/18 这类标签的下缘会顶到轨道上 */
+  margin-top: 12px;
+  touch-action: none;
+}
+
+.z-chart__zoom-svg {
+  display: block;
+}
+
+.z-chart__zoom-track {
+  /* 比网格线深一档：它是唯一能看出「全长形状」的东西，用网格色会和遮罩一起消失 */
+  stroke: var(--z-color-text-secondary);
+  stroke-width: 1.5;
+}
+
+/* 遮罩用 bg 色 + 半透明：浅色主题是白雾、深色主题是黑雾，两个方向都压得住底下的缩略线。
+   [WHY 只能用 0.55] 0.72 时缩略线在未选中区几乎看不见 —— 那就白留了一条参照线，
+   用户看不出「全长还有多少」。遮罩的作用是压低、不是抹掉。 */
+.z-chart__zoom-mask {
+  fill: var(--z-color-bg);
+  opacity: 0.55;
+}
+
+.z-chart__zoom-window {
+  position: absolute;
+  top: 0;
+  height: 22px;
+  border-radius: 3px;
+  background: var(--z-chart-1);
+  opacity: 0.16;
+  box-shadow: inset 0 0 0 1px var(--z-chart-1);
+  cursor: grab;
+  z-index: 1;
+}
+
+.z-chart__zoom-window:active {
+  cursor: grabbing;
+}
+
+.z-chart__zoom-handle {
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 22px;
+  border-radius: 3px;
+  background: var(--z-chart-1);
+  cursor: ew-resize;
+  z-index: 2;
+}
+
+.z-chart__zoom-handle:focus-visible,
+.z-chart__zoom-window:focus-visible {
+  outline: 2px solid var(--z-chart-focus-ring-color);
+  outline-offset: 1px;
+}
+
+/* 读屏副本：键盘提示 + 数据点播报。视觉上不占位（方向键的可见反馈是焦点环）。 */
+.z-chart__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

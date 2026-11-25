@@ -1,0 +1,237 @@
+/* ===== z-code-editor ===== */
+/* [WHY] 双层对齐硬约束：textarea 与 pre 必须逐像素同字体/字号/行高/内边距/
+   换行策略，否则高亮层与光标错位（REQ-017 验收 2） */
+
+:host {
+  display: block;
+  height: 240px;
+}
+
+.z-ce {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background-color: var(--z-color-bg);
+  transition: border-color var(--z-transition-fast), box-shadow var(--z-transition-fast);
+  box-sizing: border-box;
+}
+
+.z-ce:focus-within {
+  border-color: var(--z-color-primary);
+  box-shadow: var(--z-focus-ring);
+}
+
+.z-ce--readonly {
+  background-color: var(--z-color-bg-secondary);
+}
+
+/* ── Gutter（行号） ── */
+
+.z-ce__gutter {
+  flex: none;
+  min-width: 40px;
+  padding: 10px 0 10px 6px;
+  overflow: hidden;
+  text-align: right;
+  user-select: none;
+  font-family: var(--z-font-mono);
+  font-size: var(--z-font-size-sm);
+  line-height: 1.6;
+  color: var(--z-color-text-disabled);
+  border-right: 1px solid var(--z-color-border);
+  background-color: var(--z-color-bg-secondary);
+}
+
+.z-ce__gutter span {
+  display: block;
+  padding-right: 8px;
+}
+
+/* [WHY] wrap 模式下软换行导致视觉行 != 逻辑行，行号失去对应关系 → 隐藏（REQ-017） */
+.z-ce--wrap .z-ce__gutter {
+  display: none;
+}
+
+/* ── Body + 双层 ── */
+
+.z-ce__body {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+.z-ce__highlight {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.z-ce__highlight code {
+  display: block;
+  min-height: 100%;
+  padding: 10px 12px;
+  font-family: var(--z-font-mono);
+  font-size: var(--z-font-size-sm);
+  line-height: 1.6;
+  color: var(--z-color-text);
+  white-space: pre;
+  tab-size: 4;
+  box-sizing: border-box;
+}
+
+.z-ce--wrap .z-ce__highlight code {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.z-ce__textarea {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: none;
+  outline: none;
+  resize: none;
+  padding: 10px 12px;
+  font-family: var(--z-font-mono);
+  font-size: var(--z-font-size-sm);
+  line-height: 1.6;
+  /* [WHY] 文字透明让下层高亮透出，仅保留光标与选区底色 */
+  color: transparent;
+  caret-color: var(--z-color-text);
+  background: transparent;
+  white-space: pre;
+  overflow: auto;
+  tab-size: 4;
+  box-sizing: border-box;
+}
+
+.z-ce--wrap .z-ce__textarea {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.z-ce__textarea::placeholder {
+  color: var(--z-color-text-disabled);
+}
+
+.z-ce__textarea::selection {
+  background: rgba(37, 99, 235, 0.25);
+}
+
+.z-ce--readonly .z-ce__textarea {
+  cursor: default;
+}
+
+/* ── Token 配色（语义 token 派生，明暗自动跟随） ── */
+
+.tok-comment {
+  color: var(--z-color-text-secondary);
+  font-style: italic;
+}
+.tok-string {
+  color: var(--z-color-success);
+}
+.tok-number {
+  color: var(--z-color-warning);
+}
+.tok-keyword {
+  color: var(--z-color-primary);
+  font-weight: 600;
+}
+.tok-literal {
+  color: var(--z-color-danger);
+}
+.tok-tag {
+  color: color-mix(in srgb, var(--z-color-primary) 55%, var(--z-color-text));
+}
+.tok-attr {
+  color: color-mix(in srgb, var(--z-color-success) 55%, var(--z-color-text));
+}
+.tok-func {
+  color: color-mix(in srgb, var(--z-color-warning) 60%, var(--z-color-text));
+}
+.tok-punct {
+  color: var(--z-color-text-secondary);
+}
+
+/* ── 自动补全 / 参数提示浮层 ── */
+
+.z-ce__popup {
+  position: absolute;
+  z-index: 20;
+  display: none;
+  min-width: 160px;
+  max-width: 300px;
+  max-height: 160px;
+  overflow: auto;
+  background-color: var(--z-color-bg);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-sm);
+  box-shadow: var(--z-shadow-md);
+  font-family: var(--z-font-mono);
+  font-size: var(--z-font-size-xs);
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+.z-ce__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 8px;
+  cursor: pointer;
+  color: var(--z-color-text);
+  white-space: nowrap;
+}
+
+.z-ce__item--active {
+  background: color-mix(in srgb, var(--z-color-primary) 15%, transparent);
+}
+
+.z-ce__item-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.z-ce__item-detail {
+  margin-left: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--z-color-text-secondary);
+}
+
+.z-ce__item-kind {
+  flex: none;
+  color: var(--z-color-text-disabled);
+}
+
+.z-ce__sig {
+  padding: 6px 10px;
+  white-space: nowrap;
+  color: var(--z-color-text);
+}
+
+.z-ce__sig-name {
+  color: var(--z-color-primary);
+  font-weight: 600;
+}
+
+.z-ce__sig-param--active {
+  color: var(--z-color-primary);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.z-ce__sig-desc {
+  padding: 0 10px 6px;
+  font-family: var(--z-font-sans);
+  color: var(--z-color-text-secondary);
+}

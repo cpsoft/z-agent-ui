@@ -1,0 +1,327 @@
+/* [WHY] 2026-10-25 系统审计：report-table.css 的 Body cells / Footer / Alignment / Variants /
+   States / Loading / Hover / Selected 区块（原 L349-532）。 */
+
+/* ── Body cells ── */
+
+.z-rpt__td {
+  /* [WHY] 走 spacing token 而不是字面量 6px/12px：这是「密度档」（[data-density]）唯一能穿透
+     到表格的接缝。写死时字号会跟密度变、行高不变 —— 文字变小而行没变矮，观感反而更松，
+     且与同步缩小的按钮（28→26）不一致。默认档 --z-space-1-5=6px / --z-space-3=12px，
+     与原字面量**逐像素相同**，故本次替换对默认观感零影响。 */
+  padding: var(--z-space-1-5) var(--z-space-3);
+  border-bottom: 1px solid var(--z-color-border);
+  background: var(--z-color-bg);
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: background var(--z-transition-fast);
+}
+
+.z-rpt__row:last-child .z-rpt__td {
+  border-bottom: none;
+}
+
+/* ── Footer ── */
+
+.z-rpt__foot .z-rpt__tf {
+  /* [WHY 贴底] 与表头同理，反方向：maxHeight 让 wrapper 内部滚动时，合计行是
+     「滚到底才用得上」的信息 —— 不固定的话它正好在滚到底时已经滚出视野。
+     用 sticky 而不是把 tfoot 移出表格：移出去就没有列宽对齐了（table-layout: fixed 靠同一张表算宽）。 */
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  /* 同 .z-rpt__td：合计行也要跟着密度档收放，否则最后一行会比明细行高出一截 */
+  padding: var(--z-space-1-5) var(--z-space-3);
+  font-weight: 700;
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+  background: var(--z-color-bg-secondary);
+  /* [WHY] 商务严谨: 2px 顶边框强化合计行与明细的视觉分隔 */
+  border-top: 2px solid var(--z-color-border);
+  border-bottom: none;
+  white-space: nowrap;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Footer checkbox spacer ── */
+
+.z-rpt__tf--checkbox {
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  padding: 0;
+}
+
+/* ── Alignment ── */
+
+/* [WHY] 中文报表习惯: 表头默认居中, 显式指定对齐的列覆盖 */
+.z-rpt__head .z-rpt__th.z-rpt__cell--left {
+  text-align: left;
+}
+
+.z-rpt__head .z-rpt__th.z-rpt__cell--right {
+  text-align: right;
+}
+
+.z-rpt__cell--center {
+  text-align: center;
+}
+
+.z-rpt__cell--right {
+  text-align: right;
+  /* [WHY] 商务严谨: 数字列等宽数字字形, 报表数据滚动/排序时不抖动 */
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Striped ── */
+
+.z-rpt--striped .z-rpt__row:nth-child(even) .z-rpt__td {
+  background: var(--z-color-bg-secondary);
+}
+
+/* ── Bordered ── */
+
+.z-rpt--bordered {
+  border: 1px solid var(--z-color-border);
+}
+
+.z-rpt--bordered .z-rpt__th {
+  border: 1px solid var(--z-color-border);
+}
+
+.z-rpt--bordered .z-rpt__td {
+  border: 1px solid var(--z-color-border);
+}
+
+.z-rpt--bordered .z-rpt__tf {
+  border: 1px solid var(--z-color-border);
+}
+
+/* ── Three-line table (三线表, 中文报表习惯) ── */
+
+/* [WHY] 中文报表惯例: 顶线/表头下线/底线 2px 粗线, 明细行保持细横线, 无竖线 */
+.z-rpt--lines {
+  border-top: 2px solid var(--z-color-text);
+  border-bottom: 2px solid var(--z-color-text);
+}
+
+.z-rpt--lines .z-rpt__th {
+  border-bottom: 2px solid var(--z-color-text);
+}
+
+.z-rpt--lines .z-rpt__tf {
+  border-top: 2px solid var(--z-color-text);
+}
+
+/* ── Small size ── */
+
+.z-rpt--sm .z-rpt__th,
+.z-rpt--sm .z-rpt__td,
+.z-rpt--sm .z-rpt__tf {
+  padding: 4px 8px;
+  font-size: var(--z-font-size-xs);
+}
+
+/* ── States ── */
+
+.z-rpt__empty-cell {
+  padding: var(--z-space-6) var(--z-space-4);
+  text-align: center;
+  color: var(--z-color-text-secondary);
+}
+
+.z-rpt__empty-icon {
+  display: block;
+  margin: 0 auto var(--z-space-2);
+  color: var(--z-color-gray-300);
+}
+
+/* ── Loading overlay ── */
+
+.z-rpt--loading {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.z-rpt__loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--z-space-2);
+  z-index: 5;
+  background: color-mix(in srgb, var(--z-color-bg) 78%, transparent);
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-xs);
+  pointer-events: auto;
+}
+
+.z-rpt__spinner {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: 2px solid var(--z-color-border);
+  border-top-color: var(--z-color-primary);
+  border-radius: 50%;
+  /* motion-check-ignore: 800ms 无对应档位。并入 loop-fast(600) 会让表格内的转圈快 25%，
+     并入 loop-slow(1500) 慢一倍 —— 两者都是可感知的视觉变更，不是「归位」。
+     要统一节奏需先做视觉评审（REQ-039 D4）。 */
+  animation: z-rpt-spin 0.8s linear infinite;
+}
+
+@keyframes z-rpt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Row hover ── */
+
+.z-rpt__row:hover .z-rpt__td {
+  background: var(--z-color-hover-subtle);
+}
+
+.z-rpt--striped .z-rpt__row:hover .z-rpt__td {
+  background: var(--z-color-hover);
+}
+
+/* ── Selected row ── */
+
+.z-rpt__row--selected .z-rpt__td {
+  /* [WHY] 原先直接引用 blue-50/blue-100：暗色下整行变成亮白，行内文字（近白）隐形。
+     选中行是「要被注视的选区」→ 走 tint（比 soft 实一档），hover 再加一档。 */
+  background: var(--z-color-primary-tint) !important;
+}
+
+.z-rpt__row--selected:hover .z-rpt__td {
+  background: var(--z-color-primary-tint-hover) !important;
+}
+
+
+/* ── 分组：小计行 / 总计行 / 折叠按钮 ── */
+
+/* 父级小计行：浅主色底 + 加粗（分组表的视觉锚点：一眼看出这行是汇总不是明细）
+   [配色别乱挑] 底色用 primary-soft（浅色底纹），文字用 primary（主色本身）。
+   反过来用 primary-text（那是**实心主色底**上的白字）会得到约 1.1 的对比度：
+   小计行整行看不见，而 DOM 与单测全都正常。 */
+.z-rpt__row--group .z-rpt__td {
+  background: var(--z-color-primary-soft);
+  font-weight: 600;
+  color: var(--z-color-primary);
+}
+
+/* 总计行：灰底 + 更粗 + 上边框，与「某个组的小计」明确区分 */
+.z-rpt__row--total .z-rpt__td {
+  background: var(--z-color-bg-secondary);
+  font-weight: 700;
+  border-top: 2px solid var(--z-color-border);
+}
+
+/* [WHY 总计行也贴底] 它是「全表合计」，与 tfoot 的列汇总同属表尾信息。
+   不固定的话，表体一滚就只剩下看不见的合计 —— 而分组表的 total 恰恰是分页时
+   唯一能看到总数的行（它不参与分页）。
+   [WHY 让出 --z-rpt-foot-h] tfoot 与 total 行可能同时存在（列汇总 + 分组总计）：
+   两者都 bottom:0 会叠成一坨。tfoot 先贴底，总计行叠在它上面，高度由 JS 量出。 */
+.z-rpt__row--total .z-rpt__td {
+  position: sticky;
+  bottom: var(--z-rpt-foot-h, 0px);
+  z-index: 2;
+}
+
+/* 折叠按钮：16px 定宽，避免「有子级」与「无子级」两行的文字起点差一个字符 */
+.z-rpt__toggle {
+  width: 16px;
+  margin-right: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  font: inherit;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.z-rpt__toggle:hover {
+  color: var(--z-color-primary);
+}
+
+.z-rpt__toggle:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: 1px;
+}
+
+/* ── 分页 ── */
+
+/* [WHY 放在 wrapper 外] wrapper 是滚动容器（maxHeight 时 overflow-y:auto）；
+   分页条放进去会跟着表体一起滚走 —— 翻页按钮正是「滚到底才想起来用」的东西。 */
+.z-rpt__pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 2px 2px;
+  font-size: 12px;
+  color: var(--z-color-text-secondary);
+}
+
+.z-rpt__pager-btns {
+  display: flex;
+  gap: 6px;
+}
+
+/* 右侧一组：每页行数下拉 + 翻页按钮。两者都要贴右，且窄表下不许换行把分页条撑高。 */
+.z-rpt__pager-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.z-rpt__pager-size {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* 高度与 .z-rpt__pager-btn 对齐（26px）：两件并排的东西差 2px 就会显得没对齐。 */
+.z-rpt__pager-size select {
+  height: 26px;
+  padding: 0 4px;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-bg);
+  color: var(--z-color-text);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.z-rpt__pager-size select:hover {
+  border-color: var(--z-color-primary);
+}
+
+.z-rpt__pager-btn {
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-bg);
+  color: var(--z-color-text);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.z-rpt__pager-btn:hover:not(:disabled) {
+  border-color: var(--z-color-primary);
+  color: var(--z-color-primary);
+}
+
+.z-rpt__pager-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

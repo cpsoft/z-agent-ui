@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>打印 — zAgentUI</title>
+  <link rel="stylesheet" href="./demo.css" />
+  <link rel="stylesheet" href="./report-table.css" />
+  <style>
+    /* 本页局部：按钮行 / 说明文字 / 说明表。demo.css 里没有这三个类，
+       而为了一个页面往全局样式表加东西会污染所有页（doc-template.html 也是这么处理的）。 */
+    .print-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+    .print-note { font-size: 12px; color: var(--z-color-text-secondary); }
+    .print-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .print-table th, .print-table td {
+      border: 1px solid var(--z-color-border);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .print-table th { background: var(--z-color-bg-secondary); font-weight: 600; }
+    .print-table code { font-size: 12px; }
+  </style>
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version">v2.0.0</span>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <main class="demo-main">
+
+    <section class="demo-hero">
+      <h1>打印</h1>
+      <p>组件<b>不感知打印</b> —— 没有一个组件知道 <code>@media print</code> 的存在。
+      它们照常渲染，<code>z-print</code> 在按下打印的那一刻，把渲染完的那棵子树拍成快照，
+      在独立文档里用自己的排版规则印出来。</p>
+      <p class="print-note">所以新增组件不需要另写打印样式，也不会出现「这个组件印得好、那个把分页器也印出来」。</p>
+    </section>
+
+    <section class="demo-section">
+      <div class="demo-section__header">
+        <h2>一份能直接交出去的报表</h2>
+        <p>下面这段是真表格，46 行 × 6 列，A4 上会分成 2 页。点「打印」看纸面效果，或按 Ctrl/Cmd + P。</p>
+      </div>
+
+      <div class="print-row">
+        <z-button id="p-print" appearance="solid" size="sm">打印</z-button>
+        <z-button id="p-fmt-page" appearance="outline" size="sm">页码：仅当前页</z-button>
+        <z-button id="p-fmt-none" appearance="outline" size="sm">页码：不要</z-button>
+        <z-button id="p-fmt-all" appearance="ghost" size="sm">恢复 1 / 3</z-button>
+        <span class="print-note" id="p-status">页眉每页重复 · 表头每页重复 · 复选框与分页器不印</span>
+      </div>
+
+      <z-print id="p-demo"
+        title="门店月度销售报表"
+        subtitle="2026-11 · 华东区"
+        footer="内部资料 · 数据截至 2026-11-15">
+        <z-report-table id="p-table" lines striped></z-report-table>
+      </z-print>
+    </section>
+
+    <section class="demo-section">
+      <div class="demo-section__header">
+        <h2>快照里发生了什么</h2>
+        <p>四步，全部发生在按下打印的那一瞬间。</p>
+      </div>
+      <table class="print-table">
+        <thead><tr><th>步骤</th><th>做法</th><th>为什么不能换别的写法</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>1. 展开 shadow</td>
+            <td>遍历子树，把每个元素的 shadow root 摊平，<code>&lt;slot&gt;</code> 换成真正分到这里的节点</td>
+            <td>shadow 里的样式外部改不了 —— 想让表格不印分页器，只能把内容取出来自己排</td>
+          </tr>
+          <tr>
+            <td>2. 收齐样式</td>
+            <td>取每个自定义元素的 <code>static styles</code>，把 <code>:host</code> 改写成标签名</td>
+            <td>摊平之后没有 shadow 可指；不改写的话组件根样式（<code>display: block</code> 等）全部失效</td>
+          </tr>
+          <tr>
+            <td>3. 固化令牌</td>
+            <td>从样式表读浅色主题的 <code>--z-*</code> 值写进快照</td>
+            <td>纸永远是白的。宿主此刻可能是暗色主题，拿暗色令牌印出来就是一整页墨</td>
+          </tr>
+          <tr>
+            <td>4. 进 iframe 打印</td>
+            <td>写进一个屏幕外的 iframe，等字体与图片就位，调 <code>contentWindow.print()</code>；
+              页眉页脚与页码由快照里的 <code>@page</code> margin box 画</td>
+            <td>iframe 里没有屏幕上的其它元素 —— 天然只印这一块，宿主不必写 <code>body &gt; :not(z-print)</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="demo-section">
+      <div class="demo-section__header">
+        <h2>宿主只需要包一层</h2>
+        <p>没有要补的 CSS、没有要加的类、没有要注册的样式表。</p>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-preview__code demo-preview__code--visible">
+<pre><code><span class="tag">import</span> <span class="txt">"z-agent-ui/app/print"</span>;
+<span class="tag">import</span> <span class="txt">"z-agent-ui/report/table"</span>;
+
+<span class="tag">&lt;z-print</span> <span class="attr">id</span>=<span class="val">"sheet"</span> <span class="attr">title</span>=<span class="val">"门店月度销售报表"</span> <span class="attr">footer</span>=<span class="val">"内部资料"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;z-report-table</span> <span class="attr">lines</span><span class="tag">&gt;&lt;/z-report-table&gt;</span>
+<span class="tag">&lt;/z-print&gt;</span>
+
+<span class="cmt">// 触发打印（要先改数据就监听 z-before-print，改完放行）</span>
+document.getElementById("sheet").print();
+
+<span class="cmt">// 或者只要那份快照，自己走别的通道（服务端出 PDF / Electron / 小程序端）</span>
+<span class="tag">const</span> html = document.getElementById("sheet").snapshot();</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <div class="demo-section__header">
+        <h2>印出来是什么样</h2>
+        <p>快照里的规则只认<b>标签</b>（<code>table</code> / <code>thead</code> / <code>tr</code> / <code>button</code>），
+        不认任何组件内部类名 —— 所以任何组件渲染出的真表格都自动获得同样的待遇。</p>
+      </div>
+      <table class="print-table">
+        <thead><tr><th>纸面上的规则</th><th>实现</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>表头每页重复</td><td><code>thead { display: table-header-group }</code></td>
+            <td>写 <code>position: fixed</code> 只会在第 1 页出现；写 <code>table-row-group</code> 则完全不重复</td></tr>
+          <tr><td>合计行每页重复</td><td><code>tfoot { display: table-footer-group }</code></td>
+            <td>多页报表最后一页才有合计，翻页时看不到基准</td></tr>
+          <tr><td>行不跨页断</td><td><code>tr { break-inside: avoid }</code></td>
+            <td>一行数据被纸张拦腰截断会读成两行</td></tr>
+          <tr><td>页眉页脚每页重复</td><td><code>@page</code> 的 <code>@top-left</code> / <code>@bottom-left</code></td>
+            <td>别用 <code>position: fixed</code>：打印时它相对<b>内容区</b>而不是纸张，会压住正文第一块内容。
+              代价是页眉只能是文本（margin box 放不了 logo 和多列布局）</td></tr>
+          <tr><td>页码</td><td><code>@page { @bottom-right { content: counter(page) " / " counter(pages) } }</code></td>
+            <td><code>counter(page)</code> 只在 margin box 里有效，普通元素读不到</td></tr>
+          <tr><td>交互控件不印</td><td><code>button / input / select / textarea</code> 隐藏</td>
+            <td>纸上点了没用。默认按标签名隐藏（button / input / select / textarea）；要保留就关掉 <code>hide-interactive</code></td></tr>
+        </tbody>
+      </table>
+      <p class="print-note">两处做不到：<b>① 纸张尺寸</b>由打印驱动或宿主的 <code>@page</code> 决定，
+      快照里的 <code>@page size</code> 不改变实际纸张（浏览器会忽略它），所以没有 <code>paper</code> 属性；
+      <b>② 甘特图</b>是虚拟滚动的，DOM 里只有当前可见那几十行 —— 快照也只能拍到这些，不承诺印全项目。</p>
+    </section>
+
+    <section class="demo-section">
+      <div class="demo-section__header">
+        <h2>域内组件</h2>
+      </div>
+      <div class="card-grid" id="print-cards"></div>
+    </section>
+
+  </main>
+</div>
+
+<script type="module">
+  import { initShell } from "./shell.js";
+  import { renderCards } from "./cards.js";
+  import { bySourcePrefix } from "./manifest.js";
+  import "./examples/print.js";
+
+  renderCards(document.getElementById("print-cards"), bySourcePrefix("src/app/print/"));
+  initShell();
+</script>
+</body>
+</html>

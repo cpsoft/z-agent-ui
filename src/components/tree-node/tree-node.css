@@ -1,0 +1,147 @@
+:host {
+  display: block;
+}
+
+/* [WHY] 焦点落在**宿主**上（roving tabindex，见 Tree.ts 的焦点模型说明）。
+   宿主的盒子包着整行，但视觉行是里面的 `.z-tree-node__row` —— 所以焦点环必须画在
+   row 上，否则会得到「框在整块区域边缘、离高亮行还有一段空白」的错位感。
+   `:host(:focus-visible)` 只在键盘聚焦时命中，鼠标点行不会留下框。 */
+:host(:focus-visible) {
+  outline: none;
+}
+
+:host(:focus-visible) .z-tree-node__row {
+  outline: var(--z-focus-ring-outline);
+  outline-offset: -2px;
+  border-radius: var(--z-radius-sm);
+}
+
+.z-tree-node {
+  user-select: none;
+}
+
+.z-tree-node__row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  padding-left: calc(var(--z-space-3) + var(--_tree-level, 0) * 20px);
+  border-radius: var(--z-radius-sm);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  line-height: var(--z-line-height);
+  color: var(--z-color-text);
+  cursor: pointer;
+  transition: background var(--z-transition-fast);
+}
+
+.z-tree-node__row:hover {
+  background: var(--z-color-hover);
+}
+
+.z-tree-node--selected > .z-tree-node__row {
+  /* [WHY] audit 2026-10-25: --z-color-primary-50 是未定义残留名（属阶梯命名，语义应为 soft）
+     且暗色无对应值，选中行在暗色下变亮块。统一走 --z-color-primary-soft。 */
+  background: var(--z-color-primary-soft);
+  color: var(--z-color-primary);
+}
+
+.z-tree-node--disabled > .z-tree-node__row {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.z-tree-node--disabled > .z-tree-node__row:hover {
+  background: transparent;
+}
+
+.z-tree-node__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: none;
+  color: var(--z-color-text-secondary);
+  cursor: pointer;
+  padding: 0;
+  border-radius: var(--z-radius-sm);
+  transition: transform var(--z-transition-normal), background var(--z-transition-fast);
+}
+
+.z-tree-node__toggle:hover {
+  background: var(--z-color-hover-strong);
+}
+
+.z-tree-node__toggle svg {
+  width: 14px;
+  height: 14px;
+}
+
+.z-tree-node--expanded > .z-tree-node__row .z-tree-node__toggle {
+  transform: rotate(90deg);
+}
+
+.z-tree-node__toggle--hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.z-tree-node__icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.z-tree-node__icon ::slotted(*) {
+  width: 18px;
+  height: 18px;
+}
+
+.z-tree-node__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* [WHY] 徽标（门店数/条数）与 label 分处两个盒子：label 负责缩略，徽标 flex-shrink:0
+   恒占位。若把计数接在 label 文本尾（`名称（38）`），长名称会把计数一起 ellipsis 掉。
+   圆角胶囊 + 等宽数字，避免 7/11 这类位数变化引起行内跳动。 */
+.z-tree-node__badge {
+  flex-shrink: 0;
+  margin-left: auto;
+  min-width: 1.5em;
+  padding: 0 var(--z-space-1);
+  border-radius: 999px;
+  background: var(--z-color-hover-strong);
+  color: var(--z-color-text-secondary);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-xs);
+  font-variant-numeric: tabular-nums;
+  line-height: 18px;
+  text-align: center;
+}
+
+.z-tree-node--selected > .z-tree-node__row > .z-tree-node__badge {
+  background: var(--z-color-primary-soft);
+  color: var(--z-color-primary);
+}
+
+.z-tree-node__children {
+  overflow: hidden;
+}
+
+.z-tree-node:not(.z-tree-node--expanded) .z-tree-node__children {
+  max-height: 0;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-tree-node__children {
+    transition: none !important;
+  }
+}

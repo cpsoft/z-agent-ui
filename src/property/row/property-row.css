@@ -1,0 +1,34 @@
+:host {
+  display: block;
+  /* [WHY] min-width: 0 防止嵌套 z-input/z-select 撑破 grid 单元格
+     span 属性由面板/组 grid 放置（grid-column: 1 / -1），见 REQ-008 */
+  min-width: 0;
+}
+
+:host([span]) {
+  grid-column: 1 / -1;
+}
+
+:host([disabled]) .z-property-row__label {
+  color: var(--z-color-text-disabled);
+}
+
+.z-property-row {
+  display: grid;
+  grid-template-columns: var(--z-property-label-width) minmax(0, 1fr);
+  gap: var(--z-property-gap);
+  align-items: center;
+}
+
+.z-property-row__label {
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-sm);
+  line-height: var(--z-line-height);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.z-property-row__control {
+  min-width: 0;
+}

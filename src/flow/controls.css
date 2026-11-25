@@ -1,0 +1,44 @@
+:host {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: block;
+  z-index: 20;
+  /* [WHY] flow 覆盖层 pointer-events:none，槽内元素继承后按钮点击失效（真实浏览器实测发现） */
+  pointer-events: auto;
+}
+
+.z-flow-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 6px;
+  background: var(--z-flow-controls-bg, var(--z-color-bg));
+  border: 1px solid var(--z-flow-controls-border, var(--z-color-border));
+  box-shadow: 0 1px 6px rgba(15, 23, 42, 0.12);
+}
+
+.z-flow-controls__btn {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.z-flow-controls__btn:hover {
+  background: var(--z-flow-controls-btn-hover, rgba(15, 23, 42, 0.06));
+  color: var(--z-color-text);
+}
+
+.z-flow-controls__btn:active {
+  background: var(--z-flow-controls-btn-active, rgba(15, 23, 42, 0.12));
+}

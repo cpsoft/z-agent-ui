@@ -1,0 +1,5 @@
+/* ===== z-tooltip ===== */
+
+:host {
+  display: inline-flex;
+}

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Layout — zAgentUI</title>
+  <link rel="stylesheet" href="./demo.css" />
+  <style>
+    /* ── Demo shell header ── */
+    .demo-shell-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+    .demo-shell-title {
+      font-size: var(--z-font-size-md);
+      font-weight: var(--z-font-weight-semibold);
+      color: var(--z-app-shell-text);
+    }
+    .demo-shell-spacer { flex: 1 1 auto; }
+
+    /* ── Demo sidebar menu（手写菜单，[[REQ-012]] 范围外） ── */
+    .demo-menu { padding: 8px; }
+    .demo-menu__title {
+      font-size: var(--z-font-size-xs);
+      color: var(--z-app-shell-text-secondary);
+      margin: 12px 8px 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .demo-menu__link {
+      display: block;
+      padding: 7px 10px;
+      border-radius: var(--z-radius-md);
+      color: var(--z-app-shell-text);
+      text-decoration: none;
+      font-size: var(--z-font-size-sm);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background var(--z-transition-fast);
+    }
+    .demo-menu__link:hover { background: var(--z-color-border); }
+    .demo-menu__link.active {
+      background: var(--z-color-primary);
+      color: var(--z-color-primary-text);
+    }
+
+    /* ── Demo main content ── */
+    .demo-content { padding: 24px; max-width: 1200px; }
+    .demo-content h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 16px 0 20px;
+      color: var(--z-app-shell-text);
+    }
+    .demo-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .demo-stat { text-align: center; }
+    .demo-stat__value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--z-color-primary);
+    }
+    .demo-stat__label { color: var(--z-app-shell-text-secondary); font-size: var(--z-font-size-sm); }
+
+    .demo-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--z-font-size-sm);
+    }
+    .demo-table th, .demo-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--z-color-border);
+      text-align: left;
+    }
+    .demo-table th { color: var(--z-app-shell-text-secondary); font-weight: var(--z-font-weight-medium); }
+  </style>
+</head>
+<body>
+
+<z-app-shell id="shell">
+
+  <header slot="header" class="demo-shell-header">
+    <z-button id="collapse-btn" appearance="ghost" size="sm">菜单</z-button>
+    <span class="demo-shell-title">PLM 管理系统</span>
+    <span class="demo-shell-spacer"></span>
+    <!-- 返回主页 + 主题切换由 shell.ts mountBackHome 注入 -->
+  </header>
+
+  <z-sidebar slot="sidebar" id="sidebar">
+    <nav class="demo-menu">
+      <div class="demo-menu__title">工作台</div>
+      <a class="demo-menu__link active" href="#dashboard">仪表盘</a>
+      <div class="demo-menu__title">业务管理</div>
+      <a class="demo-menu__link" href="#bom">BOM 管理</a>
+      <a class="demo-menu__link" href="#parts">零部件</a>
+      <a class="demo-menu__link" href="#orders">订单管理</a>
+      <div class="demo-menu__title">系统</div>
+      <a class="demo-menu__link" href="#users">用户管理</a>
+      <a class="demo-menu__link" href="#roles">角色权限</a>
+    </nav>
+    <div slot="footer" class="demo-shell-footer">
+      <z-button id="collapse-btn-footer" appearance="ghost" size="sm">收起菜单</z-button>
+    </div>
+  </z-sidebar>
+
+  <main slot="main" class="demo-content">
+    <z-breadcrumb id="crumb"></z-breadcrumb>
+
+    <h1>仪表盘</h1>
+
+    <div class="demo-cards">
+      <z-card bordered>
+        <div class="demo-stat">
+          <div class="demo-stat__value">128</div>
+          <div class="demo-stat__label">本月订单</div>
+        </div>
+      </z-card>
+      <z-card bordered>
+        <div class="demo-stat">
+          <div class="demo-stat__value">46</div>
+          <div class="demo-stat__label">BOM 数量</div>
+        </div>
+      </z-card>
+      <z-card bordered>
+        <div class="demo-stat">
+          <div class="demo-stat__value">12</div>
+          <div class="demo-stat__label">待审零部件</div>
+        </div>
+      </z-card>
+      <z-card bordered>
+        <div class="demo-stat">
+          <div class="demo-stat__value">98.2%</div>
+          <div class="demo-stat__label">交付准时率</div>
+        </div>
+      </z-card>
+    </div>
+
+    <z-card bordered>
+      <div slot="header" style="font-weight:600;">最近订单</div>
+      <z-table id="orders-table"></z-table>
+    </z-card>
+  </main>
+
+  <footer slot="footer" style="color: var(--z-app-shell-text-secondary); font-size: var(--z-font-size-xs);">
+    © 2026 zAgentUI Admin Layout Demo
+  </footer>
+
+</z-app-shell>
+
+<script type="module">
+  import "../src/theme/index.js";
+  import "../src/app/app-shell/index.js";
+  import "../src/components/sidebar/index.js";
+  import "../src/components/breadcrumb/index.js";
+  import "../src/components/button/index.js";
+  import "../src/components/card/index.js";
+  import "../src/components/badge/index.js";
+  import "../src/components/table/index.js";
+  import { themeController } from "../src/theme/index.js";
+  import { mountBackHome } from "./shell.js";
+
+  themeController.init();
+  mountBackHome();
+
+  // ── Breadcrumb ──
+  const crumb = document.getElementById("crumb");
+  crumb.items = [
+    { label: "首页", href: "#dashboard" },
+    { label: "业务管理" },
+    { label: "仪表盘" },
+  ];
+  crumb.addEventListener("z-select", (e) => {
+    console.log("breadcrumb select:", e.detail);
+  });
+
+  // ── Orders table ──
+  // 状态列用 render 输出 z-badge
+  const ordersTable = document.getElementById("orders-table");
+  const statusVariant = { "已完成": "success", "处理中": "warning", "草稿": "default" };
+  ordersTable.columns = [
+    { key: "no", header: "订单号" },
+    { key: "customer", header: "客户" },
+    { key: "amount", header: "金额", align: "right" },
+    { key: "status", header: "状态", align: "center", render: (v) => `<z-badge tone="${statusVariant[v] || "default"}">${v}</z-badge>` },
+  ];
+  ordersTable.data = [
+    { no: "SO-2026-0811-001", customer: "华东装备", amount: "¥ 128,000", status: "已完成" },
+    { no: "SO-2026-0811-002", customer: "北方重工", amount: "¥ 56,400", status: "处理中" },
+    { no: "SO-2026-0811-003", customer: "南方精机", amount: "¥ 89,200", status: "草稿" },
+  ];
+
+  // ── Sidebar collapse：按钮派发 z-sidebar-toggle（需 bubbles + composed，穿透 slot 到达 shell host） ──
+  const shell = document.getElementById("shell");
+  const footerBtn = document.getElementById("collapse-btn-footer");
+  const toggleSidebar = () => {
+    shell.dispatchEvent(new CustomEvent("z-sidebar-toggle", { bubbles: true, composed: true }));
+  };
+  document.getElementById("collapse-btn").addEventListener("z-click", toggleSidebar);
+  footerBtn.addEventListener("z-click", toggleSidebar);
+  shell.addEventListener("z-collapse-change", (e) => {
+    footerBtn.textContent = e.detail.collapsed ? "展开菜单" : "收起菜单";
+  });
+
+  // ── Menu active state ──
+  document.querySelectorAll(".demo-menu__link").forEach((link) => {
+    link.addEventListener("click", () => {
+      document.querySelectorAll(".demo-menu__link").forEach((l) => l.classList.remove("active"));
+      link.classList.add("active");
+    });
+  });
+</script>
+
+</body>
+</html>

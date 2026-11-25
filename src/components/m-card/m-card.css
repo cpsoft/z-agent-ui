@@ -1,0 +1,32 @@
+/* ===== m-card ===== */
+
+:host {
+  display: block;
+}
+
+.m-card {
+  background: var(--z-color-surface);
+  border-radius: var(--z-radius-md);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-card--sm {
+  padding: var(--z-space-3);
+}
+
+.m-card--md {
+  padding: var(--z-space-4);
+}
+
+.m-card--clickable {
+  cursor: pointer;
+  transition: box-shadow var(--z-transition-normal), opacity var(--z-transition-fast);
+}
+
+.m-card--clickable:hover {
+  box-shadow: var(--z-shadow-md);
+}
+
+.m-card--clickable:active {
+  opacity: 0.7;
+}

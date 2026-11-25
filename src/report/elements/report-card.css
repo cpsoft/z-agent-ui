@@ -1,0 +1,365 @@
+/* ===== z-report-card ===== */
+
+:host {
+  display: block;
+  min-width: 0;
+  height: 100%;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-surface);
+  color: var(--z-color-text);
+  font-size: var(--z-font-size-sm);
+  overflow: hidden;
+}
+
+.hd {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  font-size: var(--z-font-size-sm);
+  font-weight: 600;
+  color: var(--z-color-text);
+}
+
+.hd__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 数据集标签：告诉人「这张卡的数字来自哪」。等宽不如标题重要，所以弱化配色 */
+.hd__tag {
+  flex: 0 1 auto;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 6px;
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-bg-secondary);
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-xs);
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.hd__spacer {
+  flex: 1 1 auto;
+  min-width: 8px;
+}
+
+/* ---- 卡壳按钮 ----
+   自绘而不是用 z-button：卡片可能在宿主未引入按钮组件时单独使用（copy-in），
+   那时缺一款按钮样式整排按钮就退化成裸 text，看着像坏了。 */
+.btn {
+  flex: 0 0 auto;
+  padding: 1px 8px;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-sm);
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  font: inherit;
+  font-size: var(--z-font-size-xs);
+  font-weight: 400;
+  line-height: 18px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+  color: var(--z-color-primary-text);
+  border-color: var(--z-color-primary);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: 1px;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* 错误条里的「重试」是行内文字按钮，不该带边框（会和错误文案挤成一块） */
+.btn--link {
+  padding: 0 2px;
+  border: 0;
+  color: var(--z-color-primary-text);
+  text-decoration: underline;
+}
+
+/* ---- 状态条 ----
+   高度固定在最矮一档：它是「卡壳」而不是内容，抢走正文高度会让同一栅格里的卡片
+   正文高度不一致（同一行卡片图表高度参差，看起来像渲染错位）。 */
+.status {
+  flex: 0 0 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-xs);
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.status--warn {
+  color: var(--z-color-warning-text);
+}
+
+/* ---- 错误条 ---- */
+
+.err {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-danger-soft);
+  /* [2026-11-15 修] 原为 `var(--z-color-danger-text, var(--z-color-danger))`。
+     `-text` 是**实心底上的白字**，压在 `-soft` 淡红底上等于隐形（对比度 ~1.2）——
+     而 `page-m-view-contrast` 那条「soft 底不配 -text」的守卫从 2026-11-08 起就没看见它：
+     判据是 `color:\s*var\(--z-color-[\w-]+-text\)`，而这里带着 fallback，括号前还有一层 var()
+     ⇒ 正则不匹配。清理死兜底之后这次才第一次被抓出来。 */
+  color: var(--z-color-danger-strong);
+  font-size: var(--z-font-size-xs);
+}
+
+.err__msg {
+  flex: 1 1 auto;
+  min-width: 0;
+  word-break: break-word;
+}
+
+/* ---- 放大态 ----
+   fixed 覆盖整屏：卡片在栅格里被裁到 300px 高时，图表 y 轴标签会挤成一团，
+   放大是查看模式最常用的动作。z-index 走 --z-z-topmost —— 要盖住宿主的 modal，
+   而 modal 的档位由宿主自己定，只有顶级层能保证盖住。 */
+.card--expanded {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-z-topmost);
+  height: auto;
+  border-radius: 0;
+  padding: 20px 24px;
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.35);
+}
+
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  /* [WHY] 图表与表格要能撑满卡体；flex 容器下 min-height:0 才能让子元素正确收缩，
+     否则内容会把卡片顶大、栅格里出现横向滚动 */
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- 状态位（加载 / 错误 / 空） ---- */
+
+.state {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 48px;
+  color: var(--z-color-text-secondary);
+  text-align: center;
+  padding: 8px;
+}
+
+.state--error {
+  color: var(--z-color-danger-text);
+  /* 错误文案可能很长（含后端 message），给个可换行 + 上限制 */
+  word-break: break-word;
+}
+
+/* ---- 指标卡 ---- */
+
+.kpi {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-height: 0;
+}
+
+.kpi__value {
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kpi__value--sm {
+  font-size: 1.375rem;
+}
+
+.kpi__value--lg {
+  font-size: 2.25rem;
+}
+
+/* 阈值色：正/负一律走 token，不在组件里写死色值（明暗主题跟随宿主） */
+.kpi--warn .kpi__value {
+  color: var(--z-color-warning-text);
+}
+
+.kpi--danger .kpi__value {
+  color: var(--z-color-danger-text);
+}
+
+.kpi__delta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: var(--z-font-size-xs);
+  color: var(--z-color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 涨红跌绿：中国股市/零售看板通用口径，与 kpiDelta 的 kind 一一对应 */
+.kpi__delta--up {
+  color: var(--z-color-danger-text);
+}
+
+.kpi__delta--down {
+  color: var(--z-color-success-text);
+}
+
+.kpi__delta--flat,
+.kpi__delta--unknown {
+  color: var(--z-color-text-secondary);
+}
+
+.kpi__delta--new {
+  color: var(--z-color-primary-text);
+}
+
+.kpi__label {
+  font-size: var(--z-font-size-xs);
+  color: var(--z-color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- 文本卡 ---- */
+
+.text {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.text--center {
+  text-align: center;
+}
+
+.text--right {
+  text-align: right;
+}
+
+.text--sm {
+  font-size: var(--z-font-size-xs);
+}
+
+.text--lg {
+  font-size: var(--z-font-size-lg);
+}
+
+.text__line {
+  min-height: 1em;
+}
+
+.text code {
+  padding: 0 4px;
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-bg-secondary);
+  font-family: var(--z-font-mono);
+  font-size: 0.92em;
+}
+
+/* ---- 图片卡 ---- */
+
+.image {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 0;
+}
+
+.image__img {
+  max-width: 100%;
+  max-height: 100%;
+  min-height: 0;
+  object-fit: cover;
+  border-radius: var(--z-radius-sm);
+}
+
+.image__ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 64px;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px dashed var(--z-color-border);
+  border-radius: var(--z-radius-sm);
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-xs);
+  text-align: center;
+}
+
+.image__caption {
+  font-size: var(--z-font-size-xs);
+  color: var(--z-color-text-secondary);
+  text-align: center;
+}
+
+/* ---- 图表 / 表格宿位 ---- */
+
+.mount {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mount > z-chart {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.mount > z-report-table {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* 分组表 / 树状表格同理：它是卡体的唯一子元素，得撑满（否则短表格下面留一条白，
+   与普通表格卡在同一个栅格里高低不一） */
+.mount > z-report-group-table {
+  flex: 1 1 auto;
+  min-height: 0;
+}

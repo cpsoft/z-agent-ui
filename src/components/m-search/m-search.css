@@ -1,0 +1,112 @@
+/* ===== m-search ===== */
+
+:host {
+  display: block;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-search {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-3);
+  padding: var(--z-space-2) var(--z-m-gutter);
+  background: var(--z-color-bg-secondary);
+}
+
+.m-search__box {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: var(--z-space-2);
+  min-height: var(--z-control-h);
+  padding: 0 var(--z-space-3);
+  background: var(--z-color-surface);
+  border-radius: var(--z-radius-full);
+}
+
+.m-search__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--z-color-text-disabled);
+}
+
+.m-search__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: var(--z-control-h);
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--z-color-text);
+  font-family: var(--z-font-sans);
+  /* [WHY 16px] iOS Safari 对 font-size < 16px 的输入框会在聚焦时自动放大页面，
+     放大后不会自己缩回去 —— 用户以为页面坏了。这是移动端输入框的硬约束。 */
+  font-size: 16px;
+  line-height: 1;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.m-search__input::placeholder {
+  color: var(--z-color-text-placeholder);
+}
+
+/* [WHY 去掉原生 search 的清除按钮] 各浏览器自绘的那个叉在暗色主题下是黑的，
+   且位置与我们自己的按钮重叠，会出现两个叉。 */
+.m-search__input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.m-search__clear {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--z-touch-min-sm);
+  height: var(--z-touch-min-sm);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--z-color-text-disabled);
+  cursor: pointer;
+}
+
+.m-search__clear[hidden] {
+  display: none;
+}
+
+/* 框内「搜索」按钮（`action=`，issue IKW576 #1）。
+ * [WHY 是文字而不是图标] 键盘上那枚键在 iOS 中文输入法下可能不发事件，这枚按钮是
+ * **唯一可靠的入口** —— 一个放大镜图标读者会当成「装饰」，一个「搜索」两个字不会。
+ * 尺寸取 `--z-touch-min-sm`：它比输入区窄得多，但仍要够得着（26px 是宿主实测的下限）。 */
+.m-search__submit {
+  flex: 0 0 auto;
+  min-height: var(--z-touch-min-sm);
+  padding: 0 var(--z-space-1);
+  border: 0;
+  background: transparent;
+  color: var(--z-color-primary);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.m-search__submit:disabled {
+  color: var(--z-color-text-disabled);
+  cursor: default;
+}
+
+.m-search__cancel {
+  flex: 0 0 auto;
+  min-height: var(--z-touch-min-sm);
+  padding: 0 var(--z-space-1);
+  border: 0;
+  background: transparent;
+  color: var(--z-color-primary);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-base);
+  cursor: pointer;
+}

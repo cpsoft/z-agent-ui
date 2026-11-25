@@ -1,0 +1,168 @@
+/* ===== z-column-selector ===== */
+
+:host {
+  display: inline-block;
+  position: relative;
+}
+
+.z-colsel__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  /* [WHY 24px 正方形 + 透明边框] 这是表格工具栏里的**动作**，不是表单控件：
+     表单控件要靠边框说明"这里能输入"，工具栏按钮靠图标和 hover 反馈即可。
+     带边框的胶囊放在右上角会比表头还抢眼 —— 2026-10-26 反馈「太大太难看」正是这个。
+     尺寸跟 --z-control-h-xs 走（默认 24 / 紧凑 22），与工具栏同一节奏。
+     透明边框是给 hover 预留位置，避免悬停时按钮跳动 1px。 */
+  box-sizing: border-box;
+  height: var(--z-control-h-xs);
+  min-width: var(--z-control-h-xs);
+  padding: 0;
+  color: var(--z-color-text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--z-radius-sm);
+  cursor: pointer;
+  line-height: 1;
+  transition: background var(--z-transition-fast), color var(--z-transition-fast);
+}
+
+.z-colsel__trigger:hover {
+  background: var(--z-color-hover-subtle);
+  color: var(--z-color-text);
+}
+
+/* 展开态用实一档的反馈底：下拉开着却看不出"是它打开的"，用户会以为点空了 */
+.z-colsel__trigger[aria-expanded="true"] {
+  background: var(--z-color-hover);
+  color: var(--z-color-text);
+}
+
+.z-colsel__icon {
+  display: block;
+  flex: none;
+}
+
+/* 需要文字的宿主（showlabel）：左右留白 + 常规字号 */
+.z-colsel--label .z-colsel__trigger {
+  padding: 0 8px;
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-xs);
+}
+
+.z-colsel__text {
+  white-space: nowrap;
+}
+
+/* [WHY] 键盘可达性: 触发按钮需可见焦点环, 见 [[REQ-001]] 无障碍要求 */
+.z-colsel__trigger:focus-visible {
+  outline: var(--z-focus-ring-outline);
+  outline-offset: 1px;
+}
+
+.z-colsel__dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  /* [WHY] 字段较多时多列展示: min-width 保底 2 列(小屏不超视口), max-width 不超过 1/3 屏幕 */
+  /* [WHY] border-box: 让 max-width 计入 padding, 总宽严格不超过 1/3 视口 */
+  box-sizing: border-box;
+  min-width: min(300px, 90vw);
+  max-width: 33.333vw;
+  max-height: 280px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 2px 8px;
+  background: var(--z-color-popover);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  box-shadow: var(--z-shadow-lg);
+  z-index: 100;
+  padding: var(--z-space-1) 6px;
+  /* [WHY] 自然交互: 下拉以淡入+轻微位移进入, 150ms 符合微交互时长规范 */
+  animation: z-colsel-in var(--z-duration-fast) var(--z-ease-standard);
+  transform-origin: top right;
+}
+
+@keyframes z-colsel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.z-colsel__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  /* [WHY] 网格内超长标题单行截断, 完整文本以悬浮 title 呈现 */
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--z-font-size-xs);
+  font-family: var(--z-font-sans);
+  color: var(--z-color-text);
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--z-transition-fast);
+}
+
+.z-colsel__item:hover {
+  background: var(--z-color-hover-subtle);
+}
+
+/* [WHY] required 字段: 不可取消勾选, 置灰提示; hover 不高亮 */
+.z-colsel__item--required,
+.z-colsel__item--required:hover {
+  cursor: default;
+  background: transparent;
+  color: var(--z-color-text-secondary);
+}
+
+.z-colsel__checkbox {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--z-color-primary);
+  flex-shrink: 0;
+}
+
+.z-colsel__checkbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* [WHY] 键盘可达性: 复选框需可见焦点环 */
+.z-colsel__checkbox:focus-visible {
+  outline: var(--z-focus-ring-outline);
+  outline-offset: 1px;
+}
+
+.z-colsel__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.z-colsel__lock {
+  color: var(--z-color-text-disabled);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* [WHY] reduced-motion: 关闭下拉进入动画降速 */
+@media (prefers-reduced-motion: reduce) {
+  .z-colsel__dropdown {
+    animation: none;
+  }
+}

@@ -1,0 +1,193 @@
+/* ===== m-coupon ===== */
+
+:host {
+  display: block;
+  min-width: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/*
+  缺口颜色：券边缘的半圆是「与页面同色的圆」盖上去的（CSS 无法真的挖洞），
+  所以底色不是 `--z-color-bg` 时要覆盖 --m-coupon-cut。
+*/
+.m-coupon {
+  /* 缺口要跟**页面**同色（卡片是 surface、页面是 bg-secondary），填 surface 就会
+     在白卡边缘留两个白点。 */
+  --m-coupon-cut: var(--z-color-bg-secondary);
+  /* 面额区宽度：缺口位置与它对齐，两处必须用同一个值，写死两次迟早错位 */
+  --m-coupon-face: 84px;
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  min-height: 88px;
+  overflow: hidden;
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-surface);
+  box-shadow: var(--z-shadow-sm);
+}
+
+.m-coupon.is-clickable {
+  cursor: pointer;
+}
+
+.m-coupon__face {
+  flex: none;
+  width: var(--m-coupon-face);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: var(--z-space-2) var(--z-space-1);
+  background: var(--z-color-danger-soft);
+  color: var(--z-color-price);
+  text-align: center;
+}
+
+.m-coupon__amount {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1px;
+}
+
+.m-coupon__sym {
+  font-size: var(--z-font-size-sm);
+}
+
+.m-coupon__num {
+  font-family: var(--z-font-sans);
+  /* 面额是这张券的主角，必须压过标题 —— 用 2xl 而不是再往上，否则「¥1,280」会溢出 */
+  font-size: var(--z-font-size-2xl);
+  font-weight: var(--z-font-weight-semibold);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.m-coupon__unit {
+  font-size: var(--z-font-size-sm);
+}
+
+.m-coupon__word {
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-lg);
+  font-weight: var(--z-font-weight-semibold);
+}
+
+.m-coupon__cond {
+  color: var(--z-color-price);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-xs);
+  line-height: 1.3;
+}
+
+.m-coupon__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  /* 说明文字可能很长，必须可收缩，否则把操作区挤出卡片 */
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--z-space-3);
+  border-left: 1px dashed var(--z-color-border);
+}
+
+.m-coupon__title,
+.m-coupon__desc,
+.m-coupon__valid {
+  margin: 0;
+  font-family: var(--z-font-sans);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.m-coupon__title {
+  color: var(--z-color-text);
+  font-size: var(--z-font-size-base);
+  font-weight: var(--z-font-weight-medium);
+}
+
+.m-coupon__desc {
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-sm);
+}
+
+/* 有效期允许折行（不截断）：到期日被裁成「2026-11-01 至 2…」等于没写 */
+.m-coupon__valid {
+  color: var(--z-color-text-placeholder);
+  font-size: var(--z-font-size-xs);
+}
+
+.m-coupon__side {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: var(--z-space-2);
+}
+
+.m-coupon__action {
+  min-height: 32px;
+  padding: 0 var(--z-space-2);
+  border: none;
+  border-radius: var(--z-radius-full);
+  background: var(--z-color-primary);
+  color: var(--z-color-primary-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  font-weight: var(--z-font-weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.m-coupon__action:active {
+  opacity: 0.88;
+}
+
+/* 已用 / 已过期：不画按钮，盖一枚斜印章 —— 券还在列表里，
+   用户要能一眼看出「这张为什么不能用」 */
+.m-coupon__stamp {
+  padding: 2px var(--z-space-2);
+  border: 1px solid var(--z-color-text-disabled);
+  border-radius: var(--z-radius-sm);
+  color: var(--z-color-text-disabled);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-xs);
+  white-space: nowrap;
+  transform: rotate(-16deg);
+}
+
+/* 失效态整体降饱和（缺口不动：它是「挖掉」的部分，跟着变灰就是一块脏点） */
+.m-coupon.is-dead .m-coupon__face {
+  background: var(--z-color-fill-secondary);
+  color: var(--z-color-text-disabled);
+}
+
+.m-coupon.is-dead .m-coupon__cond,
+.m-coupon.is-dead .m-coupon__title {
+  color: var(--z-color-text-secondary);
+}
+
+.m-coupon__cut {
+  position: absolute;
+  left: var(--m-coupon-face);
+  width: 12px;
+  height: 12px;
+  border-radius: var(--z-radius-full);
+  background: var(--m-coupon-cut);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.m-coupon__cut--top {
+  top: -6px;
+}
+
+.m-coupon__cut--bottom {
+  bottom: -6px;
+}

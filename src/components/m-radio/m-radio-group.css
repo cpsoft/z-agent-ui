@@ -1,0 +1,21 @@
+/* ===== m-radio-group ===== */
+
+:host {
+  display: block;
+}
+
+.m-radio-group {
+  display: flex;
+  gap: var(--z-space-1) var(--z-space-4);
+}
+
+.m-radio-group--column {
+  flex-direction: column;
+  gap: 0;
+}
+
+.m-radio-group--row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}

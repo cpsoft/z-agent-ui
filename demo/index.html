@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overview — zAgentUI</title>
+  <link rel="stylesheet" href="./demo.css" />
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+
+  <!-- Sidebar（由 shell.ts 渲染） -->
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <!-- Main Content -->
+  <main class="demo-main">
+
+    <!-- Hero -->
+    <section id="hero" class="demo-hero">
+      <h1 data-i18n="hero.title">zAgentUI</h1>
+      <p data-i18n="hero.desc">
+        A lightweight, framework-agnostic Web Component UI library.
+        Built with native Custom Elements, CSS Custom Properties theming,
+        and tree-shakeable ESM modules. Just import and use — no bundler
+        config required.
+      </p>
+      <div class="demo-hero__badges">
+        <z-badge tone="primary">Web Components</z-badge>
+        <z-badge tone="success">Tree-shakeable</z-badge>
+        <z-badge>WCAG 2.1 AA</z-badge>
+      </div>
+    </section>
+
+    <section class="demo-section" id="layers">
+      <div class="demo-section__header">
+        <h2>四层，从下往上</h2>
+        <p><b>L0 是地基，压在最底</b>；往上依次 L1 控件 → L2 复合 → L3 外壳，越往上越靠近使用方。
+        <b>依赖只向下</b>，反向依赖是错的。每个方块可点进对应页，数字取自组件清单。</p>
+      </div>
+      <div class="lmap" id="layer-map"></div>
+    </section>
+
+    <section class="demo-catalog">
+      <label class="demo-filter">
+        <input class="demo-filter__input" type="search" id="catalog-filter"
+               data-i18n-attr="placeholder,catalog.filter" placeholder="Filter components…"
+               autocomplete="off" aria-label="Filter components" />
+      </label>
+      <p class="demo-filter__empty" id="catalog-empty" data-i18n="catalog.empty">No components match your search.</p>
+      <div id="catalog-groups"></div>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+  import { initShell } from "./shell.js";
+  import { PAGES, LAYER_STACK, FAMILIES, GROUP_TITLES, GROUP_TITLES_EN } from "./nav.js";
+  import { STATS, COMPONENTS, exportGroups } from "./manifest.js";
+  import { getLang } from "./i18n.js";
+  import "../src/components/badge/index.js";
+
+  // ── 目录 → 归属页 ─────────────────────────────────────
+  // 它是「目录 → 页面」的唯一一处映射，不写就只能从文件名猜。
+  // content / property 故意没有：它们只以组合身份出现在报表与应用件页里。
+  const DIR_PAGE = {
+    core: "foundation", primitives: "foundation", theme: "foundation",
+    components: "components", report: "report", flow: "flow", doc: "doc",
+    app: "app", page: "page", editor: "editor",
+  };
+
+  const byLang = (zh, en) => (getLang() === "en" ? en : zh);
+  const fileOf = (id) => (PAGES.find((p) => p.id === id) || {}).file;
+
+  function countInDir(dir) {
+    return COMPONENTS.filter((c) => c.source.startsWith("src/" + dir + "/")).length;
+  }
+
+  // ── 分层地图（自下而上） ─────────────────────────────
+  function renderMap() {
+    const host = document.getElementById("layer-map");
+    if (!host) return;
+    const rows = [...LAYER_STACK].reverse().map((layer) => {
+      const boxes = layer.dirs
+        .map((dir) => {
+          const pageId = DIR_PAGE[dir];
+          const n = countInDir(dir);
+          const empty = layer.id === "page" ? "引擎，本身不含组件" : "机制，无控件";
+          const inner = "<b>" + dir + "</b><span>" + (n ? n + " 个组件" : empty) + "</span>";
+          return pageId
+            ? '<a class="lm-box" href="./' + fileOf(pageId) + '">' + inner + "</a>"
+            : '<span class="lm-box">' + inner + "</span>";
+        })
+        .join("");
+      const n = STATS.byLayer[layer.id] || 0;
+      return (
+        '<div class="lm-row lm-row--' + layer.id + '">' +
+        '<div class="lm-label"><b>' + byLang(layer.title, layer.titleEn) + "</b><i>" +
+        (n ? n + " 个组件" : "机制层") + "</i></div>" +
+        '<div class="lm-boxes">' + boxes + "</div></div>"
+      );
+    });
+    rows.push('<div class="lm-foot">↑ 依赖方向：上层依赖下层，L0 不含控件外观</div>');
+    host.innerHTML = rows.join("");
+  }
+
+  // ── 目录（按组，来自 nav.ts） ────────────────────────
+  function pageMeta(p) {
+    if (p.id === "components") return FAMILIES.reduce((n, f) => n + f.members.length, 0) + byLang(" 个控件", " controls");
+    if (p.id === "h5") return COMPONENTS.filter((c) => c.tag.startsWith("m-")).length + byLang(" 个移动端控件", " mobile controls");
+    if (p.id === "foundation") return byLang("2 个机制件 · 3 个目录", "2 primitives · 3 dirs");
+    const dir = { report: "report", flow: "flow", doc: "doc", app: "app", page: "page", editor: "editor" }[p.id];
+    if (dir) return countInDir(dir) + byLang(" 个组件", " components");
+    const fixed = {
+      overview: byLang("分层地图 · " + exportGroups().length + " 个入口", "Layer map · " + exportGroups().length + " entries"),
+      start: byLang("安装 · " + exportGroups().length + " 组 export 入口", "Install · " + exportGroups().length + " export groups"),
+      theming: byLang("令牌 · 明暗 · 换肤", "Tokens · themes"),
+      density: byLang("4 档 size × 3 档密度", "4 sizes × 3 densities"),
+    }[p.id];
+    return fixed || byLang("概念与用法", "Concepts");
+  }
+
+  function renderCatalog() {
+    const host = document.getElementById("catalog-groups");
+    if (!host) return;
+    const order = ["overview", "start", "layer"];
+    host.innerHTML = order
+      .map((g) => {
+        const pages = PAGES.filter((p) => p.group === g && p.inNav !== false && p.status === "live");
+        if (!pages.length) return "";
+        const items = pages
+          .map((p) =>
+            '<li><a href="./' + p.file + '">' + byLang(p.title, p.titleEn || p.title) +
+            "</a><span>" + pageMeta(p) + "</span></li>"
+          )
+          .join("");
+        return (
+          '<div class="demo-catalog__group"><h2>' + byLang(GROUP_TITLES[g], GROUP_TITLES_EN[g]) +
+          '</h2><ul class="demo-catalog__list">' + items + "</ul></div>"
+        );
+      })
+      .join("");
+  }
+
+  renderMap();
+  renderCatalog();
+  initShell();
+
+  // 语言切换后重画（标题与说明是我们渲染的）
+  document.addEventListener("z-demo-lang", () => {
+    renderMap();
+    renderCatalog();
+    applyFilter();
+  });
+
+  // ── 目录过滤 ─────────────────────────────────────────
+  // 目录是渲染出来的，缓存节点会在语言切换重画后失效。
+  const filterInput = document.getElementById("catalog-filter");
+  const emptyHint = document.getElementById("catalog-empty");
+
+  function applyFilter() {
+    if (!filterInput) return;
+    const q = filterInput.value.trim().toLowerCase();
+    let visible = 0;
+    for (const group of document.querySelectorAll(".demo-catalog__group")) {
+      let groupVisible = 0;
+      for (const li of group.querySelectorAll("li")) {
+        const hit = !q || li.textContent.toLowerCase().includes(q);
+        li.hidden = !hit;
+        if (hit) groupVisible++;
+      }
+      group.hidden = groupVisible === 0;
+      visible += groupVisible;
+    }
+    if (emptyHint) emptyHint.classList.toggle("demo-filter__empty--visible", visible === 0);
+  }
+
+  filterInput?.addEventListener("input", applyFilter);
+  filterInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      filterInput.value = "";
+      applyFilter();
+      filterInput.blur();
+    }
+  });
+
+  // Cmd/Ctrl + K 聚焦过滤框（开发者习惯），避免与浏览器地址栏冲突时自动退让
+  document.addEventListener("keydown", (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      filterInput?.focus();
+      filterInput?.select();
+    }
+  });
+</script>
+</body>
+</html>

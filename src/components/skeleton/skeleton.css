@@ -1,0 +1,46 @@
+:host {
+  display: block;
+}
+
+.z-skeleton {
+  background: var(--z-color-track);
+  overflow: hidden;
+  position: relative;
+  width: var(--_sk-w, 100%);
+  height: var(--_sk-h, auto);
+}
+
+.z-skeleton--text {
+  height: 1em;
+  border-radius: var(--z-radius-sm);
+}
+
+.z-skeleton--circle {
+  border-radius: var(--z-radius-full);
+  aspect-ratio: 1;
+  width: var(--_sk-w, 40px);
+  height: auto;
+}
+
+.z-skeleton--rect {
+  border-radius: var(--z-radius-md);
+  height: var(--_sk-h, 60px);
+}
+
+.z-skeleton--animated::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 100%
+  );
+  animation: z-skeleton-shimmer var(--z-duration-loop-slow) var(--z-ease-in-out) infinite;
+}
+
+@keyframes z-skeleton-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}

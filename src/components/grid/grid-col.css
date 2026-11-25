@@ -1,0 +1,44 @@
+/* ===== z-grid-col ===== */
+
+/*
+  不用 `grid-column: <start> / span N` 简写，因为简写会把 `grid-column-start` 一起重置，
+  而 start 只在该列显式 offset 时才需要 —— 分成两个长属性，浏览器按「后写的覆盖」合并，
+  两条各自独立生效。
+
+  [`span var(--x)` 合法吗] 合法。`var()` 在解析前被替换成具体的 `<integer>`，
+  所以最终交给 grid 布局的是 `span 6` 这种标准值。这也是响应式能用一个变量搞定、
+  而不必生成 12 × 4 个 class 的原因。
+*/
+:host {
+  grid-column-start: var(--_start, auto);
+  grid-column-end: span var(--_span, 12);
+  /* 栅格项必须能收缩，否则长内容会把整列撑破（配合 grid.css 的 minmax(0, 1fr)） */
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  :host {
+    grid-column-end: span var(--_span-sm, var(--_span, 12));
+  }
+}
+
+@media (min-width: 768px) {
+  :host {
+    grid-column-end: span var(--_span-md, var(--_span-sm, var(--_span, 12)));
+  }
+}
+
+@media (min-width: 1024px) {
+  :host {
+    grid-column-end: span var(--_span-lg, var(--_span-md, var(--_span-sm, var(--_span, 12))));
+  }
+}
+
+@media (min-width: 1280px) {
+  :host {
+    grid-column-end: span var(
+      --_span-xl,
+      var(--_span-lg, var(--_span-md, var(--_span-sm, var(--_span, 12))))
+    );
+  }
+}

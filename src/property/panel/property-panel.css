@@ -1,0 +1,18 @@
+:host {
+  display: block;
+}
+
+.z-property-panel {
+  display: grid;
+  grid-template-columns: var(--_z-property-cols, repeat(1, minmax(0, 1fr)));
+  gap: var(--z-property-gap) var(--z-space-4);
+  align-items: start;
+}
+
+/* [WHY] !important 必须：host 内联的 --_z-property-cols 优先级更高；
+   窄屏强制单列（repeat(1, ...) 而非 none，保证单元格宽度稳定） */
+@media (max-width: 480px) {
+  :host {
+    --_z-property-cols: repeat(1, minmax(0, 1fr)) !important;
+  }
+}

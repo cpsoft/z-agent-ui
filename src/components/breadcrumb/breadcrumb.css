@@ -1,0 +1,42 @@
+/* ===== z-breadcrumb（[[REQ-012]] 后台布局骨架） ===== */
+
+:host {
+  display: block;
+}
+
+.z-breadcrumb {
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text-secondary);
+}
+
+.z-breadcrumb__list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--z-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.z-breadcrumb__link {
+  color: var(--z-color-text-secondary);
+  text-decoration: none;
+  transition: color var(--z-transition-fast);
+}
+
+.z-breadcrumb__link:hover {
+  color: var(--z-color-primary);
+  text-decoration: underline;
+}
+
+.z-breadcrumb__current {
+  color: var(--z-color-text);
+  font-weight: var(--z-font-weight-medium);
+}
+
+.z-breadcrumb__sep {
+  color: var(--z-color-text-disabled);
+  user-select: none;
+}

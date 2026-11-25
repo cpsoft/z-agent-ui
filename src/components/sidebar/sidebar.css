@@ -1,0 +1,44 @@
+/* ===== z-sidebar（[[REQ-012]] 后台布局骨架） ===== */
+
+:host {
+  /* [WHY] 宽度由自身表达（含折叠动画），app-shell 侧边栏区域 auto 跟随，避免双重宽度控制 */
+  display: block;
+  height: 100%;
+  width: var(--z-app-shell-sidebar-width);
+  transition: width var(--z-app-shell-transition);
+}
+
+:host([collapsed]) {
+  width: var(--z-app-shell-sidebar-collapsed-width);
+}
+
+.z-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--z-app-shell-sidebar-bg);
+  border-right: 1px solid var(--z-app-shell-sidebar-border);
+  /* [WHY 用侧栏专属文字色] 宿主（shadcn 系）的 `--sidebar-foreground` 与页面
+     `--foreground` 常常是反的（深色侧栏 + 浅字）。继承页面文字色会让侧栏文字与底板同色。
+     issue IKIDAI */
+  color: var(--z-app-shell-sidebar-text);
+  font-family: var(--z-font-sans);
+}
+
+.z-sidebar__content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* [WHY] 折叠窄条时文本单行裁剪，避免横向撑破 */
+  white-space: nowrap;
+}
+
+.z-sidebar__footer {
+  flex: 0 0 auto;
+  padding: var(--z-space-2);
+  border-top: 1px solid var(--z-app-shell-sidebar-border);
+  white-space: nowrap;
+  overflow: hidden;
+}

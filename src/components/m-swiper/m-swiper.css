@@ -1,0 +1,118 @@
+/* ===== m-swiper ===== */
+
+:host {
+  display: block;
+  min-width: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-swiper {
+  position: relative;
+  overflow: hidden;
+  /* 不写 height 时按 4:3 撑开：写死像素在 320~430 的屏宽上都别扭 */
+  aspect-ratio: 4 / 3;
+  border-radius: var(--z-m-radius);
+  background: var(--z-color-fill-secondary);
+  touch-action: pan-y;
+}
+
+/* 给了 height 就用它，不再看 aspect-ratio */
+.m-swiper--fixed {
+  aspect-ratio: auto;
+  height: var(--m-swiper-h);
+}
+
+.m-swiper__viewport {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.m-swiper__track {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+  transition: transform var(--z-anim-duration-normal) var(--z-ease-standard);
+}
+
+/* 拖动跟手时不要过渡，否则每帧都从上一帧追过来，手感像拖着橡皮筋 */
+.m-swiper.is-dragging .m-swiper__track {
+  transition: none;
+}
+
+.m-swiper__slide {
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.m-swiper__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.m-swiper__dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--z-space-2);
+  display: flex;
+  justify-content: center;
+  gap: var(--z-space-1);
+  pointer-events: none;
+}
+
+.m-swiper__dot {
+  /* 视觉 6px，命中区 24px —— 圆点本身就小，靠 padding 撑出可点范围 */
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.m-swiper__dot::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: var(--z-radius-full);
+  background: var(--z-color-bg-secondary);
+  opacity: 0.6;
+  transition: width var(--z-anim-duration-fast) var(--z-ease-standard), opacity var(--z-anim-duration-fast);
+}
+
+.m-swiper__dot.is-active::after {
+  width: 16px;
+  opacity: 1;
+}
+
+.m-swiper__dot:focus-visible::after {
+  outline: 2px solid var(--z-focus-ring-color);
+  outline-offset: 2px;
+}
+
+.m-swiper__count {
+  position: absolute;
+  right: var(--z-space-3);
+  bottom: var(--z-space-3);
+  padding: 2px var(--z-space-2);
+  border-radius: var(--z-radius-full);
+  background: var(--z-color-bg-overlay);
+  color: var(--z-color-inverse-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-xs);
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}

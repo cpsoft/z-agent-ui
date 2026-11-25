@@ -1,0 +1,496 @@
+/* [WHY] 2026-10-25 系统审计：从 report-table.css（672 行）按区块拆出，原文件超 600 行硬上限。
+   拼接顺序见 ReportTable.ts 的 static styles，三段顺序与原文件一致（等价性已 diff 验证）。 */
+
+/* ===== z-report-table ===== */
+
+:host {
+  /* [WHY 纵向 flex] 卡片给了高度时（`height=` 或编辑器里拖过），表格要在**卡片里**滚，
+     而不是按内容铺开再把底部（合计行 / 分页条）挤出卡片被 `overflow:hidden` 裁掉。
+     flex 列 + wrapper `flex:1` 让「表体」吃掉剩余高度 —— 父容器高度 auto 时行为不变。 */
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  /* 表头工具列宽度。与 ReportTable.ts 的 `TOOLS_COL_WIDTH` 同源，改一处必须改另一处 ——
+     两处不一致时右冻结列会与工具列重叠（不是留缝，是叠住）。 */
+  --z-rpt-tools-w: 32px;
+}
+
+/* ── Toolbar ── */
+
+/* ── 工具列（表头最右一格：列选择器）──
+   [WHY 不再是独立一行] 原来是一个 24px 图标 + 4px 间距 = 每张表固定付 28px 纵向空间，
+   而宽表本来就要横滚，纵向每多一层都挤掉表体可见行数（issue IKQUWH）。
+   现在它是表头的**最后一格**：不占行，也不会像「浮在表头右上」那样压住数值列（右对齐）的标题。
+   宽度与 `TOOLS_COL_WIDTH`（ReportTable.ts）必须一致，理由见那边的注释。 */
+.z-rpt__th--tools,
+.z-rpt__td--tools,
+.z-rpt__tf--tools {
+  position: sticky;
+  right: 0;
+  z-index: 5;
+  width: var(--z-rpt-tools-w);
+  min-width: var(--z-rpt-tools-w);
+  max-width: var(--z-rpt-tools-w);
+  padding: 0;
+  text-align: center;
+  vertical-align: middle;
+  /* 横滚时工具列下面会滑过其他列，背景必须不透明；inherit 让它跟随行的斑马纹/选中底色 */
+  background: inherit;
+}
+
+.z-rpt__head .z-rpt__th--tools {
+  background: var(--z-color-bg-secondary);
+}
+
+/* 横滚中工具格是「浮起来」的（sticky），给它一道左阴影，让「这是一层浮层」看得出来 ——
+   与右冻结列的 ::after 同一手法。滚到最右时工具格回到原位，阴影消失。 */
+.z-rpt__wrapper--scrolled-right .z-rpt__th--tools::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -8px;
+  bottom: 0;
+  width: 8px;
+  pointer-events: none;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.06), transparent);
+}
+
+/* [WHY] 列选择器已抽为独立组件 z-column-selector 自带样式, 见 [[REQ-015-column-selector]] */
+
+/* ── Table wrapper ── */
+
+.z-rpt__wrapper {
+  position: relative;
+  overflow-x: auto;
+  /* 表体吃掉剩余高度：卡片给固定高度时滚动发生在这里（表头/合计行才可能 sticky），
+     高度不受限时（卡片 auto）这一条不起作用，行为与旧版一致。 */
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: var(--z-radius-md);
+  /* [WHY] 横向滚动条常驻：WebKit 靠下面定制的 ::-webkit-scrollbar 就不再走 overlay 自动隐藏，
+     Firefox 没有该伪元素，只能靠 scrollbar-width/color 两个标准属性，**两者缺一不可**。
+     [2026-10-26] 主题语义化重构（3681bbb）曾把这两行连带删掉，注释却仍写着「Firefox 走
+     scrollbar-width/color」—— 注释比代码可信时最难查，故由
+     tests/unit/report-table-scrollbar.test.ts 逐字守住。
+     色值取 --z-color-track-strong，与 WebKit 的 thumb 同源，避免两个引擎滑块深浅不一。 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--z-color-track-strong) transparent;
+}
+
+.z-rpt {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: var(--z-font-sans);
+  /* [WHY] 用字号 token（默认 13px）而非字面量：密度档下要能一起缩到 12px。
+     line-height 早已是 --z-line-height，字号却是写死的 —— 两者不同步时，
+     行盒只跟 line-height 走，字数变多行距反而看着变宽。 */
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+  line-height: var(--z-line-height);
+  table-layout: fixed;
+}
+
+/* ── Header ── */
+
+.z-rpt__head .z-rpt__th {
+  /* [WHY] sticky: wrapper 纵向滚动时表头吸附顶部; sticky 同样为绝对定位子元素
+     (resize handle) 建立包含块, 不影响拖拽, 见 [[bug-20260717-rpt-header-sticky]] */
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  padding: var(--z-space-1-5) var(--z-space-3);
+  /* [WHY] 中文报表习惯: 表头默认居中, 显式指定对齐的列跟随 */
+  text-align: center;
+  font-weight: 600;
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text-secondary);
+  background: var(--z-color-bg-secondary);
+  /* [WHY] 商务严谨: 2px 表头分隔线强化报表头部层级 */
+  border-bottom: 2px solid var(--z-color-border);
+  white-space: nowrap;
+  user-select: none;
+  box-sizing: border-box;
+  vertical-align: middle;
+  transition: background var(--z-transition-fast), color var(--z-transition-fast);
+}
+
+/* ── Sortable ── */
+
+.z-rpt__th--sortable {
+  cursor: pointer;
+}
+
+.z-rpt__th--sortable:hover {
+  background: var(--z-color-hover);
+  color: var(--z-color-text);
+}
+
+.z-rpt__th--sorted {
+  color: var(--z-color-primary);
+}
+
+/* ── Sort icon (SVG chevron) ── */
+
+.z-rpt__sort-icon {
+  display: inline-block;
+  margin-left: 4px;
+  vertical-align: middle;
+  line-height: 0;
+}
+
+.z-rpt__sort-chevron {
+  display: none;
+  transition: color var(--z-transition-fast), transform var(--z-transition-fast);
+}
+
+/* 未排序: 显示淡色降序占位, hover 加深提示可排序 */
+.z-rpt__th--sortable:not(.z-rpt__th--sorted) .z-rpt__sort-chevron--desc {
+  display: inline-block;
+  color: var(--z-color-gray-300);
+}
+
+.z-rpt__th--sortable:not(.z-rpt__th--sorted):hover .z-rpt__sort-chevron--desc {
+  color: var(--z-color-gray-500);
+}
+
+.z-rpt__th--sorted-asc .z-rpt__sort-chevron--asc {
+  display: inline-block;
+  color: var(--z-color-primary);
+}
+
+.z-rpt__th--sorted-desc .z-rpt__sort-chevron--desc {
+  display: inline-block;
+  color: var(--z-color-primary);
+}
+
+/* ── Multi-sort order badge ── */
+
+.z-rpt__sort-order {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-left: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+  color: var(--z-color-white);
+  /* [WHY] 10px 白字压 primary：暗色下 3.68 严重不够，走 solid 层（5.17） */
+  background: var(--z-color-primary-solid);
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+/* ── Editable: column config dropdown ── */
+
+.z-rpt__th-config {
+  position: relative;
+  display: inline-block;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.z-rpt__th-config-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--z-radius-sm);
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  cursor: pointer;
+  transition: background var(--z-transition-fast), color var(--z-transition-fast);
+}
+
+.z-rpt__th-config-btn:hover {
+  background: var(--z-color-hover-strong);
+  color: var(--z-color-text);
+}
+
+.z-rpt__th-config-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  /* [WHY] 240px: 容纳列格式区块(48px 标签 + 6 枚分段按钮), 对齐/冻结/合计不变 */
+  min-width: 240px;
+  padding: 6px;
+  background: var(--z-color-bg);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  box-shadow: var(--z-shadow-lg);
+  z-index: 100;
+  animation: z-rpt-dropdown-in var(--z-duration-fast) var(--z-ease-standard);
+  transform-origin: top right;
+}
+
+/* [WHY] 表头配置菜单入场动画(列选择器规则已随独立组件迁移, keyframes 仅此处引用) */
+@keyframes z-rpt-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.z-rpt__th-config-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px;
+}
+
+.z-rpt__th-config-align,
+/* [WHY] 编辑态冻结按钮: 与对齐按钮同形(分段小按钮), 仅图标不同, 见 [[2026-08-10-rpt-freeze]] */
+.z-rpt__th-config-fix {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--z-radius-sm);
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  cursor: pointer;
+  transition: background var(--z-transition-fast), color var(--z-transition-fast);
+}
+
+.z-rpt__th-config-align:hover,
+.z-rpt__th-config-fix:hover {
+  background: var(--z-color-hover-subtle);
+  color: var(--z-color-text);
+}
+
+.z-rpt__th-config-align--active,
+.z-rpt__th-config-fix--active {
+  border-color: var(--z-color-primary);
+  color: var(--z-color-primary);
+}
+
+/* [WHY] 冻结行与对齐行分组: 细分隔线区分两组功能 */
+.z-rpt__th-config-row--fix {
+  border-top: 1px solid var(--z-color-border);
+  padding-top: 4px;
+  margin-top: 4px;
+}
+
+.z-rpt__th-config-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  font-size: var(--z-font-size-xs);
+  font-family: var(--z-font-sans);
+  color: var(--z-color-text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.z-rpt__th-config-item input[type="checkbox"] {
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  accent-color: var(--z-color-primary);
+}
+
+/* ── Column format (小数位/千分位) ── */
+
+/* [WHY] 格式区块与合计行分组: 细分隔线区分"外观/布局"与"数据格式"两组功能 */
+.z-rpt__th-config-row--fmt {
+  border-top: 1px solid var(--z-color-border);
+  padding-top: 6px;
+  margin-top: 6px;
+  align-items: flex-start;
+}
+
+.z-rpt__th-config-fmt-label {
+  flex: none;
+  width: 44px;
+  padding-top: 4px;
+  font-size: 12px;
+  font-family: var(--z-font-sans);
+  color: var(--z-color-text-secondary);
+}
+
+.z-rpt__th-config-fmt-seg {
+  flex: 1;
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* [WHY] 分段按钮: 与对齐/冻结按钮同形同态, 选中项主色描边, 见 [[2026-08-10-rpt-freeze]] */
+.z-rpt__th-config-fmt {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  min-width: 0;
+  padding: 0 2px;
+  border: 1px solid transparent;
+  border-radius: var(--z-radius-sm);
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  font-size: 12px;
+  font-family: var(--z-font-sans);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--z-transition-fast), color var(--z-transition-fast);
+}
+
+.z-rpt__th-config-fmt:hover {
+  background: var(--z-color-hover-subtle);
+  color: var(--z-color-text);
+}
+
+.z-rpt__th-config-fmt--active {
+  border-color: var(--z-color-primary);
+  color: var(--z-color-primary);
+}
+
+/* ── Editable: column reorder ── */
+
+.z-rpt__th--draggable {
+  cursor: grab;
+}
+
+.z-rpt__th--draggable:active {
+  cursor: grabbing;
+}
+
+/* [WHY] 拖拽落点反馈: 左侧 3px 主色竖线指示插入位置 */
+.z-rpt__th--drag-over {
+  box-shadow: inset 3px 0 0 var(--z-color-primary);
+}
+
+/* ── Resize handle ── */
+
+.z-rpt__resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  z-index: 1;
+  touch-action: none;
+}
+
+.z-rpt__resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 30%;
+  bottom: 30%;
+  right: 0;
+  width: 1px;
+  background: var(--z-color-border);
+  transition: background var(--z-transition-fast), width var(--z-transition-fast);
+}
+
+.z-rpt__resize-handle:hover::after,
+/* [WHY] 自然交互: 拖拽过程中保持分隔线高亮, 反馈"正在调整列宽" */
+.z-rpt--resizing .z-rpt__resize-handle::after {
+  width: 2px;
+  background: var(--z-color-primary);
+}
+
+
+/* ── 列口径角标（tip）：见 ReportTable._renderHeaderTip ──
+   ? 用伪元素画：文本节点会让 th.textContent 变成「物料编码?」，
+   全仓按列名匹配的分支（列设置 / 测试 / 校验脚本）会静默失效。 */
+.z-rpt__th-tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--z-color-gray-400);
+  border-radius: 50%;
+  color: var(--z-color-gray-400);
+  cursor: help;
+  transition: color var(--z-transition-fast), border-color var(--z-transition-fast);
+}
+
+.z-rpt__th-tip::before {
+  content: "?";
+  font-family: var(--z-font-sans);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* [WHY 悬停整格也点亮角标] 12px 的点太小，用户会先悬停列名；
+   整格 hover 时角标跟着变色，才形成「这里有个可以问的东西」的引导。 */
+.z-rpt__th-tip:hover,
+.z-rpt__th--sortable:hover .z-rpt__th-tip {
+  color: var(--z-color-primary);
+  border-color: var(--z-color-primary);
+}
+
+.z-rpt--sm .z-rpt__th-tip {
+  width: 11px;
+  height: 11px;
+}
+
+/* 口径说明的读屏副本：不占位不可见，仅供表头 aria-describedby 引用 */
+.z-rpt__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* [WHY] 横向滚动条必须常驻可见 —— macOS / 触控板默认是覆盖式滚动条，不滚动时完全隐藏，
+   宽表右侧列被切时用户看不出「右边还有内容」（生产截图里状态胶囊被裁一半即此类误判）。
+   WebKit 一旦定制 ::-webkit-scrollbar 就不再走 overlay 自动隐藏；Firefox 走
+   scrollbar-width/color。高度 10px + 透明轨道，不占视觉重量但始终在场。 */
+.z-rpt__wrapper::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+.z-rpt__wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+.z-rpt__wrapper::-webkit-scrollbar-thumb {
+  background: var(--z-color-track-strong);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+.z-rpt__wrapper::-webkit-scrollbar-thumb:hover {
+  /* [保留 primitive] 滑块本体是 `-track-strong`（gray-300），hover 再深一档 = gray-400；
+     语义层没有「比轨道再深一档」的角色。若强行复用 -track-strong，hover 将**没有反馈**
+     （同色）。标准 3.1 允许此降级，原因即本条注释。 */
+  background: var(--z-color-gray-400);
+  background-clip: content-box;
+}
+
+/* ── 键盘焦点（2026-11-16）────────────────────────────────
+   [WHY 必须有这一条] 表头与单元格现在都能通过 Tab / 方向键到达，但浏览器对
+   `<td>` / `<th>` 的默认焦点圈在表格里几乎看不见（内层表格线把它切掉一半）。
+   没有可见焦点时，键盘用户会以为「按了没反应」—— 而焦点其实已经在动了。
+   outline-offset 取负值：表格边框贴着单元格，正偏移会画到相邻单元格上。
+   与 `z-table` 的同一处样式保持逐像素一致（两张表手感必须一样）。 */
+.z-rpt__th:focus-visible,
+.z-rpt__td:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: -2px;
+}

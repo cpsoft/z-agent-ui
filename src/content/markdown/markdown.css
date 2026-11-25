@@ -1,0 +1,208 @@
+/* ===== z-markdown: Markdown rendering styles ===== */
+
+:host {
+  display: block;
+  color: var(--z-color-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-md);
+  line-height: var(--z-line-height);
+  word-wrap: break-word;
+}
+
+/* ── Headings ── */
+.z-markdown h1,
+.z-markdown h2,
+.z-markdown h3,
+.z-markdown h4,
+.z-markdown h5,
+.z-markdown h6 {
+  margin-top: var(--z-space-6);
+  margin-bottom: var(--z-space-4);
+  font-weight: var(--z-font-weight-semibold);
+  line-height: 1.25;
+  color: var(--z-color-text);
+}
+
+.z-markdown h1 { font-size: 2em; border-bottom: 1px solid var(--z-color-border); padding-bottom: 0.3em; }
+.z-markdown h2 { font-size: 1.5em; border-bottom: 1px solid var(--z-color-border); padding-bottom: 0.3em; }
+.z-markdown h3 { font-size: 1.25em; }
+.z-markdown h4 { font-size: 1em; }
+.z-markdown h5 { font-size: 0.875em; }
+.z-markdown h6 { font-size: 0.85em; color: var(--z-color-text-secondary); }
+
+.z-markdown h1:first-child,
+.z-markdown h2:first-child,
+.z-markdown h3:first-child,
+.z-markdown h4:first-child,
+.z-markdown h5:first-child,
+.z-markdown h6:first-child {
+  margin-top: 0;
+}
+
+/* ── Paragraphs ── */
+.z-markdown p {
+  margin-top: 0;
+  margin-bottom: var(--z-space-4);
+}
+
+/* ── Links ── */
+.z-markdown a {
+  color: var(--z-color-primary);
+  text-decoration: none;
+}
+
+.z-markdown a:hover {
+  text-decoration: underline;
+}
+
+/* ── Lists ── */
+.z-markdown ul,
+.z-markdown ol {
+  margin-top: 0;
+  margin-bottom: var(--z-space-4);
+  padding-left: 2em;
+}
+
+.z-markdown li + li {
+  margin-top: 0.25em;
+}
+
+.z-markdown li > ul,
+.z-markdown li > ol {
+  margin-bottom: 0;
+}
+
+/* ── Task lists ── */
+.z-markdown input[type="checkbox"] {
+  margin-right: 0.5em;
+  accent-color: var(--z-color-primary);
+}
+
+.z-markdown li:has(input[type="checkbox"]) {
+  list-style: none;
+  margin-left: -1.5em;
+}
+
+/* ── Blockquotes ── */
+.z-markdown blockquote {
+  margin: 0 0 var(--z-space-4);
+  padding: 0 var(--z-space-4);
+  color: var(--z-color-text-secondary);
+  border-left: 4px solid var(--z-color-border);
+}
+
+.z-markdown blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+/* ── Inline code ── */
+.z-markdown code {
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  font-family: var(--z-font-mono);
+  background-color: var(--z-color-bg-secondary);
+  border-radius: var(--z-radius-sm);
+  color: var(--z-color-primary);
+}
+
+/* ── Code blocks ── */
+.z-markdown pre {
+  margin-top: 0;
+  margin-bottom: var(--z-space-4);
+  padding: var(--z-space-4);
+  overflow-x: auto;
+  font-size: 85%;
+  font-family: var(--z-font-mono);
+  line-height: 1.45;
+  background-color: #1e1e2e;
+  color: #cdd6f4;
+  border-radius: var(--z-radius-md);
+}
+
+.z-markdown pre code {
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+  font-family: inherit;
+  background: none;
+  color: inherit;
+  border-radius: 0;
+}
+
+/* ── Tables ── */
+.z-markdown__table {
+  overflow-x: auto;
+  margin-bottom: var(--z-space-4);
+  border-radius: var(--z-radius-md);
+  border: 1px solid var(--z-color-border);
+}
+
+/* 键盘焦点必须看得见：这个容器现在是 Tab 停靠点（横向溢出时靠方向键滚），
+   没有可见焦点的话，用户 Tab 进来只看到「什么都没发生」。
+   offset 用负值 —— 容器边框贴着表格线，正的偏移会画到正文上。 */
+.z-markdown__table:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: -2px;
+}
+
+.z-markdown__table table {
+  margin-bottom: 0;
+  border: none;
+}
+
+.z-markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: var(--z-font-size-sm);
+}
+
+.z-markdown th,
+.z-markdown td {
+  padding: var(--z-space-2) var(--z-space-3);
+  text-align: left;
+  border: 1px solid var(--z-color-border);
+}
+
+.z-markdown th {
+  font-weight: var(--z-font-weight-semibold);
+  background-color: var(--z-color-bg-secondary);
+}
+
+.z-markdown th[align="center"],
+.z-markdown td[align="center"] {
+  text-align: center;
+}
+
+.z-markdown th[align="right"],
+.z-markdown td[align="right"] {
+  text-align: right;
+}
+
+.z-markdown tr:nth-child(even) {
+  background-color: var(--z-color-bg-secondary);
+}
+
+/* ── Horizontal rules ── */
+.z-markdown hr {
+  height: 1px;
+  padding: 0;
+  margin: var(--z-space-6) 0;
+  border: 0;
+  background-color: var(--z-color-border);
+}
+
+/* ── Images ── */
+.z-markdown img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--z-radius-md);
+}
+
+/* ── Strong / Emphasis ── */
+.z-markdown strong { font-weight: var(--z-font-weight-semibold); }
+.z-markdown em { font-style: italic; }
+
+/* ── Strikethrough ── */
+.z-markdown del { color: var(--z-color-text-secondary); }

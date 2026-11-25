@@ -1,0 +1,166 @@
+/* ===== m-checkout-bar ===== */
+
+/*
+  贴底与 m-action-bar 同一套约束（那三条失效原因见 action-bar.css 头部的说明）：
+  祖先有 transform / contain:paint 会让 fixed 失效；页面要自己给底部留出空间。
+  这里额外提供 `inline`：嵌进弹层或卡片时改成普通流。
+*/
+:host {
+  position: var(--_pos, fixed);
+  left: var(--_left, 0);
+  right: var(--_right, 0);
+  bottom: var(--_bottom, 0);
+  z-index: var(--z-z-dropdown);
+  display: block;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:host([inline]) {
+  --_pos: static;
+  --_left: auto;
+  --_right: auto;
+  --_bottom: auto;
+}
+
+.m-checkout-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-3);
+  min-height: calc(var(--z-touch-min) + var(--z-space-4));
+  padding: var(--z-space-2) var(--z-space-4);
+  padding-bottom: calc(var(--z-space-2) + var(--z-safe-bottom));
+  box-sizing: border-box;
+  border-top: 1px solid var(--z-color-border);
+  background: var(--z-color-bg);
+}
+
+.m-checkout-bar--inline {
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-lg);
+}
+
+/* ── 全选 ── */
+.m-checkout-bar__check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  flex: none;
+  /* 44px 命中：与 m-checkbox 同一个下限 */
+  min-height: var(--z-touch-min);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--z-color-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  cursor: pointer;
+}
+
+.m-checkout-bar__box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--z-color-border-control);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-surface);
+  color: var(--z-color-primary-text);
+}
+
+.m-checkout-bar__check.is-on .m-checkout-bar__box {
+  border-color: var(--z-color-primary);
+  background: var(--z-color-primary);
+}
+
+/* ── 合计 ── */
+.m-checkout-bar__sum {
+  display: flex;
+  align-items: baseline;
+  gap: var(--z-space-1);
+  flex: 1 1 auto;
+  /* 窄屏先把「共 N 件」收掉、再压金额的两端留白：宁可少一句，也不能让合计溢出压住按钮 */
+  min-width: 0;
+  overflow: hidden;
+  justify-content: flex-end;
+}
+
+/* inline 形态通常嵌在卡片里（宽度比贴底时更紧）：件数与「合计」二字都省掉，
+   只留金额 —— 宁可少两个字，也不能让金额被裁或压住按钮 */
+.m-checkout-bar--inline .m-checkout-bar__count,
+.m-checkout-bar--inline .m-checkout-bar__label {
+  display: none;
+}
+
+.m-checkout-bar__label {
+  flex: none;
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-sm);
+  white-space: nowrap;
+}
+
+.m-checkout-bar__amount {
+  flex: none;
+  color: var(--z-color-price);
+  font-family: var(--z-font-sans);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.m-checkout-bar__amount .sym,
+.m-checkout-bar__amount .dec {
+  font-size: var(--z-font-size-sm);
+  font-weight: 500;
+}
+
+.m-checkout-bar__amount .int {
+  font-size: var(--z-font-size-xl);
+}
+
+.m-checkout-bar__amount--empty {
+  color: var(--z-color-text-secondary);
+  font-weight: 400;
+}
+
+.m-checkout-bar__count {
+  flex: 0 1 auto;
+  overflow: hidden;
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-xs);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ── 主按钮 ── */
+.m-checkout-bar__submit {
+  flex: none;
+  min-width: 104px;
+  min-height: var(--z-touch-min);
+  padding: 0 var(--z-space-5);
+  border: 0;
+  border-radius: 999px;
+  background: var(--z-color-primary);
+  color: var(--z-color-primary-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-base);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.m-checkout-bar__submit:disabled {
+  background: var(--z-color-fill-secondary);
+  color: var(--z-color-text-disabled);
+  cursor: default;
+}
+
+.m-checkout-bar__submit:focus-visible,
+.m-checkout-bar__check:focus-visible {
+  outline: 2px solid var(--z-focus-ring-color);
+  outline-offset: 2px;
+}
+
+.m-checkout-bar--disabled .m-checkout-bar__check {
+  color: var(--z-color-text-disabled);
+  cursor: default;
+}

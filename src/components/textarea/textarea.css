@@ -1,0 +1,129 @@
+/* ===== z-textarea ===== */
+
+:host {
+  display: inline-flex;
+  flex-direction: column;
+  vertical-align: middle;
+  width: 100%;
+  max-width: 320px;
+}
+
+/* ── Label ── */
+
+.z-textarea__label {
+  display: block;
+  margin-bottom: var(--z-input-label-gap);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  font-weight: var(--z-font-weight-medium);
+  color: var(--z-color-text);
+  user-select: none;
+}
+
+/* ── Wrapper ── */
+
+.z-textarea__wrapper {
+  display: flex;
+  border: var(--z-input-border-width) solid var(--z-color-border-control);
+  border-radius: var(--z-input-radius);
+  background-color: var(--z-color-bg);
+  transition: border-color var(--z-transition-fast), box-shadow var(--z-transition-fast);
+}
+
+.z-textarea__wrapper:hover:not(.z-textarea--disabled):not(.z-textarea--focused) {
+  border-color: var(--z-color-border-control-hover);
+}
+
+.z-textarea--focused .z-textarea__wrapper {
+  border-color: var(--z-color-primary);
+  box-shadow: var(--z-focus-ring);
+}
+
+.z-textarea--error .z-textarea__wrapper {
+  border-color: var(--z-color-danger);
+}
+
+/* [WHY] z-form-item 校验钩子：同 input.css，`invalid` 属性同时驱动视觉与
+   aria-invalid，且不新增 DOM 行（防 blur 校验布局推移丢 click） */
+:host([invalid]) .z-textarea__wrapper {
+  border-color: var(--z-color-danger);
+}
+
+.z-textarea--error.z-textarea--focused .z-textarea__wrapper {
+  box-shadow: var(--z-focus-ring-error);
+}
+
+.z-textarea--disabled .z-textarea__wrapper {
+  opacity: 0.5;
+  background-color: var(--z-color-bg-secondary);
+  cursor: not-allowed;
+}
+
+.z-textarea--readonly .z-textarea__wrapper {
+  background-color: var(--z-color-bg-secondary);
+}
+
+/* ── Field ── */
+
+.z-textarea__field {
+  flex: 1;
+  width: 100%;
+  min-height: 80px;
+  border: none;
+  outline: none;
+  padding: var(--z-input-padding-y) var(--z-input-padding-x);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-input-font-size);
+  line-height: var(--z-line-height);
+  color: var(--z-color-text);
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.z-textarea__field::placeholder {
+  color: var(--z-color-text-placeholder);
+}
+
+.z-textarea__field:disabled {
+  cursor: not-allowed;
+  color: var(--z-color-text-disabled);
+}
+
+.z-textarea__field--resize-none {
+  resize: none;
+}
+
+.z-textarea__field--resize-vertical {
+  resize: vertical;
+}
+
+/* ── Messages / Counter ── */
+
+.z-textarea__messages {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: var(--z-input-message-gap);
+}
+
+.z-textarea__hint,
+.z-textarea__error {
+  font-family: var(--z-font-sans);
+  font-size: var(--z-input-message-font-size);
+  line-height: var(--z-line-height);
+}
+
+.z-textarea__hint {
+  color: var(--z-color-text-secondary);
+}
+
+.z-textarea__error {
+  color: var(--z-color-danger);
+}
+
+.z-textarea__counter {
+  margin-left: auto;
+  font-family: var(--z-font-sans);
+  font-size: var(--z-input-message-font-size);
+  color: var(--z-color-text-secondary);
+}

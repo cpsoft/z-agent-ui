@@ -1,0 +1,97 @@
+:host {
+  display: block;
+}
+
+:host([hidden]) {
+  display: none;
+}
+
+.z-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--z-space-3);
+  padding: var(--z-space-3) var(--z-space-4);
+  border-radius: var(--z-radius-md);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  line-height: var(--z-line-height);
+  border-left: 3px solid;
+}
+
+/* [WHY] 2026-10-25 demo 优化时暴露：原实现 info 用 blue-50/blue-800（primitive，暗色不跟随）
+   且边框用 --z-color-primary —— 换肤后出现「绿边框 + 蓝背景 + 蓝色硬编码图标」三色错配。
+   统一为「soft 底 + 语义色描边 + strong 字」，图标走 currentColor（见 Alert.ts 的 accent 变量）。 */
+.z-alert--info {
+  --alert-accent: var(--z-color-info);
+  background: var(--z-color-info-soft);
+  border-color: var(--z-color-info);
+  color: var(--z-color-info-strong);
+}
+
+.z-alert--success {
+  --alert-accent: var(--z-color-success);
+  background: var(--z-color-success-soft);
+  border-color: var(--z-color-success);
+  color: var(--z-color-success-strong);
+}
+
+.z-alert--warning {
+  --alert-accent: var(--z-color-warning);
+  background: var(--z-color-warning-soft);
+  border-color: var(--z-color-warning);
+  color: var(--z-color-warning-strong);
+}
+
+.z-alert--danger {
+  --alert-accent: var(--z-color-danger);
+  background: var(--z-color-danger-soft);
+  border-color: var(--z-color-danger);
+  color: var(--z-color-danger-strong);
+}
+
+.z-alert__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  margin-top: 1px;
+  /* 图标颜色跟随 variant 语义色，不再由 SVG 内的硬编码 stroke 决定 */
+  color: var(--alert-accent, currentColor);
+}
+
+.z-alert__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.z-alert__title {
+  font-weight: var(--z-font-weight-semibold);
+  margin-bottom: 2px;
+}
+
+.z-alert__close {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--z-radius-sm);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity var(--z-transition-fast), background var(--z-transition-fast);
+  margin-top: 1px;
+}
+
+.z-alert__close:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.z-alert__close svg {
+  width: 14px;
+  height: 14px;
+}

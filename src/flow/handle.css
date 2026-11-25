@@ -1,0 +1,45 @@
+:host {
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+  border: 2px solid var(--z-flow-handle-border, var(--z-color-primary));
+  border-radius: 50%;
+  background: var(--z-flow-handle-bg, var(--z-color-bg));
+  cursor: crosshair;
+  touch-action: none;
+  z-index: 1;
+}
+
+:host([position="left"]) {
+  left: -6px;
+  right: auto;
+}
+
+:host([position="top"]) {
+  top: -6px;
+  bottom: auto;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+}
+
+:host([position="bottom"]) {
+  bottom: -6px;
+  top: auto;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+}
+
+:host(.z-flow-handle--disabled) {
+  cursor: not-allowed;
+  border-color: var(--z-flow-handle-border-disabled, var(--z-color-border));
+}
+
+:host(:hover) {
+  box-shadow: 0 0 0 4px var(--z-flow-handle-ring, var(--z-color-primary-soft));
+}

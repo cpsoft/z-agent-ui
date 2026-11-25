@@ -1,0 +1,56 @@
+/* ===== z-result ===== */
+
+:host {
+  display: block;
+}
+
+.z-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--z-space-2);
+  padding: var(--z-space-10) var(--z-space-5);
+  text-align: center;
+}
+
+.z-result__icon {
+  width: 72px;
+  height: 72px;
+  color: var(--z-color-info);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--z-space-2);
+}
+
+.z-result--success .z-result__icon {
+  color: var(--z-color-success);
+}
+
+.z-result--error .z-result__icon {
+  color: var(--z-color-danger);
+}
+
+.z-result--warning .z-result__icon {
+  color: var(--z-color-warning);
+}
+
+.z-result__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--z-color-text);
+}
+
+.z-result__subtitle {
+  font-size: var(--z-font-size-base);
+  color: var(--z-color-text-secondary);
+  line-height: 1.6;
+  max-width: 420px;
+}
+
+.z-result__actions {
+  margin-top: var(--z-space-4);
+  display: flex;
+  gap: var(--z-space-3);
+}

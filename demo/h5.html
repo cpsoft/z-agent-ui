@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>移动端 H5 — zAgentUI</title>
+  <link rel="stylesheet" href="./demo.css" />
+  <style>
+    /* 版面：左文档列 + 右常驻手机。滚左边的用法，右边手机就演它。 */
+    .h5-doc {
+      display: grid; gap: 28px; align-items: start;
+      grid-template-columns: minmax(0, 1fr) 420px;
+      grid-template-areas: "hero rail" "main rail";
+    }
+    .h5-hero { grid-area: hero; }
+    .h5-main { grid-area: main; min-width: 0; }
+
+    .h5-rail {
+      grid-area: rail;
+      position: sticky; top: calc(var(--demo-header-h) + 16px);
+      display: grid; gap: 8px; justify-items: center;
+    }
+    .h5-rail__head { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: space-between; }
+    .h5-rail__now { font-family: var(--z-font-mono, ui-monospace, monospace); font-size: 12px; color: var(--z-color-text-secondary); }
+    .h5-rail__tools { display: flex; gap: 4px; }
+    .h5-rail__foot { display: flex; align-items: center; gap: 12px; width: 100%; justify-content: space-between; }
+
+    /* 手机模型：只画外壳，屏幕交给 iframe（?view=screen 的套件页铺满它） */
+    .h5-device {
+      width: calc(var(--h5-w, 375px) + 20px); height: 832px;
+      padding: 10px; box-sizing: border-box;
+      border-radius: 46px; background: #1c1c1e;
+      box-shadow: 0 18px 48px rgba(16, 24, 40, .18), 0 2px 6px rgba(16, 24, 40, .12),
+        inset 0 0 0 1px rgba(255, 255, 255, .14);
+    }
+    .h5-device iframe {
+      display: block; width: 100%; height: 100%;
+      border: 0; border-radius: 36px; background: var(--z-color-bg);
+    }
+
+    .h5-tool {
+      padding: 4px 9px; border: 1px solid var(--z-color-border); border-radius: 6px;
+      background: var(--z-color-bg); color: var(--z-color-text-secondary);
+      font: inherit; font-size: 12px; cursor: pointer;
+    }
+    .h5-tool[aria-pressed="true"] { border-color: var(--z-color-primary); color: var(--z-color-primary); background: var(--z-color-primary-soft); }
+    .h5-tool:hover { border-color: var(--z-color-primary); }
+
+    /* 文档列：一组组件一段，单位是「用法」而不是「属性表」 */
+    .h5-group {
+      margin: 34px 0 6px; padding-bottom: 8px;
+      font-size: 15px; font-weight: 600;
+      border-bottom: 1px solid var(--z-color-border);
+      display: flex; align-items: baseline; gap: 8px;
+    }
+    .h5-group:first-child { margin-top: 0; }
+    .h5-group span { font-size: 12px; font-weight: 400; color: var(--z-color-text-secondary); }
+
+    .h5-api {
+      scroll-margin-top: calc(var(--demo-header-h) + 20px);
+      padding: 12px 0 14px 14px; border-left: 2px solid transparent;
+      transition: border-color var(--z-transition-fast);
+    }
+    .h5-api[data-active] { border-left-color: var(--z-color-primary); }
+    .h5-api h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
+    .h5-api h3 code { font-family: var(--z-font-mono, ui-monospace, monospace); font-size: 14px; }
+    .h5-api__sum { margin: 0 0 10px; font-size: 13px; line-height: 1.7; color: var(--z-color-text-secondary); }
+
+    .h5-code { position: relative; }
+    .h5-code pre {
+      margin: 0; padding: 12px 68px 12px 14px; overflow-x: auto;
+      border: 1px solid var(--z-color-border); border-radius: var(--z-radius-md);
+      background: var(--demo-code-bg); color: var(--demo-code-fg);
+      font-family: var(--z-font-mono, ui-monospace, monospace); font-size: 12.5px; line-height: 1.7;
+    }
+    .h5-copy {
+      position: absolute; top: 8px; right: 8px;
+      padding: 2px 8px; border: 1px solid var(--z-color-border); border-radius: 4px;
+      background: var(--z-color-bg); color: var(--z-color-text-secondary);
+      font: inherit; font-size: 11px; cursor: pointer;
+    }
+    .h5-copy:hover { color: var(--z-color-primary); border-color: var(--z-color-primary); }
+
+    .h5-more { margin-top: 8px; font-size: 12px; }
+    .h5-more > summary { cursor: pointer; color: var(--z-color-text-secondary); }
+    .h5-more > summary:hover { color: var(--z-color-primary); }
+    .h5-props { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
+    .h5-props th, .h5-props td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--z-color-border); vertical-align: top; }
+    .h5-props thead th { color: var(--z-color-text-secondary); font-weight: 500; white-space: nowrap; }
+    .h5-chip {
+      display: inline-block; margin: 0 4px 4px 0; padding: 1px 6px;
+      border: 1px solid var(--z-color-border); border-radius: 4px;
+      background: var(--z-color-bg-secondary); font-size: 11px; color: var(--z-color-primary);
+    }
+    .h5-muted { color: var(--z-color-text-disabled); }
+
+    /* minmax(0,1fr)：隐式列 auto 会被 pre 的 max-content 撑宽，压到右侧手机上。 */
+    .h5-quick { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+    .h5-quick__notes { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.8; color: var(--z-color-text-secondary); }
+    .h5-quick__notes b { color: var(--z-color-text); }
+
+    @media (max-width: 1100px) {
+      /* 竖排顺序：标题 → 手机 → 文档。先看到手机、后看到标题会让人不知道自己在哪一页 */
+      .h5-doc { grid-template-columns: minmax(0, 1fr); grid-template-areas: "hero" "rail" "main"; }
+      .h5-rail { position: static; justify-items: center; }
+      /* 竖排时手机缩到 640：832 会把整个首屏占满，看不到下面的文档 */
+      .h5-device { margin: 0 auto; height: 640px; }
+      /* 工具条与手机同宽，别在整行上散开 */
+      .h5-rail__head, .h5-rail__foot { width: 395px; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <main class="demo-main">
+    <div class="h5-doc">
+
+      <section class="demo-hero h5-hero">
+        <h1>移动端 H5</h1>
+        <p>为触屏重做的一套控件与版面：44px 命中区、安全区、常驻底栏。
+        右边是一部常驻的手机 —— 往下滚，它就演当前这一段；手机里的控件能真的滑动、下拉、弹层。</p>
+      </section>
+
+      <div class="h5-main">
+        <section class="demo-section" id="quickstart">
+          <div class="demo-section__header">
+            <h2>快速开始</h2>
+            <p>一个 H5 页面就是「顶栏 + 一个滚动区 + 固定在壳底的几层」。抄这段骨架，三处细节见下。</p>
+          </div>
+          <div class="h5-quick">
+            <div class="h5-code">
+              <button class="h5-copy" type="button" data-copy="h5-quick-code">复制</button>
+              <pre id="h5-quick-code"><code>import "z-agent-ui/components/button";
+import "z-agent-ui/components/m-navbar";
+import "z-agent-ui/components/m-cell";
+import "z-agent-ui/components/m-tabbar";
+
+&lt;div class="h5-page"&gt;                       &lt;!-- 壳：有边界、overflow:hidden、transform:translateZ(0) --&gt;
+  &lt;m-navbar title="门店" showback&gt;&lt;/m-navbar&gt;
+  &lt;div class="h5-page__scroll"&gt;              &lt;!-- flex:1; min-height:0; overflow-y:auto --&gt;
+    &lt;m-cell label="望江店" value="营业中"&gt;&lt;/m-cell&gt;
+  &lt;/div&gt;
+  &lt;m-tabbar items="[…]" active="home"&gt;&lt;/m-tabbar&gt;   &lt;!-- fixed：钉在壳底 --&gt;
+&lt;/div&gt;</code></pre>
+            </div>
+            <ol class="h5-quick__notes">
+              <li><b>壳要有 transform。</b>tabbar / 操作条 / 数字键盘 / 悬浮按钮都是 <code>position:fixed</code>，
+                而 fixed 的参照是视口。壳上给一层 <code>transform:translateZ(0)</code>，它们才会钉在壳底。</li>
+              <li><b>滚动区要 <code>min-height:0</code>。</b>flex 子项的最小高度默认是内容高度，不写这条就没有滚动条；
+                索引条、吸顶标题也会失去参照。</li>
+              <li><b>安全区已内置。</b>tabbar / action-bar / action-sheet 自己垫 <code>env(safe-area-inset-bottom)</code>，
+                外层不要再加 padding，否则多一道空白。</li>
+            </ol>
+          </div>
+        </section>
+
+        <section class="demo-section" id="api">
+          <div class="demo-section__header">
+            <h2>组件与用法</h2>
+            <p>按场景分组。每段是一段可直接复制的用法；属性、事件、插槽收在「完整参数」里 ——
+            平时用不到，需要时再展开。</p>
+          </div>
+          <div id="h5-docs"><!-- 由 h5.ts 从清单渲染 --></div>
+        </section>
+
+        <section class="demo-section" id="more">
+          <div class="demo-section__header">
+            <h2>接着看</h2>
+            <p>要看所有组件连排、带事件日志的完整一页：
+            <a href="./h5-kit.html"><b>H5 组件套件</b></a>。
+            按家族浏览或看更细的用法片段：<a href="./components.html#ex-mobile"><b>L1 控件页「移动端」</b></a>。
+            主题与密度：<a href="./theming.html"><b>令牌与主题</b></a>。</p>
+          </div>
+        </section>
+      </div>
+
+      <aside class="h5-rail">
+        <div class="h5-rail__head">
+          <span class="h5-rail__now" id="h5-now">整页</span>
+          <div class="h5-rail__tools" role="group" aria-label="设备宽度">
+            <button class="h5-tool" type="button" data-w="375" aria-pressed="true">375</button>
+            <button class="h5-tool" type="button" data-w="390" aria-pressed="false">390</button>
+            <button class="h5-tool" type="button" data-w="414" aria-pressed="false">414</button>
+          </div>
+        </div>
+        <div class="h5-device" id="h5-device">
+          <iframe id="h5-screen" title="手机预览"></iframe>
+        </div>
+        <div class="h5-rail__foot">
+          <a id="h5-open" href="./h5-kit.html" target="_blank" rel="noopener">新窗口打开 ↗</a>
+          <button class="h5-tool" type="button" id="h5-full" aria-pressed="false">整页模式</button>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+</div>
+
+<script type="module" src="./h5.ts"></script>
+</body>
+</html>

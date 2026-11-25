@@ -1,0 +1,36 @@
+# [WHY] 无斜杠：`node_modules/` 只匹配目录，匹配不到同名**符号链接** ——
+# 上游就曾把一个指向作者本机路径的 node_modules 软链提交进仓库（见 chore 提交）
+node_modules
+dist/
+*.tsbuildinfo
+.DS_Store
+.trae/
+# [WHY 改成 `/*` + 白名单] 原来写 `.workbuddy/` 会把整个目录忽略掉，
+# 于是 `.workbuddy/skills/` 里的项目级 skill 也进不了仓库 —— 别人 clone 后
+# WorkBuddy 发现不了它。本机专属的 memory/ 仍然忽略（含个人工作日志）。
+.workbuddy/*
+!.workbuddy/skills/
+# 冒烟产物：每次跑都会覆盖重生成，提交只会制造二进制 diff 噪声
+smoke/*.png
+# 视觉基线的「本次截图」：基线本身（smoke/ego/baseline/）要入库，跑出来的对比图不入库
+smoke/ego/actual/
+
+# 画布装饰层 / 布局对比截图：同样由脚本按当前代码重生成，入库只增二进制 diff。
+# 注意只忽略根下的 png —— `design/tab-group/` 里是语法方案样例（.script.txt + README），
+# 那是文档，必须入库。
+design/*.png
+
+# 观感矩阵截图（本地生成，供人看，不入库）
+smoke/screenshots/
+smoke/.tmp/
+dist-packages
+
+# 变异脚本的备份残留（`<file>.bak-mut`）：跑一次变异就会生成，还原后不退场。
+# 2026-11-19 清掉三条从 2026-11-15 起误入库的，加这条防再犯。
+*.bak-mut
+
+# 并行 worktree（规范见 wiki/reference/worktree-standard.md）
+.worktrees/
+
+# `npm pack` 的产物（4.5MB 二进制，每次构建都变）：供手动发布用，不入库
+*.tgz

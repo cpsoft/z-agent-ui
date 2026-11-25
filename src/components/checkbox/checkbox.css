@@ -1,0 +1,74 @@
+/* ===== z-checkbox ===== */
+
+:host {
+  display: inline-flex;
+  vertical-align: middle;
+  outline: none;
+}
+
+.z-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+  outline: none;
+}
+
+.z-checkbox--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.z-checkbox:focus-visible .z-checkbox__box {
+  box-shadow: var(--z-focus-ring-contrast);
+}
+
+/* ── Native input (hidden) ── */
+
+.z-checkbox__native {
+  position: absolute;
+  width: 0; height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Visual box ── */
+
+.z-checkbox__box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--z-color-border-control);
+  border-radius: 3px;
+  background: var(--z-color-bg);
+  transition: all var(--z-transition-fast);
+  flex-shrink: 0;
+}
+
+.z-checkbox--checked .z-checkbox__box,
+.z-checkbox--indeterminate .z-checkbox__box {
+  background: var(--z-color-primary);
+  border-color: var(--z-color-primary);
+  color: var(--z-color-primary-text);
+}
+
+.z-checkbox__icon {
+  width: 12px;
+  height: 12px;
+}
+
+/* ── Label ── */
+
+.z-checkbox__label {
+  line-height: var(--z-line-height);
+}
+
+.z-checkbox__label:empty {
+  display: none;
+}

@@ -1,0 +1,81 @@
+/* ===== m-cell ===== */
+
+:host {
+  display: block;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-3);
+  /* [WHY min-height 用 token] 44px 是可点下限，48px 是「一行加说明也放得下」的舒适值。
+     写死 px 会让 compact 密度下所有手机端行高一起失效。 */
+  min-height: var(--z-m-row-h);
+  padding: var(--z-space-2) var(--z-m-gutter);
+  background: var(--z-color-surface);
+  color: var(--z-color-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-base);
+  box-sizing: border-box;
+}
+
+/* 分隔线放在宿主上：这样分组里的相邻行不会出现「两条线叠成一条粗线」 */
+:host([divider]) .m-cell {
+  border-bottom: 1px solid var(--z-color-divider);
+}
+
+.m-cell--clickable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--z-transition-fast);
+}
+
+/* [WHY 用 :active 而不是 :hover] 手机上没有 hover 态；hover 在触控设备上会在
+   抬起后残留，看起来像「点过的那行一直亮着」。 */
+.m-cell--clickable:active {
+  background: var(--z-color-fill-secondary);
+}
+
+.m-cell--clickable:focus-visible {
+  outline: var(--z-focus-ring-outline);
+  outline-offset: -2px;
+}
+
+.m-cell__main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.m-cell__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.m-cell__desc {
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-sm);
+  line-height: 1.4;
+}
+
+.m-cell__value {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: var(--z-space-2);
+  max-width: 60%;
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-sm);
+  text-align: right;
+}
+
+.m-cell__arrow {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  color: var(--z-color-text-disabled);
+}

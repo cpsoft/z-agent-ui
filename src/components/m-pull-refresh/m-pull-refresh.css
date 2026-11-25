@@ -1,0 +1,69 @@
+/* ===== m-pull-refresh ===== */
+
+:host {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
+.m-pull-refresh {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+.m-pull-refresh__scroller {
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  transition: transform var(--z-transition-normal);
+  will-change: transform;
+}
+
+.m-pull-refresh__indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--z-space-2);
+  color: var(--z-color-text-secondary);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  /* [WHY] 初始隐藏在顶部外（-threshold），下拉时进入可视区域 */
+  transform: translateY(-60px);
+  transition: transform var(--z-transition-normal);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.m-pull-refresh__spinner {
+  display: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--z-color-gray-200);
+  border-top-color: var(--z-color-primary);
+  border-radius: 50%;
+  animation: m-pull-refresh-spin var(--z-duration-loop-fast) var(--z-ease-linear) infinite;
+}
+
+.m-pull-refresh__arrow {
+  width: 16px;
+  height: 16px;
+  stroke: var(--z-color-text-secondary);
+  transition: transform var(--z-transition-fast);
+}
+
+.m-pull-refresh__text {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+@keyframes m-pull-refresh-spin {
+  to { transform: rotate(360deg); }
+}

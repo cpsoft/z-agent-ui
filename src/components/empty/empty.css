@@ -1,0 +1,49 @@
+/* ===== z-empty ===== */
+
+:host {
+  display: block;
+}
+
+.z-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--z-space-3);
+  padding: var(--z-space-8) var(--z-space-5);
+  color: var(--z-color-text-secondary);
+}
+
+.z-empty__image {
+  color: var(--z-color-gray-300);
+  display: flex;
+}
+
+.z-empty__image ::slotted(*) {
+  /* [WHY] 槽位图片优先: 用户自定义图覆盖内置插图 */
+  max-width: 120px;
+  max-height: 120px;
+}
+
+/* [WHY 2026-11-23] 与 z-m-empty 对齐：标题 + 语义态配色。
+   错误态只染插图，不染标题与描述 —— 整块变红等于把空态做成告警条，
+   而它的主任务仍是「告诉用户这里为什么没内容、下一步做什么」。 */
+.z-empty__title {
+  font-size: var(--z-font-size-lg);
+  font-weight: var(--z-font-weight-semibold);
+  color: var(--z-color-text);
+  line-height: 1.5;
+}
+
+.z-empty--error .z-empty__image {
+  color: var(--z-color-danger);
+}
+
+.z-empty__description {
+  font-size: var(--z-font-size-base);
+  line-height: 1.6;
+}
+
+.z-empty__actions {
+  margin-top: var(--z-space-2);
+}

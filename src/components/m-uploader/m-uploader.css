@@ -1,0 +1,115 @@
+/* ===== m-uploader ===== */
+
+:host {
+  display: block;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-uploader {
+  display: grid;
+  /* [WHY 固定 4 列 + 1:1] 缩略图必须是正方形宫格：按内容自适应时，
+     竖拍和横拍的照片会让同一行的格子高度不一致，看起来像排版错乱。 */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--z-space-2);
+}
+
+.m-uploader__tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  aspect-ratio: 1;
+  border: 1px solid var(--z-color-border-control);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg-secondary);
+}
+
+.m-uploader__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 视频缩略图：与照片共用同一个 1:1 格子。`object-fit: cover` 的理由与照片一样 ——
+   竖拍视频的首帧直接塞进方格会被拉伸变形，看起来像「图坏了」。 */
+.m-uploader__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 播放角标：不给它的话，视频那格与照片长得一模一样，用户点开才知道是视频。
+   位置压在右下角避开删除按钮（右上角）。 */
+.m-uploader__play {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--z-radius-full);
+  background: rgba(0, 0, 0, 0.55);
+  color: var(--z-color-white);
+  pointer-events: none;
+}
+
+.m-uploader__name {
+  padding: var(--z-space-1);
+  color: var(--z-color-text-secondary);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-xs);
+  line-height: 1.3;
+  text-align: center;
+  word-break: break-all;
+}
+
+.m-uploader__remove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--z-radius-full);
+  background: rgba(0, 0, 0, 0.55);
+  color: var(--z-color-white);
+  cursor: pointer;
+}
+
+.m-uploader__add {
+  flex-direction: column;
+  gap: 2px;
+  border-style: dashed;
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-xs);
+  cursor: pointer;
+}
+
+.m-uploader__add:active {
+  background: var(--z-color-fill-secondary);
+}
+
+.m-uploader__add-label {
+  line-height: 1;
+}
+
+/* 拍照入口（`capture=` 开着时出来的两个格子之一）：这一组里的主操作，给它主色。
+   相册那条留虚线灰（次要来源）—— 两个一样重的入口，用户每次都要先读字再选。 */
+.m-uploader__add--shot {
+  border-style: solid;
+  border-color: var(--z-color-primary);
+  color: var(--z-color-primary);
+}
+
+.m-uploader__add--shot:active {
+  background: var(--z-color-primary-soft);
+}

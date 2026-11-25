@@ -1,0 +1,20 @@
+/* ===== z-radio-group ===== */
+
+:host {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.z-radio-group {
+  display: flex;
+  gap: var(--z-space-3);
+}
+
+.z-radio-group--vertical {
+  flex-direction: column;
+}
+
+.z-radio-group--horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+}

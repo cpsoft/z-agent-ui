@@ -1,0 +1,8 @@
+/* Shadow styles: host + trigger wrapper. Panel styles are injected globally (see DateRange.ts). */
+:host {
+  display: inline-flex;
+}
+
+.z-date-range__trigger {
+  display: inline-flex;
+}

@@ -1,0 +1,203 @@
+/* ===== z-login ===== */
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.z-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: var(--z-space-10) var(--z-space-6);
+  background: var(--z-color-bg-secondary);
+  border-radius: var(--z-radius-lg);
+  box-sizing: border-box;
+}
+
+.z-login__card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 420px;
+  padding: var(--z-space-10);
+  background: var(--z-color-surface);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-lg);
+  box-shadow: var(--z-shadow-md);
+  animation: z-login-card-in var(--z-duration-quick) var(--z-ease-enter);
+}
+
+.z-login__card *,
+.z-login__card *::before,
+.z-login__card *::after {
+  box-sizing: border-box;
+}
+
+@keyframes z-login-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Header ── */
+
+.z-login__header {
+  text-align: center;
+  margin-bottom: var(--z-space-8);
+}
+
+.z-login__title {
+  font-size: 24px;
+  font-weight: var(--z-font-weight-bold);
+  color: var(--z-color-text);
+  margin: 0 0 var(--z-space-2);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.z-login__subtitle {
+  font-size: var(--z-font-size-md);
+  color: var(--z-color-text-secondary);
+  margin: 0;
+  line-height: var(--z-line-height);
+}
+
+/* ── Form ── */
+
+.z-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-5);
+}
+
+.z-login__form z-input {
+  max-width: none;
+  width: 100%;
+}
+
+/* ── Options row ── */
+
+.z-login__options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--z-font-size-sm);
+  min-height: 44px;
+}
+
+.z-login__forgot {
+  color: var(--z-color-primary);
+  text-decoration: none;
+  font-size: var(--z-font-size-sm);
+  font-weight: var(--z-font-weight-medium);
+  transition: color var(--z-transition-fast);
+  padding: var(--z-space-1) 0;
+}
+
+.z-login__forgot:hover {
+  color: var(--z-color-primary-hover);
+  text-decoration: underline;
+}
+
+.z-login__forgot:focus-visible {
+  outline: var(--z-focus-ring-outline);
+  outline-offset: 2px;
+  border-radius: var(--z-radius-sm);
+}
+
+/* ── Submit button ── */
+
+.z-login__submit {
+  width: 100%;
+  --z-button-font-size: var(--z-font-size-md);
+  --z-button-padding-y: var(--z-space-3);
+  --z-button-font-weight: var(--z-font-weight-semibold);
+}
+
+/* 本地补丁：上游 Button 为 inline-flex（内容宽度）：宿主 width:100% 但内层按钮仅包住文字，
+   点击宿主右侧空白区无任何响应（2026-08-10 zEtl 实测）。::part 命中内层 <button part="button">
+   See: wiki/planning/TASKS/20260810-z-agent-ui-sync/ (GAP-7) */
+.z-login__submit::part(button) {
+  width: 100%;
+}
+
+/* ── Footer ── */
+
+.z-login__footer {
+  text-align: center;
+  margin-top: var(--z-space-6);
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text-secondary);
+}
+
+.z-login__footer a {
+  color: var(--z-color-primary);
+  text-decoration: none;
+  font-weight: var(--z-font-weight-medium);
+  transition: color var(--z-transition-fast);
+}
+
+.z-login__footer a:hover {
+  color: var(--z-color-primary-hover);
+  text-decoration: underline;
+}
+
+.z-login__footer a:focus-visible {
+  outline: var(--z-focus-ring-outline);
+  outline-offset: 2px;
+  border-radius: var(--z-radius-sm);
+}
+
+/* ── Error ── */
+
+.z-login__error {
+  padding: var(--z-space-3) var(--z-space-4);
+  font-size: var(--z-font-size-sm);
+  line-height: var(--z-line-height);
+  /* [WHY] audit 2026-10-25: 原 6 处裸 hex（含下方暗色块）归入 danger 语义 token */
+  color: var(--z-color-danger-strong);
+  background: var(--z-color-danger-soft);
+  border: 1px solid var(--z-color-danger-border);
+  border-radius: var(--z-radius-md);
+  animation: z-login-error-in var(--z-duration-fast) var(--z-ease-enter);
+}
+
+@keyframes z-login-error-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Dark theme ── */
+/* [WHY] 明暗差异已下沉到 tokens.css 的 --z-color-danger-*，此处不再需要覆盖块。
+   保留空注释说明位置，便于后人知道这里曾有一份重复定义。 */
+
+/* ── Responsive ── */
+
+@media (max-width: 480px) {
+  .z-login {
+    padding: var(--z-space-4);
+    border-radius: 0;
+  }
+
+  .z-login__card {
+    padding: var(--z-space-6);
+    max-width: 100%;
+    border-radius: var(--z-radius-md);
+  }
+
+  .z-login__header {
+    margin-bottom: var(--z-space-6);
+  }
+}

@@ -1,0 +1,72 @@
+/* ===== m-list ===== */
+
+:host {
+  display: block;
+}
+
+.m-list {
+  width: 100%;
+}
+
+.m-list__sentinel {
+  width: 100%;
+  height: 1px;
+  /* [WHY] 哨兵元素极小：作为 IntersectionObserver 的锚点，不影响视觉布局 */
+  pointer-events: none;
+}
+
+.m-list__footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--z-space-2);
+  min-height: 44px;
+  padding: var(--z-space-3) var(--z-space-4);
+  color: var(--z-color-text-secondary);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-list__footer--error {
+  color: var(--z-color-danger);
+  flex-wrap: wrap;
+}
+
+.m-list__spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--z-color-gray-200);
+  border-top-color: var(--z-color-primary);
+  border-radius: 50%;
+  animation: m-list-spin var(--z-duration-loop-fast) var(--z-ease-linear) infinite;
+}
+
+.m-list__text {
+  line-height: 1.5;
+}
+
+.m-list__retry {
+  border: none;
+  background: transparent;
+  color: var(--z-color-primary);
+  font: inherit;
+  font-size: var(--z-font-size-sm);
+  padding: var(--z-space-1) var(--z-space-2);
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-list__retry:active {
+  opacity: 0.7;
+}
+
+@keyframes m-list-spin {
+  to { transform: rotate(360deg); }
+}

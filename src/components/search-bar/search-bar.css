@@ -1,0 +1,101 @@
+/* ===== z-search-bar ===== */
+/* 桌面搜索框：外壳沿用 z-input 的边框/圆角/焦点光晕口径，密度走 --_h（由 size 写入）。 */
+:host {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.z-sb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  /* [WHY border-box] 与 z-input 同一条：content-box 下同名高度会比其他控件胖 2px，
+     并排放进工具栏就对不齐（input.css 里是 2026 修过的同一个坑）。 */
+  box-sizing: border-box;
+  height: var(--_h, var(--z-input-height));
+  padding: 0 var(--z-input-padding-x);
+  border: var(--z-input-border-width) solid var(--z-color-border-control);
+  border-radius: var(--z-input-radius);
+  background-color: var(--z-color-bg);
+  transition: border-color var(--z-transition-fast), box-shadow var(--z-transition-fast);
+}
+
+.z-sb:hover:not(.z-sb--disabled):not(:focus-within) {
+  border-color: var(--z-color-border-control-hover);
+}
+
+/* 焦点在里面的 input 上，光晕要画在外壳上 —— 这是「组合控件」与单输入框唯一的外壳差异 */
+.z-sb:focus-within {
+  border-color: var(--z-color-primary);
+  box-shadow: var(--z-focus-ring);
+}
+
+.z-sb--disabled {
+  background-color: var(--z-color-bg-secondary);
+  cursor: not-allowed;
+}
+
+.z-sb__icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--z-color-text-secondary);
+}
+
+.z-sb--disabled .z-sb__icon {
+  color: var(--z-color-text-disabled);
+}
+
+.z-sb__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+}
+
+.z-sb__input::placeholder {
+  color: var(--z-color-text-placeholder);
+}
+
+.z-sb__input:disabled {
+  cursor: not-allowed;
+  color: var(--z-color-text-disabled);
+}
+
+/* 原生 type=search 的取消按钮与自绘的清空按钮会并排出现两个，关掉原生的 */
+.z-sb__input::-webkit-search-cancel-button,
+.z-sb__input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.z-sb__clear {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: var(--z-radius-full);
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  cursor: pointer;
+  transition: color var(--z-transition-fast);
+}
+
+.z-sb__clear[hidden] {
+  display: none;
+}
+
+.z-sb__clear:hover {
+  color: var(--z-color-text);
+}
+
+.z-sb__clear:focus-visible {
+  outline: none;
+  box-shadow: var(--z-focus-ring);
+}

@@ -1,0 +1,130 @@
+/* ===== z-json-viewer ===== */
+
+:host {
+  display: block;
+}
+
+.z-jv {
+  font-family: var(--z-font-mono);
+  font-size: var(--z-font-size-sm);
+  line-height: 1.7;
+  background: var(--z-color-bg-secondary);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  padding: 8px 12px;
+  overflow: auto;
+  max-height: 480px;
+}
+
+.z-jv__row {
+  white-space: pre;
+  position: relative;
+}
+
+.z-jv__row:hover {
+  background: var(--z-color-hover);
+}
+
+/* [WHY] 行号列与内容等宽截断区分离: 行号固定左对齐,内容不缩进 */
+.z-jv__line-no {
+  display: inline-block;
+  width: 2.2em;
+  margin-right: 0.8em;
+  color: var(--z-color-gray-400);
+  text-align: right;
+  user-select: none;
+}
+
+.z-jv__toggle {
+  display: inline-block;
+  width: 1em;
+  /* [WHY 要重置原生 button 外观] 它原来是个 <span role="button">，换成原生 <button>
+     之后默认会带来 border / background / padding / 字体与行高，把这行的行高撑高、
+     把括号挤开 —— 视觉上像是"折叠按钮变大了"。这四条是让 button 看起来还是原来那个符号。 */
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+  line-height: inherit;
+  color: var(--z-color-gray-500);
+  cursor: pointer;
+  user-select: none;
+}
+
+.z-jv__toggle:hover {
+  color: var(--z-color-primary);
+}
+
+/* 键盘焦点必须看得见 —— 这个开关现在唯一的键盘入口就是 Tab + Enter */
+.z-jv__toggle:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+
+.z-jv__brace {
+  color: var(--z-color-gray-600);
+}
+
+.z-jv__count {
+  color: var(--z-color-gray-400);
+  font-style: italic;
+}
+
+.z-jv__key {
+  color: var(--z-color-blue-600);
+}
+
+.z-jv__index {
+  color: var(--z-color-blue-600);
+}
+
+.z-jv__colon {
+  color: var(--z-color-gray-500);
+}
+
+.z-jv__string {
+  color: var(--z-color-success);
+}
+
+.z-jv__number {
+  color: var(--z-color-warning);
+}
+
+.z-jv__boolean {
+  color: var(--z-color-purple-500);
+}
+
+.z-jv__null {
+  color: var(--z-color-gray-400);
+  font-style: italic;
+}
+
+.z-jv__copy {
+  visibility: hidden;
+  margin-left: 6px;
+  padding: 0 4px;
+  border: none;
+  background: transparent;
+  color: var(--z-color-gray-400);
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.z-jv__row:hover .z-jv__copy {
+  visibility: visible;
+}
+
+.z-jv__copy:hover {
+  color: var(--z-color-primary);
+}
+
+/* [WHY] 缩进由每行行首 pad span 提供（--pad: 深度）,行号宽度不受缩进影响 */
+.z-jv__pad {
+  display: inline-block;
+  width: calc(var(--pad, 0) * 16px);
+}
+
+.z-jv__empty {
+  color: var(--z-color-gray-400);
+}

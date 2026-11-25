@@ -1,0 +1,12 @@
+/* ===== z-menu ===== */
+
+:host {
+  display: inline-flex;
+  position: relative;
+}
+
+.z-menu__trigger {
+  display: inline-flex;
+  cursor: pointer;
+  outline: none;
+}

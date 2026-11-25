@@ -1,0 +1,266 @@
+/* ===== z-drawer =====
+   [WHY] 抽屉布局与动画：placement 决定主轴/滑入方向与尺寸预设。
+   退场动画机制与 Modal 相同（_closing → animationend 后隐藏）。 */
+
+:host {
+  display: contents;
+  /* [WHY] 堆叠 z-index: 与 Modal 同栈（overlayManager 统一管理），同层序 */
+  --z-drawer-stack-index: 0;
+}
+
+/* ── Overlay ── */
+
+.z-drawer__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-z-modal) + var(--z-drawer-stack-index, 0) * 10);
+  background: rgba(0, 0, 0, 0.5);
+  animation: z-drawer-fade-in var(--z-duration-normal) var(--z-ease-enter);
+}
+
+@keyframes z-drawer-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.z-drawer__overlay--closing {
+  animation: z-drawer-fade-out var(--z-duration-normal) var(--z-ease-exit) forwards;
+  pointer-events: none;
+}
+
+@keyframes z-drawer-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ── Panel 基础 ── */
+
+.z-drawer__panel {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: var(--z-color-popover);
+  box-shadow: var(--z-shadow-xl);
+  outline: none;
+}
+
+/* [WHY] placement 布局用 :host([placement]) 属性选择器（见下），
+   JS 内联的 --z-drawer-placement 变量仅供调试/主题覆盖 */
+
+/* ── 四向布局 ── */
+
+.z-drawer__panel {
+  --z-drawer-width: 400px;
+  --z-drawer-height: 400px;
+}
+
+/* 主轴尺寸：left/right 占满高度、宽按变量；top/bottom 占满宽度、高按变量 */
+.z-drawer__panel {
+  top: 0;
+  bottom: 0;
+  width: var(--z-drawer-width);
+  max-width: 100vw;
+  height: 100%;
+}
+
+/* [WHY 这里必须显式写 right: 0] 横向只有 `left` / `right` 两种 placement，而
+   `.z-drawer__panel` 早先只给了 top/bottom + 宽度，**没有任何 left/right 规则**：
+   `position:absolute` 在没有横向锚点时会停在「静态位置」（左侧、宽度 400 贴着视口左缘），
+   而 `placement` 的默认值恰恰是 `right`（属性缺省，`:host([placement])` 选择器也就匹配不上）。
+   于是**不写 placement 的调用方拿到的是一个贴着左边的面板** —— 看起来像「抽屉样式没加载」。
+   缺省即右侧：这条保证「什么都不写」是对的，left 再覆盖回去。 */
+.z-drawer__panel {
+  right: 0;
+}
+
+:host([placement="left"]) .z-drawer__panel {
+  left: 0;
+  right: auto;
+}
+
+:host([placement="top"]) .z-drawer__panel,
+:host([placement="bottom"]) .z-drawer__panel {
+  left: 0;
+  right: 0;
+  top: auto;
+  bottom: auto;
+  width: 100%;
+  max-width: 100vw;
+  height: var(--z-drawer-height);
+  max-height: 100vh;
+}
+
+:host([placement="top"]) .z-drawer__panel {
+  top: 0;
+}
+
+:host([placement="bottom"]) .z-drawer__panel {
+  bottom: 0;
+}
+
+/* ── 滑入动画（按 placement 方向）── */
+
+.z-drawer__panel {
+  animation: z-drawer-slide-in-right var(--z-duration-normal) var(--z-ease-enter);
+}
+
+:host([placement="left"]) .z-drawer__panel {
+  animation-name: z-drawer-slide-in-left;
+}
+
+:host([placement="top"]) .z-drawer__panel {
+  animation-name: z-drawer-slide-in-top;
+}
+
+:host([placement="bottom"]) .z-drawer__panel {
+  animation-name: z-drawer-slide-in-bottom;
+}
+
+@keyframes z-drawer-slide-in-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes z-drawer-slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes z-drawer-slide-in-top {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes z-drawer-slide-in-bottom {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* ── 退场动画 ── */
+
+.z-drawer__panel--closing {
+  animation: z-drawer-slide-out-right var(--z-duration-normal) var(--z-ease-exit) forwards;
+}
+
+:host([placement="left"]) .z-drawer__panel--closing {
+  animation-name: z-drawer-slide-out-left;
+}
+
+:host([placement="top"]) .z-drawer__panel--closing {
+  animation-name: z-drawer-slide-out-top;
+}
+
+:host([placement="bottom"]) .z-drawer__panel--closing {
+  animation-name: z-drawer-slide-out-bottom;
+}
+
+@keyframes z-drawer-slide-out-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+@keyframes z-drawer-slide-out-right {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+
+@keyframes z-drawer-slide-out-top {
+  from { transform: translateY(0); }
+  to { transform: translateY(-100%); }
+}
+
+@keyframes z-drawer-slide-out-bottom {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+
+/* ── Sizes ── */
+
+:host([size="sm"]) .z-drawer__panel {
+  --z-drawer-width: 320px;
+  --z-drawer-height: 320px;
+}
+
+:host([size="lg"]) .z-drawer__panel {
+  --z-drawer-width: 560px;
+  --z-drawer-height: 560px;
+}
+
+:host([full]) .z-drawer__panel {
+  --z-drawer-width: 100vw;
+  --z-drawer-height: 100vh;
+}
+
+/* ── 结构与 Modal 相同 ── */
+
+.z-drawer__title {
+  margin: 0;
+  font-size: inherit;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.z-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--z-space-4) var(--z-space-5);
+  border-bottom: 1px solid var(--z-color-border);
+  font-weight: 600;
+  font-size: var(--z-font-size-base);
+  flex-shrink: 0;
+  gap: var(--z-space-3);
+}
+
+.z-drawer__header:empty {
+  display: none;
+}
+
+.z-drawer__header:has(.z-drawer__close:only-child) {
+  padding: var(--z-space-2) var(--z-space-2) 0 var(--z-space-5);
+  border-bottom: none;
+  justify-content: flex-end;
+}
+
+.z-drawer__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: var(--z-control-h-sm);
+  border: none;
+  border-radius: var(--z-radius-sm);
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--z-transition-fast);
+}
+
+.z-drawer__close:hover {
+  background: var(--z-color-hover);
+  color: var(--z-color-text);
+}
+
+.z-drawer__body {
+  padding: var(--z-space-5);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.z-drawer__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--z-space-3);
+  padding: var(--z-space-3) var(--z-space-5);
+  border-top: 1px solid var(--z-color-border);
+  flex-shrink: 0;
+}
+
+.z-drawer__footer:empty {
+  display: none;
+}

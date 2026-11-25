@@ -1,0 +1,170 @@
+/* ===== z-doc-template: 纸张 / 文档版式（编辑器画布 + 预览 + 打印三端共用） ===== */
+/* [WHY] 文档一律黑字白纸，不跟随应用暗色主题：预览/打印/导出三端观感一致（issue IKICYW 验收 3）
+   排版配置经 --z-doc-* 自定义属性下发（formatConfigToStyle），此处只消费不定义 */
+
+:host {
+  display: block;
+}
+
+/* ── A4 纸张 ─────────────────────────────────────────── */
+/* [WHY] 几何以整数 px 锁定（A4@96dpi = 794×1123，见 types.ts PAPER_*_PX）：
+   mm 是分数 px（793.7），浏览器缩放下亚像素取整抖动 → 折行漂移、排版随缩放改变。
+   页边距经 --z-doc-margin-* 下发（formatConfigToStyle，px 整数），默认 76/76/68/68px
+   （= 20/20/18/18mm） */
+.z-doc-paper {
+  width: 794px;
+  min-height: 1123px;
+  box-sizing: border-box;
+  padding: var(--z-doc-margin-top, 76px) var(--z-doc-margin-right, 68px) var(--z-doc-margin-bottom, 76px)
+    var(--z-doc-margin-left, 68px);
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid var(--z-color-border);
+  border-radius: 2px;
+  box-shadow: var(--z-shadow-md);
+  overflow: hidden;
+}
+
+.z-doc-paper--sized {
+  min-height: 0;
+  /* [WHY] 完整 A4 高度：内容容量 = 1123px - 页边距(padding)，与分页器页容量
+     (innerH = 1123 - 上下边距) 严格一致。旧版 height 里再减上下边距，在 border-box
+     下等于边距扣两次，每页底部超填被 overflow:hidden 裁掉
+     （2026-09-25 线上实撞「内容被 A4 底边截断且无第二页」） */
+  height: 1123px;
+  overflow: hidden;
+}
+
+/* [WHY] 带页眉/页脚的纸张：三段纵向布局，正文区弹性占满（页眉页脚不入分页流） */
+.z-doc-paper--hf {
+  display: flex;
+  flex-direction: column;
+}
+
+.z-doc-page-head,
+.z-doc-page-foot {
+  flex: 0 0 auto;
+  font-size: 9pt;
+  line-height: 1.4;
+  color: #333333;
+  text-align: center;
+}
+
+.z-doc-page-head {
+  padding-bottom: 8px;
+  border-bottom: 1px solid #999999;
+  margin-bottom: 19px;
+}
+
+.z-doc-page-foot {
+  padding-top: 8px;
+  border-top: 1px solid #999999;
+  margin-top: 19px;
+}
+
+.z-doc-page-body {
+  flex: 1 0 auto;
+}
+
+.z-doc-body {
+  font-family: var(--z-doc-body-font, "PingFang SC", "Microsoft YaHei", serif);
+  font-size: var(--z-doc-body-size, 12pt);
+  line-height: var(--z-doc-line-height, 1.8);
+  color: #000000;
+}
+
+/* ── 块 ─────────────────────────────────────────────── */
+.z-doc-heading {
+  font-family: var(--z-doc-heading-font, "PingFang SC", "Microsoft YaHei", sans-serif);
+  font-weight: 700;
+  margin: 0 0 calc(var(--z-doc-para-spacing, 0pt) + 6pt);
+  line-height: 1.4;
+}
+
+.z-doc-heading--1 { font-size: var(--z-doc-heading-size-1, 16pt); text-align: center; }
+.z-doc-heading--2 { font-size: var(--z-doc-heading-size-2, 15pt); }
+.z-doc-heading--3 { font-size: var(--z-doc-heading-size-3, 14pt); }
+.z-doc-heading--4 { font-size: var(--z-doc-heading-size-4, 13pt); }
+
+.z-doc-para {
+  margin: 0 0 var(--z-doc-para-spacing, 0pt);
+  text-indent: var(--z-doc-indent, 2ch);
+  text-align: justify;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.z-doc-list {
+  margin: 0 0 var(--z-doc-para-spacing, 0pt);
+  padding-left: 2.5em;
+}
+
+.z-doc-list li {
+  margin: 0;
+}
+
+/* ── 表格 ───────────────────────────────────────────── */
+.z-doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin: 0 0 calc(var(--z-doc-para-spacing, 0pt) + 4pt);
+  font-size: inherit;
+}
+
+/* [WHY] 占位符整块注入的外来表格（如 product_table）可能带超宽内联样式, 兜底不溢出纸张 */
+.z-doc-body table {
+  max-width: 100%;
+}
+
+.z-doc-table th,
+.z-doc-table td {
+  border: 1px solid #000000;
+  padding: 4pt 6pt;
+  text-align: left;
+  vertical-align: top;
+  word-break: break-word;
+}
+
+.z-doc-table th {
+  font-weight: 600;
+  text-align: center;
+  background: #f1f5f9;
+}
+
+/* ── 签名区（右对齐块） ───────────────────────────────── */
+.z-doc-signature {
+  display: flex;
+  justify-content: flex-end;
+  gap: 48pt;
+  margin-top: calc(var(--z-doc-para-spacing, 0pt) + 24pt);
+  text-align: right;
+}
+
+/* ── 编辑器态 ───────────────────────────────────────── */
+.z-doc-ph {
+  display: inline-block;
+  padding: 0 3px;
+  border: 1px dashed var(--z-color-primary);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--z-color-primary) 12%, transparent);
+  color: var(--z-color-primary);
+  font-size: 0.92em;
+  cursor: pointer;
+  user-select: none;
+  /* [WHY] 芯片是 inline-block 块容器, text-indent 为继承属性：段落的首行缩进
+     (--z-doc-indent, 默认 2ch) 会在芯片内部再缩进一次, 视觉上文字靠右、左侧留空
+     （2026-09-25 实撞）。首行缩进是段落行盒的语义, 不属于芯片, 就地重置为 0 */
+  text-indent: 0;
+}
+
+.z-doc-table--editable td {
+  cursor: text;
+}
+
+/* ── 打印 ───────────────────────────────────────────── */
+@media print {
+  :host {
+    display: block;
+  }
+}

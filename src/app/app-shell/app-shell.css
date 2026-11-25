@@ -1,0 +1,55 @@
+/* ===== z-app-shell（[[REQ-012]] 后台布局骨架） ===== */
+
+:host {
+  display: grid;
+  /* [WHY] 本地补丁（2026-10-11，对齐 zWorker frontend/src/z-agent-ui 副本）：列轨道必须
+     minmax(0,1fr) —— 无显式列定义时隐式轨道按 max-content 撑开，宽内容（nowrap 表头 +
+     不换行操作列的宽表格）会把整个壳层撑出视口；:host overflow:hidden 裁切后页面无滚动条、
+     内容右侧被截断（zEtl 数据集页 1280px 视口实测：表格 min-content 1291px 把 main 撑到
+     1667px、header 1855px）。修后 z-table wrapper 的 overflow-x:auto 内部滚动恢复生效。
+     See: VENDOR-NOTE 本地补丁表 */
+  grid-template-columns: minmax(0, 1fr);
+  /* [WHY] 行布局：header 自适应 / body 占满余高 / footer 自适应；grid 轨道不可动画，折叠动画由槽内 z-sidebar 宽度过渡承担（findings F1） */
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--z-app-shell-main-bg);
+  color: var(--z-app-shell-text);
+  font-family: var(--z-font-sans);
+}
+
+.z-app-shell__header {
+  min-height: var(--z-app-shell-header-height);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--z-space-4);
+  background: var(--z-app-shell-header-bg);
+  border-bottom: 1px solid var(--z-app-shell-header-border);
+  z-index: 1;
+}
+
+.z-app-shell__body {
+  display: flex;
+  min-height: 0;
+}
+
+.z-app-shell__sidebar {
+  /* [WHY] auto 跟随槽内 z-sidebar 的动画宽度；min-width:0 防 nowrap 内容把区域撑破 */
+  flex: 0 0 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.z-app-shell__main {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: auto;
+  background: var(--z-app-shell-main-bg);
+}
+
+.z-app-shell__footer {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--z-space-4);
+  border-top: 1px solid var(--z-app-shell-header-border);
+}

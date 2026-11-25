@@ -1,0 +1,77 @@
+/* ===== z-segmented 分段控件 =====
+   [WHY 用底色容器 + 凸起选中段，而不是连体描边按钮]
+   连体描边（每段共享一条边框）在选中态只能靠「改那一段的边框色」表达，
+   结果是选中段与两侧边框连成一条同色线，看起来像「整组都被选中」。
+   底色槽 + 浮起选中段让「当前值」只体现在一块面上，边界始终干净。
+   这也是 M3 / iOS 分段控件的共同做法。 */
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.z-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  box-sizing: border-box;
+  background: var(--z-color-bg-subtle);
+  border-radius: var(--z-radius-md);
+}
+
+.z-seg--full {
+  display: flex;
+  width: 100%;
+}
+
+.z-seg--full .z-seg__item {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.z-seg__item {
+  height: var(--_h, 32px);
+  padding: 0 var(--z-space-3);
+  border: 0;
+  border-radius: calc(var(--z-radius-md) - 2px);
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  font: inherit;
+  font-size: var(--z-font-size-sm);
+  font-weight: var(--z-font-weight-medium);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: background-color var(--z-transition-fast), color var(--z-transition-fast),
+    box-shadow var(--z-transition-fast);
+}
+
+.z-seg__item:hover:not(:disabled):not([aria-checked="true"]) {
+  background: var(--z-color-fill);
+  color: var(--z-color-text);
+}
+
+.z-seg__item[aria-checked="true"] {
+  background: var(--z-color-bg);
+  color: var(--z-color-text);
+  box-shadow: var(--z-shadow-sm);
+}
+
+/* [WHY 用 contrast 档] 选中段自带 card 底色，普通 focus ring 压在上面会看不见（focus 四档规范） */
+.z-seg__item:focus-visible {
+  box-shadow: var(--z-focus-ring-contrast);
+}
+
+.z-seg__item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-seg__item {
+    transition: none;
+  }
+}

@@ -1,0 +1,66 @@
+/* ===== m-price ===== */
+
+:host {
+  display: inline-block;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-price {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  color: var(--z-color-price);
+  font-family: var(--z-font-sans);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* 划线价：只换色与线，字号跟随传进来的档位 —— 原价通常比现价小一档，由调用方选 size。 */
+.m-price--strike {
+  color: var(--z-color-price-muted);
+  text-decoration: line-through;
+}
+
+.m-price__main {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.m-price__sign,
+.m-price__symbol,
+.m-price__dec,
+.m-price__suffix {
+  font-weight: 500;
+}
+
+.m-price__int {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.m-price--sm { font-size: var(--z-font-size-sm); }
+.m-price--sm .m-price__symbol,
+.m-price--sm .m-price__dec,
+.m-price--sm .m-price__suffix { font-size: var(--z-font-size-xs); }
+
+.m-price--md { font-size: var(--z-font-size-lg); }
+.m-price--md .m-price__symbol,
+.m-price--md .m-price__dec,
+.m-price--md .m-price__suffix { font-size: var(--z-font-size-sm); }
+
+.m-price--lg { font-size: var(--z-font-size-2xl); }
+.m-price--lg .m-price__symbol,
+.m-price--lg .m-price__dec,
+.m-price--lg .m-price__suffix { font-size: var(--z-font-size-base); }
+
+.m-price__suffix {
+  margin-left: 2px;
+  color: var(--z-color-text-secondary);
+  font-weight: 400;
+}
+
+.m-price__empty {
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-sm);
+}

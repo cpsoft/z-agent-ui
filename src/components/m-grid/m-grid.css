@@ -1,0 +1,19 @@
+/* ===== m-grid ===== */
+
+:host {
+  display: block;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--m-grid-cols, 4), minmax(0, 1fr));
+  gap: var(--z-space-3) var(--z-space-1);
+  padding: var(--z-space-3) var(--z-space-2);
+  background: var(--z-color-surface);
+}
+
+.m-grid--framed {
+  margin: 0 var(--z-m-gutter) var(--z-space-4);
+  border-radius: var(--z-m-radius);
+}

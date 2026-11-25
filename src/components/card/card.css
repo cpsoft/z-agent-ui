@@ -1,0 +1,86 @@
+:host {
+  display: block;
+}
+
+.z-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--z-color-surface);
+  border-radius: var(--z-radius-lg);
+  overflow: hidden;
+  transition: box-shadow var(--z-transition-normal), transform var(--z-transition-fast);
+}
+
+.z-card--bordered {
+  border: 1px solid var(--z-color-border);
+}
+
+.z-card--shadow {
+  box-shadow: var(--z-shadow-md);
+}
+
+/* ── Clickable ── */
+
+.z-card--clickable {
+  cursor: pointer;
+}
+
+.z-card--clickable:hover {
+  box-shadow: var(--z-shadow-lg);
+}
+
+.z-card--clickable:active {
+  transform: scale(0.98);
+}
+
+/* 键盘用户的唯一可见反馈（issue IKXHH9）：`:focus-visible` 只在键盘聚焦时出现，
+   鼠标点完不留框 —— 与库里其它可点件同一档 outline。 */
+.z-card--clickable:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: 2px;
+}
+
+.z-card__cover:not(:empty) {
+  display: block;
+}
+
+.z-card__cover ::slotted(img),
+.z-card__cover ::slotted(video) {
+  width: 100%;
+  display: block;
+}
+
+.z-card__header {
+  display: flex;
+  align-items: center;
+  padding: var(--z-space-3) var(--z-space-4);
+  border-bottom: 1px solid var(--z-color-border);
+  font-weight: var(--z-font-weight-semibold);
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+}
+
+.z-card__header:empty {
+  display: none;
+}
+
+.z-card__body {
+  padding: var(--z-space-4);
+  flex: 1;
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+  line-height: var(--z-line-height);
+}
+
+.z-card__footer {
+  display: flex;
+  align-items: center;
+  padding: var(--z-space-3) var(--z-space-4);
+  border-top: 1px solid var(--z-color-border);
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text-secondary);
+}
+
+.z-card__footer:empty {
+  display: none;
+}

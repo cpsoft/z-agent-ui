@@ -1,0 +1,11 @@
+/* ===== z-popconfirm ===== */
+
+/* 面板样式不在这里 —— 浮动层挂在 body 下，shadow 的 static styles 够不到。
+   见 Popconfirm.ts 的 PANEL_STYLES（injectGlobalStyles 注入 head）。 */
+:host {
+  display: inline-flex;
+}
+
+.z-popconfirm__trigger {
+  display: inline-flex;
+}

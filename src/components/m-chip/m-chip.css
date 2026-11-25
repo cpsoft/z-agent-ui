@@ -1,0 +1,58 @@
+/* ===== m-chip ===== */
+
+:host {
+  display: inline-flex;
+  vertical-align: middle;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--z-control-h);
+  padding: 6px 16px;
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  font-weight: var(--z-font-weight-medium);
+  line-height: 1;
+  border-radius: var(--z-radius-full);
+  background: var(--z-color-bg-tertiary);
+  color: var(--z-color-text-secondary);
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--z-transition-fast);
+  outline: none;
+}
+
+.m-chip:active {
+  opacity: 0.7;
+}
+
+.m-chip:focus-visible {
+  box-shadow: 0 0 0 2px var(--z-color-bg), 0 0 0 4px var(--z-color-primary);
+}
+
+/* ── Variants (selected state) ── */
+
+.m-chip--default.m-chip--selected {
+  background: var(--z-color-inverse);
+  /* [WHY 成对] 底走 -inverse、字必须走 -inverse-text：暗色里底色反转成浅色，
+     文字若还是 white 就是白压近白（几乎看不见）。这里曾写死 --z-color-white。 */
+  color: var(--z-color-inverse-text);
+}
+
+.m-chip--primary.m-chip--selected {
+  background: var(--z-color-primary);
+  color: var(--z-color-primary-text);
+}
+
+.m-chip--success.m-chip--selected {
+  background: var(--z-color-success);
+  color: var(--z-color-success-text);
+}
+
+.m-chip--danger.m-chip--selected {
+  background: var(--z-color-danger);
+  color: var(--z-color-danger-text);
+}

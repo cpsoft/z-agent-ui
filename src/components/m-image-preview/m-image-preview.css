@@ -1,0 +1,100 @@
+/* ===== m-image-preview ===== */
+
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-z-popover);
+  -webkit-tap-highlight-color: transparent;
+  /* 隐藏态不能挡触摸：host 是 fixed 全屏盒子 */
+  pointer-events: none;
+}
+
+.mpv {
+  pointer-events: auto;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  /* 看图器在明暗两套主题里都是黑底：gray-900 在暗色主题下会变成近白，
+     图片放上去反而糊成一团 */
+  background: var(--z-color-black);
+  touch-action: none;
+  animation: mpv-fade-in var(--z-anim-duration-fast) var(--z-ease-standard);
+}
+
+.mpv__stage {
+  flex: 1 1 auto;
+  position: relative;
+  overflow: hidden;
+  /* 下滑关闭时整块跟手（由 JS 写 --mpv-dy） */
+  transform: translate3d(0, var(--mpv-dy, 0px), 0);
+}
+
+.mpv__track {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+  transition: transform var(--z-anim-duration-normal) var(--z-ease-standard);
+}
+
+.mpv__slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.mpv__img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  -webkit-user-drag: none;
+  user-select: none;
+  will-change: transform;
+}
+
+.mpv__count {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + var(--z-space-3));
+  left: 50%;
+  transform: translateX(-50%);
+  /* 不画胶囊底：叠在纯黑上等于看不见，只剩一圈糊边 */
+  color: var(--z-color-white);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.mpv__close {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + var(--z-space-1));
+  right: var(--z-space-1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--z-touch-min);
+  height: var(--z-touch-min);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--z-color-white);
+  cursor: pointer;
+}
+
+.mpv__close:focus-visible {
+  outline: 2px solid var(--z-color-white);
+  outline-offset: -4px;
+  border-radius: var(--z-radius-full);
+}
+
+@keyframes mpv-fade-in {
+  from {
+    opacity: 0;
+  }
+}

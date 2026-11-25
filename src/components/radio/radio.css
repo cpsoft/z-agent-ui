@@ -1,0 +1,82 @@
+/* ===== z-radio ===== */
+
+:host {
+  display: inline-flex;
+  vertical-align: middle;
+  outline: none;
+}
+
+.z-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+  outline: none;
+}
+
+.z-radio--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.z-radio:focus-visible .z-radio__circle {
+  box-shadow: var(--z-focus-ring-contrast);
+}
+
+/* ── Native input ── */
+
+.z-radio__native {
+  position: absolute;
+  width: 0; height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Circle ── */
+
+.z-radio__circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--z-color-border-control);
+  border-radius: 50%;
+  background: var(--z-color-bg);
+  transition: all var(--z-transition-fast);
+  flex-shrink: 0;
+}
+
+.z-radio--checked .z-radio__circle {
+  border-color: var(--z-color-primary);
+  background: var(--z-color-primary);
+}
+
+/* ── Dot ── */
+
+.z-radio__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--z-color-primary-text);
+  transform: scale(0);
+  transition: transform var(--z-transition-fast);
+}
+
+.z-radio--checked .z-radio__dot {
+  transform: scale(1);
+}
+
+/* ── Label ── */
+
+.z-radio__label {
+  line-height: var(--z-line-height);
+}
+
+.z-radio__label:empty {
+  display: none;
+}

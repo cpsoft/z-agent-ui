@@ -1,0 +1,16 @@
+/* ===== z-flex ===== */
+
+/* 与 z-space 同一手法：host 直接做 flex 容器，shadow 里只有 slot。
+   见 space.css 的说明 —— slot 的分配内容在布局上属于 :host。 */
+:host {
+  display: var(--_display, flex);
+  flex-direction: var(--_dir, row);
+  flex-wrap: var(--_wrap, nowrap);
+  align-items: var(--_align, stretch);
+  justify-content: var(--_justify, flex-start);
+  gap: var(--_gap, 0);
+  min-width: 0;
+  /* 让「flex 里的文字块」默认可以收缩，否则长内容会顶破父容器而不是省略
+     （省略号需要父级有确定的宽度约束，`min-width: 0` 是那一环）。 */
+  min-height: 0;
+}

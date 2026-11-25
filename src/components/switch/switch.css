@@ -1,0 +1,97 @@
+/* ===== z-switch ===== */
+
+:host {
+  display: inline-flex;
+  vertical-align: middle;
+  outline: none;
+}
+
+.z-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+  outline: none;
+}
+
+.z-switch--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.z-switch:focus-visible .z-switch__track {
+  box-shadow: var(--z-focus-ring-contrast);
+}
+
+/* ── Native input ── */
+
+.z-switch__native {
+  position: absolute;
+  width: 0; height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Track ── */
+
+.z-switch__track {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 36px;
+  height: 20px;
+  border-radius: var(--z-radius-full);
+  background: var(--z-color-track-strong);
+  transition: background var(--z-transition-fast);
+  flex-shrink: 0;
+}
+
+.z-switch--checked .z-switch__track {
+  background: var(--z-color-primary);
+}
+
+.z-switch--sm .z-switch__track {
+  width: 28px;
+  height: 16px;
+}
+
+/* ── Thumb ── */
+
+.z-switch__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--z-color-white);
+  box-shadow: var(--z-shadow-sm);
+  transition: transform var(--z-transition-fast);
+}
+
+.z-switch--checked .z-switch__thumb {
+  transform: translateX(16px);
+}
+
+.z-switch--sm .z-switch__thumb {
+  width: 12px;
+  height: 12px;
+}
+
+.z-switch--sm.z-switch--checked .z-switch__thumb {
+  transform: translateX(12px);
+}
+
+/* ── Label ── */
+
+.z-switch__label {
+  line-height: var(--z-line-height);
+}
+
+.z-switch__label:empty {
+  display: none;
+}

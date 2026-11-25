@@ -1,0 +1,1197 @@
+/* ===== Demo Site Layout ===== */
+/* 字体走库 token --z-font-sans（与组件内文字同栈）；布局尺寸收敛为 --demo-* 变量；
+   页头半透明，backdrop-filter 才生效。See: wiki/reference/component-style-standard.md */
+
+:root {
+  /* Demo 站点自有尺寸（不属于库设计系统，故用 --demo-* 前缀，避免与 --z-* 混淆） */
+  --demo-header-h: 56px;
+  --demo-sidebar-w: 240px;
+  --demo-content-pad-y: 40px;
+  --demo-content-pad-x: 48px;
+  --demo-section-gap: 48px;
+  --demo-radius: var(--z-radius-lg);
+
+  /* 代码块恒为暗色（与页面主题无关：代码高亮色板独立，见 style-standard 豁免条款） */
+  --demo-code-bg: #1e1e2e;
+  --demo-code-fg: #cdd6f4;
+  --demo-code-tag: #cba6f7;
+  --demo-code-attr: #89b4fa;
+  --demo-code-val: #a6e3a1;
+  --demo-code-cmt: #6c7086;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--z-font-sans, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif);
+  font-size: var(--z-font-size-base, 14px);
+  color: var(--z-color-text, #0f172a);
+  background: var(--z-color-bg, #fff);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 演示站点自身的可访问焦点环（组件内的焦点由组件自己负责） */
+a:focus-visible,
+button:focus-visible {
+  outline: var(--z-focus-ring-outline, 2px solid #2563eb);
+  outline-offset: 2px;
+  border-radius: var(--z-radius-sm);
+}
+
+/* ── Header ── */
+
+.demo-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--z-space-3);
+  height: var(--demo-header-h);
+  padding: 0 var(--z-space-6);
+  /* 原为不透明 --z-color-bg，blur 等于摆设；混入 12% 透明后滚动内容才有毛玻璃感 */
+  background: color-mix(in srgb, var(--z-color-bg, #fff) 88%, transparent);
+  border-bottom: 1px solid var(--z-color-border, #e2e8f0);
+  backdrop-filter: blur(10px);
+}
+
+.demo-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: var(--z-font-weight-bold, 700);
+  font-size: var(--z-font-size-lg, 18px);
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
+
+.demo-header__brand span {
+  color: var(--z-color-primary);
+}
+
+.demo-header__right {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-3);
+}
+
+.demo-header__version {
+  font-size: var(--z-font-size-xs, 12px);
+  color: var(--z-color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 移动端导航开关（≥769px 隐藏） ── */
+
+.demo-nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-bg);
+  color: var(--z-color-text);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.demo-nav-toggle:hover {
+  background: var(--z-color-bg-secondary);
+}
+
+.demo-nav-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Layout ── */
+
+.demo-layout {
+  display: flex;
+  padding-top: var(--demo-header-h);
+  min-height: 100vh;
+}
+
+/* ── Sidebar ── */
+
+.demo-sidebar {
+  position: fixed;
+  top: var(--demo-header-h);
+  left: 0;
+  bottom: 0;
+  width: var(--demo-sidebar-w);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--z-space-5) var(--z-space-4);
+  background: var(--z-color-bg-secondary, #f8fafc);
+  border-right: 1px solid var(--z-color-border, #e2e8f0);
+  z-index: 150;
+  transition: transform var(--z-transition-normal, 250ms ease);
+}
+
+.demo-sidebar__title {
+  font-size: 11px;
+  font-weight: var(--z-font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--z-color-text-secondary);
+  margin: var(--z-space-4) 0 6px var(--z-space-2);
+}
+
+.demo-sidebar__title:first-child {
+  margin-top: 0;
+}
+
+.demo-sidebar__link {
+  display: block;
+  padding: 6px var(--z-space-2);
+  font-size: var(--z-font-size-base, 14px);
+  color: var(--z-color-text-secondary);
+  text-decoration: none;
+  border-radius: var(--z-radius-sm);
+  transition: color var(--z-transition-fast), background var(--z-transition-fast);
+  cursor: pointer;
+}
+
+.demo-sidebar__link:hover {
+  color: var(--z-color-text);
+  background: var(--z-color-gray-100);
+}
+
+/* 侧边栏分两级：分类页链接 + 组件锚点缩进 */
+.demo-sidebar__link--page {
+  font-weight: var(--z-font-weight-semibold, 600);
+  color: var(--z-color-text);
+  margin-top: 2px;
+}
+
+.demo-sidebar__link--active {
+  color: var(--z-color-primary);
+  background: var(--z-color-primary-soft);
+}
+
+.demo-sidebar__link--sub {
+  padding-left: var(--z-space-5);
+  font-size: var(--z-font-size-sm, 13px);
+}
+
+.demo-sidebar__arrow {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+/* 移动端抽屉遮罩 */
+.demo-sidebar-mask {
+  display: none;
+  position: fixed;
+  inset: var(--demo-header-h) 0 0 0;
+  z-index: 140;
+  background: var(--z-color-bg-overlay, rgba(0, 0, 0, 0.45));
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* ── Index 目录页（组件分类目录） ── */
+
+.demo-catalog {
+  margin-top: var(--z-space-2);
+}
+
+/* 目录过滤（index 页专用） */
+.demo-filter {
+  /* 必须 display:block：<label> 默认 inline，垂直方向 padding/border 不参与父级高度计算，
+     实测会让 filter 盒子塌陷成一行高、盖住下方第一个分组标题 */
+  display: block;
+  position: sticky;
+  top: calc(var(--demo-header-h) + var(--z-space-2));
+  z-index: 10;
+  margin: 0 0 var(--z-space-5);
+  padding: var(--z-space-2) var(--z-space-3);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg);
+  box-shadow: var(--z-shadow-sm);
+}
+
+.demo-filter__input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--z-color-text);
+  font: inherit;
+  font-size: var(--z-font-size-base, 14px);
+}
+
+.demo-filter__input::placeholder {
+  color: var(--z-color-text-disabled);
+}
+
+.demo-filter__empty {
+  display: none;
+  padding: var(--z-space-6) 0;
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-sm, 13px);
+}
+
+.demo-filter__empty--visible {
+  display: block;
+}
+
+.demo-catalog__group {
+  margin-bottom: var(--z-space-8);
+}
+
+.demo-catalog__group[hidden],
+.demo-catalog__list li[hidden] {
+  display: none;
+}
+
+.demo-catalog__group h2 {
+  font-size: var(--z-font-size-md, 15px);
+  font-weight: var(--z-font-weight-bold, 700);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--z-color-text-secondary);
+  margin-bottom: var(--z-space-1);
+}
+
+.demo-catalog__list {
+  list-style: none;
+}
+
+/* 原为 flex + min-width:140/240，长描述在中等宽度下会把「名称」挤到两行再折行，
+   视觉上名称与描述错位。改 grid 两列：名称列固定、描述列自适应，基线对齐。 */
+.demo-catalog__list li {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--z-space-1) var(--z-space-3);
+  padding: var(--z-space-3) 0;
+  border-bottom: 1px solid var(--z-color-border);
+}
+
+.demo-catalog__list a {
+  font-size: var(--z-font-size-md, 15px);
+  font-weight: var(--z-font-weight-semibold, 600);
+  color: var(--z-color-text);
+  text-decoration: none;
+}
+
+.demo-catalog__list a:hover {
+  color: var(--z-color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.demo-catalog__list span {
+  font-size: var(--z-font-size-sm, 13px);
+  color: var(--z-color-text-secondary);
+  line-height: var(--z-line-height, 1.5);
+}
+
+/* ── Main ── */
+
+.demo-main {
+  flex: 1;
+  min-width: 0;
+  margin-left: var(--demo-sidebar-w);
+  padding: var(--demo-content-pad-y) var(--demo-content-pad-x);
+  /* 上限按「内容可读宽度 1040px」而不是 100%：宽屏下目录描述行原本能拉到近 1000px，
+     单行过长导致换行位置随机、扫读困难。超出后右侧留白，左侧仍贴侧边栏。 */
+  max-width: calc(var(--demo-sidebar-w) + 1040px);
+}
+
+/* ── Complex page content ──
+   多页自带 .demo-content { max-width }, 但均漏 margin auto — 宽屏下容器收窄后左贴边框。 */
+.demo-content {
+  margin: 0 auto;
+}
+
+/* ── 页面顶部公共按钮组（返回主页 + 主题切换, 见 shell.ts buildTopActions） ── */
+.demo-top-actions {
+  position: absolute;
+  top: 8px;
+  right: var(--z-space-4);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+}
+
+.demo-top-actions--fixed {
+  position: fixed;
+  top: var(--z-space-3);
+  right: var(--z-space-3);
+  z-index: 1000;
+}
+
+/* ── Hero ── */
+
+.demo-hero {
+  margin-bottom: var(--demo-section-gap);
+}
+
+.demo-hero h1 {
+  font-size: 32px;
+  font-weight: var(--z-font-weight-bold, 700);
+  letter-spacing: -0.5px;
+  margin-bottom: var(--z-space-2);
+}
+
+.demo-hero p {
+  font-size: var(--z-font-size-base, 16px);
+  color: var(--z-color-text-secondary);
+  max-width: 560px;
+  line-height: 1.6;
+}
+
+.demo-hero__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--z-space-2);
+  margin-top: var(--z-space-4);
+}
+
+/* ── Section ── */
+
+.demo-section {
+  margin-bottom: var(--demo-section-gap);
+  scroll-margin-top: calc(var(--demo-header-h) + var(--z-space-6));
+}
+
+.demo-section__header {
+  margin-bottom: var(--z-space-5);
+}
+
+.demo-section__header h2 {
+  font-size: 22px;
+  font-weight: var(--z-font-weight-semibold, 600);
+  letter-spacing: -0.3px;
+  margin-bottom: var(--z-space-1);
+}
+
+.demo-section__header p {
+  font-size: var(--z-font-size-sm, 14px);
+  color: var(--z-color-text-secondary);
+  line-height: 1.6;
+}
+
+/* ── Preview Card ── */
+
+.demo-preview {
+  border: 1px solid var(--z-color-border, #e2e8f0);
+  border-radius: var(--demo-radius);
+  overflow: hidden;
+  background: var(--z-color-bg);
+}
+
+.demo-preview__live {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--z-space-3);
+  padding: var(--z-space-6);
+  min-height: 60px;
+}
+
+.demo-preview__live--block {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.demo-preview__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  padding: 10px var(--z-space-4);
+  border-top: 1px solid var(--z-color-border, #e2e8f0);
+  background: var(--z-color-bg-secondary, #f8fafc);
+}
+
+.demo-preview__code {
+  display: none;
+  padding: var(--z-space-4);
+  border-top: 1px solid var(--z-color-border, #e2e8f0);
+  background: var(--demo-code-bg);
+  overflow-x: auto;
+}
+
+.demo-preview__code--visible {
+  display: block;
+}
+
+.demo-preview__code pre {
+  margin: 0;
+  font-family: var(--z-font-mono, ui-monospace, monospace);
+  font-size: var(--z-font-size-sm, 13px);
+  line-height: 1.6;
+  color: var(--demo-code-fg);
+}
+
+.demo-preview__code .tag { color: var(--demo-code-tag); }
+.demo-preview__code .attr { color: var(--demo-code-attr); }
+.demo-preview__code .val  { color: var(--demo-code-val); }
+.demo-preview__code .txt  { color: var(--demo-code-fg); }
+.demo-preview__code .cmt  { color: var(--demo-code-cmt); }
+
+/* ── 用法片段（组件详情页） ── */
+/* 同一个站里两套代码底会让人以为是两种东西；
+   而且这段是读者主要要复制的东西，深底 + 留白比白底表格更容易看出代码块边界。 */
+.demo-usage {
+  position: relative;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--demo-code-bg);
+  overflow: hidden;
+}
+
+.demo-usage pre {
+  margin: 0;
+  padding: var(--z-space-4);
+  padding-right: 88px; /* 给右上角的复制按钮让出位置，否则长行滚到按钮底下 */
+  overflow-x: auto;
+  font-family: var(--z-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: var(--z-font-size-sm, 13px);
+  line-height: 1.65;
+  color: var(--demo-code-fg);
+}
+
+.demo-usage__copy {
+  position: absolute;
+  top: var(--z-space-2);
+  right: var(--z-space-2);
+  padding: 4px 10px;
+  border: 1px solid rgb(255 255 255 / 0.25);
+  border-radius: var(--z-radius-sm);
+  background: rgb(255 255 255 / 0.08);
+  color: var(--demo-code-fg);
+  font-size: var(--z-font-size-xs, 12px);
+  cursor: pointer;
+}
+
+.demo-usage__copy:hover {
+  background: rgb(255 255 255 / 0.16);
+}
+
+.demo-usage__copy:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: 2px;
+}
+
+.demo-usage__hint {
+  margin: var(--z-space-2) 0 0;
+  font-size: var(--z-font-size-xs, 12px);
+  color: var(--z-color-text-secondary);
+}
+
+/* ── Prop Table ── */
+/* 原文件同时有 `.demo-props td:first-child` 与 `.demo-props td:nth-child(1)`
+   两套等价规则（后者覆盖前者），合并为一套。 */
+
+.demo-props {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--z-font-size-sm, 13px);
+  margin-top: var(--z-space-3);
+}
+
+.demo-props th {
+  text-align: left;
+  padding: var(--z-space-2) var(--z-space-3);
+  font-weight: var(--z-font-weight-semibold, 600);
+  color: var(--z-color-text-secondary);
+  border-bottom: 1px solid var(--z-color-border);
+  font-size: var(--z-font-size-xs, 12px);
+}
+
+.demo-props td {
+  padding: var(--z-space-2) var(--z-space-3);
+  border-bottom: 1px solid var(--z-color-border);
+  vertical-align: top;
+  font-size: var(--z-font-size-xs, 12px);
+  color: var(--z-color-text-secondary);
+}
+
+.demo-props td:nth-child(1) {
+  font-family: var(--z-font-mono, monospace);
+  color: var(--z-color-primary);
+  white-space: nowrap;
+}
+
+.demo-label-row {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  margin-top: var(--z-space-1);
+}
+
+.demo-label-row span:first-child {
+  font-size: var(--z-font-size-xs, 12px);
+  color: var(--z-color-text-secondary);
+  min-width: 80px;
+}
+
+/* ── Responsive ── */
+
+/* 中等屏：收窄留白，sidebar 保持可见 */
+@media (max-width: 1180px) {
+  :root {
+    --demo-content-pad-y: var(--z-space-6);
+    --demo-content-pad-x: var(--z-space-6);
+  }
+}
+
+/* 窄屏：侧边栏转为 off-canvas 抽屉，由顶栏汉堡按钮控制（原实现直接隐藏，手机端无法导航） */
+@media (max-width: 768px) {
+  :root {
+    --demo-content-pad-y: var(--z-space-6);
+    --demo-content-pad-x: var(--z-space-4);
+    --demo-section-gap: var(--z-space-8);
+  }
+
+  .demo-header {
+    padding: 0 var(--z-space-4);
+  }
+
+  .demo-nav-toggle {
+    display: inline-flex;
+  }
+
+  /* 窄屏顶栏放不下完整按钮组：返回按钮让位给汉堡导航，版本号一并收起 */
+  .demo-back-btn,
+  .demo-header__version {
+    display: none;
+  }
+
+  .demo-sidebar {
+    width: min(82vw, 300px);
+    transform: translateX(-100%);
+    box-shadow: var(--z-shadow-xl);
+  }
+
+  .demo-sidebar--open {
+    transform: translateX(0);
+  }
+
+  .demo-sidebar-mask--visible {
+    display: block;
+  }
+
+  .demo-main {
+    margin-left: 0;
+    max-width: 100%;
+  }
+
+  .demo-catalog__list li {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .demo-hero h1 {
+    font-size: 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-sidebar {
+    transition: none;
+  }
+}
+
+/* 独立 demo 页（H5 三页没有侧栏）的返回入口：这几个页面不挂 shell，只靠浏览器后退出不去。 */
+.demo-back {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--z-color-text-secondary);
+  text-decoration: none;
+}
+.demo-back:hover { color: var(--z-color-primary); }
+
+/* ── 骨架页 / 组件卡片（2026-11-15 D1b） ────────────────────
+   新增的 12 个骨架页共用这三种积木：搬迁提示条、组件卡片、标签行。
+   全部走令牌，不写死色值 —— 暗色与紧凑模式下自动跟随。 */
+
+.demo-migrate {
+  border: 1px dashed var(--z-color-border);
+  border-left: 3px solid var(--z-color-primary);
+  border-radius: var(--z-radius-md);
+  padding: var(--z-space-3) var(--z-space-4);
+  margin-bottom: var(--z-space-5);
+  background: var(--z-color-bg-secondary);
+}
+.demo-migrate b { display: block; font-size: 13px; margin-bottom: 4px; }
+.demo-migrate p { margin: 0; font-size: 13px; color: var(--z-color-text-secondary); line-height: 1.7; }
+.demo-migrate a { color: var(--z-color-primary); }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--z-space-3);
+}
+.comp-card {
+  display: grid;
+  /* grid 的隐式列是 max-content，长摘要会把卡片撑破并溢出到相邻列 ——
+     实测 z-column-selector 的摘要把 257px 的卡片撑成 708px 的文本。加 min-width 下限才是真的会换行。 */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--z-transition-fast), box-shadow var(--z-transition-fast);
+}
+.comp-card:hover { border-color: var(--z-color-primary); box-shadow: var(--z-shadow-sm); }
+.comp-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.comp-card__head b {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px; font-weight: 600; color: var(--z-color-text);
+}
+.comp-card__head em {
+  font-style: normal; font-size: 11px; color: var(--z-color-text-secondary);
+  border: 1px solid var(--z-color-border); border-radius: var(--z-radius-sm); padding: 0 4px;
+}
+.comp-card__sum { font-size: 12px; color: var(--z-color-text-secondary); line-height: 1.55; overflow-wrap: anywhere; }
+.comp-card__props { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.comp-card__props i {
+  font-style: normal; font-size: 11px; padding: 1px 6px; border-radius: 999px;
+  background: var(--z-color-bg-secondary); color: var(--z-color-text-secondary);
+}
+
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-row a {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px; padding: 3px 9px;
+  border: 1px solid var(--z-color-border); border-radius: 999px;
+  color: var(--z-color-text); text-decoration: none;
+}
+.chip-row a:hover { border-color: var(--z-color-primary); color: var(--z-color-primary); }
+.demo-empty { color: var(--z-color-text-secondary); font-size: 13px; }
+
+.family-block { margin-bottom: var(--z-space-6); }
+.family-block h3 { font-size: 14px; margin: 0 0 8px; display: flex; align-items: baseline; gap: 8px; }
+.family-block h3 span { font-size: 12px; font-weight: 400; color: var(--z-color-text-secondary); }
+
+/* ── 首页分层地图（D1b） ──────────────────────────────────
+   2026-11-15 定规：L0 是地基，画在最底，往上依次 L1→L2→L3。
+   HTML 里也是 L3 在前、L0 在后（渲染时 reverse），读屏顺序与视觉顺序一致。
+   地基靠「下边加厚」表达，不靠虚线 —— 虚线在这个站里表示「未落地」。 */
+.lmap { display: grid; gap: 8px; }
+.lm-row { display: grid; grid-template-columns: 132px 1fr; gap: 10px; align-items: stretch; }
+.lm-label { display: flex; flex-direction: column; justify-content: center; gap: 2px; font-size: 12px; text-align: right; padding-right: 4px; }
+.lm-label b { font-size: 12px; color: var(--z-color-text); }
+.lm-label i { font-style: normal; font-size: 11px; color: var(--z-color-text-secondary); }
+.lm-boxes { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; }
+.lm-box {
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; align-content: start;
+  padding: 8px 10px; border: 1px solid var(--z-color-border); border-radius: var(--z-radius-md);
+  background: var(--z-color-bg); color: inherit; text-decoration: none;
+  transition: border-color var(--z-transition-fast);
+}
+a.lm-box:hover { border-color: var(--z-color-primary); }
+.lm-box b { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; font-weight: 600; }
+.lm-box span { font-size: 11px; color: var(--z-color-text-secondary); line-height: 1.45; overflow-wrap: anywhere; }
+.lm-row--foundation .lm-box { border-bottom-width: 3px; }
+.lm-row--page .lm-box { background: var(--z-color-bg-secondary); }
+.lm-foot { font-size: 11px; color: var(--z-color-text-secondary); padding-left: 142px; }
+
+/* 侧栏：计数徽标 / 搬迁去向标签 / 临时分组标题 */
+.demo-sidebar__count { float: right; font-size: 11px; color: var(--z-color-text-secondary); }
+.demo-sidebar__to { float: right; font-size: 11px; color: var(--z-color-text-disabled); }
+.demo-sidebar__title--temp { color: var(--z-color-text-disabled); }
+
+/* 家族分隔标题（components.html 的示例区）：h2 级别，用来隔开 26 段示例 */
+.ex-family {
+  display: flex; align-items: baseline; gap: 8px;
+  margin: var(--z-space-8) 0 var(--z-space-4);
+  padding-bottom: 6px;
+  font-size: 15px;
+  border-bottom: 1px solid var(--z-color-border);
+}
+.ex-family span { font-size: 12px; font-weight: 400; color: var(--z-color-text-secondary); }
+
+/* ── 画框预览（2026-11-15 D3） ─────────────────────────────
+   整页 demo 用它嵌进文档页：一份代码两处用，不拆碎、不重写。
+   画框自己带标题栏与「单独打开」，读者看得见这是另一个真实页面。 */
+.demo-frame-wrap {
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-lg);
+  overflow: hidden;
+  background: var(--z-color-bg);
+}
+.demo-frame__bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--z-color-border);
+  background: var(--z-color-bg-secondary);
+}
+.demo-frame__bar b { font-size: 13px; font-weight: 600; }
+.demo-frame__bar a { font-size: 12px; color: var(--z-color-primary); text-decoration: none; }
+.demo-frame__note {
+  margin: 0; padding: 8px 14px 0;
+  font-size: 12px; color: var(--z-color-text-secondary); line-height: 1.6;
+}
+.demo-frame { display: block; width: 100%; border: 0; background: var(--z-color-bg); }
+
+/* ── 画框模式（?embed=1，2026-11-16） ─────────────────────
+   被画框的整页 demo 只留内容：页头与侧栏外层文档页已经有了，框里再来一份就是「两个侧栏」——
+   读者看到的第一反应是「文档页渲染坏了」，而不是「这是另一份文档」。
+
+   而不是给每个页面加类] 标记由 shell.ts 统一打在 <html> 上；
+   9 个被画的页面零改动，也不可能漏改某一个（漏掉的表现只是「这个框特别挤」，没人会当 bug 报）。 */
+[data-embed] .demo-header,
+[data-embed] .demo-sidebar,
+[data-embed] .demo-nav-toggle { display: none !important; }
+[data-embed] .demo-layout { display: block; padding-top: 0; min-height: 0; }
+[data-embed] .demo-main {
+  margin-left: 0;
+  max-width: none;
+  padding: var(--z-space-4) var(--z-space-5) var(--z-space-6);
+}
+
+/* ── 布局族示例的外框（2026-11-15 D3-4） ────────────────────
+   这些类**只用于演示**：把「容器自己占多宽、子项之间怎么排」显形出来。
+   它们不进库 —— 需要框的时候宿主用 z-card / z-space，不是给 div 加边框。 */
+.ex-frame {
+  border: 1px dashed var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  padding: var(--z-space-3);
+  background: var(--z-color-bg-secondary);
+}
+.ex-cell {
+  padding: 8px 10px;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-bg);
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--z-color-text-secondary);
+  text-align: center;
+}
+/* 吸顶示例的滚动框：320px 高，越界滚动 —— 吸顶要在**框内**发生，不能在整页发生 */
+.ex-scroll {
+  max-height: 320px;
+  overflow: auto;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+}
+.ex-sticky-head {
+  padding: 8px 12px;
+  background: var(--z-color-bg-secondary);
+  border-bottom: 1px solid var(--z-color-border);
+  font-size: 12px;
+  font-weight: 600;
+}
+.ex-scroll__body p {
+  margin: 0;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--z-color-border);
+  font-size: 12px;
+  color: var(--z-color-text-secondary);
+}
+
+/* ── 手机框（2026-11-15 D3-4） ─────────────────────────────
+   移动控件有一半是 position: fixed。直接放进文档页会钉在浏览器窗口底部、压住侧栏，
+   所以给它们一个有边界的容器。
+
+   fixed 元素的包含块在没有 transform/filter/will-change
+   的祖先是**视口**。加一层 transform 之后包含块变成这个框，`bottom: 0` 才会落在框底。
+   这不是装饰，是让「固定定位」在框内成立的必要条件。
+   框内 fixed 元素会溢出圆角，不裁就露出直角。 */
+.ex-phones {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 340px));
+  gap: var(--z-space-5);
+  justify-content: start;
+}
+.ex-phone {
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+.ex-phone figcaption {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+}
+.ex-phone figcaption b { font-weight: 600; }
+.ex-phone figcaption span { color: var(--z-color-text-secondary); font-size: 11px; }
+.ex-phone__screen {
+  position: relative;
+  /* TabBar 是 position: relative 的普通流元素，不是 fixed：
+     只给 body `height:100%` 会把它挤到框外（被 overflow:hidden 裁掉）。
+     列向 flex + body `flex:1` 才是「内容滚动、底栏钉在框底」的正确结构。 */
+  display: flex;
+  flex-direction: column;
+  height: 560px;
+  overflow: hidden;
+  border: 1px solid var(--z-color-border);
+  border-radius: 18px;
+  background: var(--z-color-bg-secondary);
+  transform: translateZ(0);
+  box-shadow: var(--z-shadow-sm);
+}
+.ex-phone__body {
+  flex: 1;
+  min-height: 0; /* 没有它，flex 子项的最小高度是内容高度，滚动条不会出现 */
+  overflow: auto;
+  padding: var(--z-space-3);
+  padding-bottom: 72px; /* 给框内 fixed 的 TabBar / 操作条留出位置 */
+  display: grid;
+  gap: var(--z-space-2);
+  align-content: start;
+}
+.ex-phone__hint {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--z-color-text-secondary);
+}
+.ex-phone__log {
+  margin: 4px 0 0;
+  min-height: 16px;
+  font-size: 11px;
+  color: var(--z-color-primary);
+}
+.ex-phone__sum { font-size: 13px; font-weight: 600; }
+.ex-chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.ex-card-hd { font-size: 13px; font-weight: 600; }
+.ex-card-sub { font-size: 12px; color: var(--z-color-text-secondary); margin-top: 2px; }
+
+/* 报表卡网格：卡片自己带外壳，间距由容器给 */
+.ex-cards {
+  display: grid;
+  gap: var(--z-space-3);
+  /* 表格卡有 4 列（2 维度 + 2 指标）。卡窄于 ~420px 时，
+     固定列宽把维度列压成 0 宽 —— 看起来像「表格只剩指标列」，
+     其实列还在、只是被挤没了。 */
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  align-items: start;
+}
+.ex-card-wide { grid-column: 1 / -1; }
+.ex-note { margin: var(--z-space-2) 0 0; font-size: 12px; color: var(--z-color-text-secondary); }
+
+/* ── L0 机制件示例（2026-11-15 D3-4） ───────────────────── */
+.ex-sub { font-size: 14px; margin: var(--z-space-6) 0 var(--z-space-2); }
+.ex-portal { display: grid; grid-template-columns: 1fr 1fr; gap: var(--z-space-3); }
+@media (max-width: 720px) { .ex-portal { grid-template-columns: 1fr; } }
+.ex-portal__src, .ex-portal__dst {
+  min-height: 96px;
+  padding: var(--z-space-3);
+  border: 1px dashed var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg-secondary);
+}
+.ex-portal__dst { border-style: solid; border-color: var(--z-color-primary); }
+.ex-portal__cap { font-size: 11px; color: var(--z-color-text-secondary); margin-bottom: 6px; }
+.ex-token {
+  padding: 8px 10px;
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-primary-soft, var(--z-color-bg));
+  border: 1px solid var(--z-color-primary);
+  font-size: 12px;
+}
+.ex-pos { position: relative; }
+.ex-pos__row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ex-pos__panel {
+  padding: 8px 12px;
+  border: 1px solid var(--z-color-primary);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg);
+  box-shadow: var(--z-shadow-md);
+  font-size: 12px;
+}
+
+/* 密度矩阵：量高度的探针必须真的参与布局（display:none 量到 0） */
+.ex-probe {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 240px;
+  /* 不设 visibility:hidden —— 隐藏元素在某些规则下仍参与布局，但为了避免意外，
+     用移出视口而不是 display:none */
+}
+.ex-tokenname {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--z-color-text-secondary);
+  white-space: nowrap;
+}
+
+/* 密度矩阵：量高度的探针必须真的参与布局（display:none 量到 0） */
+.ex-probe {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 240px;
+  /* 不设 visibility:hidden —— 隐藏元素在某些规则下仍参与布局，但为了避免意外，
+     用移出视口而不是 display:none */
+}
+.ex-tokenname {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--z-color-text-secondary);
+  white-space: nowrap;
+}
+
+/* ── 回到顶部（2026-11-15） ─────────────────────────────────
+   这个按钮本身也是「可交互元素」——它的圆形轮廓
+   如果跟卡片边框一样淡（gray-200，1.23:1），就会出现「页面右下角有一团阴影，
+   但看不出那是个按钮」。控件档的 3:1 规则在这里同样成立。
+   两者都不进 tab 序列，但 visibility 能过渡；
+   display 会让按钮每次出现都「跳」出来，在长页面上很扎眼。 */
+.demo-to-top {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--z-color-border-control);
+  border-radius: 50%;
+  background: var(--z-color-bg);
+  color: var(--z-color-text-secondary);
+  box-shadow: var(--z-shadow-md);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition:
+    opacity var(--z-transition-fast),
+    transform var(--z-transition-fast),
+    visibility var(--z-transition-fast),
+    color var(--z-transition-fast),
+    border-color var(--z-transition-fast);
+}
+.demo-to-top.is-visible { opacity: 1; visibility: visible; transform: none; }
+.demo-to-top:hover { color: var(--z-color-primary); border-color: var(--z-color-primary); }
+.demo-to-top:focus-visible { outline: none; box-shadow: var(--z-focus-ring); }
+.demo-to-top svg { width: 16px; height: 16px; }
+
+@media (max-width: 768px) {
+  .demo-to-top { right: 16px; bottom: 16px; width: 36px; height: 36px; }
+}
+
+/* ── 面包屑与「看示例」跳转（2026-11-15） ──────────────────
+   详情页靠 `?tag=` 进入，没有回程链接时浏览器后退是唯一出口。
+   面包屑给「我在哪」，跳转按钮给「示例在哪」—— 两者不是一回事，所以都做。 */
+.demo-crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0 8px;
+  font-size: 12px;
+  color: var(--z-color-text-secondary);
+}
+.demo-crumb a { color: var(--z-color-text-secondary); text-decoration: none; }
+.demo-crumb a:hover { color: var(--z-color-primary); text-decoration: underline; }
+.demo-crumb [aria-current="page"] {
+  color: var(--z-color-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 600;
+}
+.demo-crumb__jump { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
+.demo-jump {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--z-color-primary);
+  border-radius: var(--z-radius-full);
+  color: var(--z-color-primary);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background var(--z-transition-fast), color var(--z-transition-fast);
+}
+.demo-jump:hover { background: var(--z-color-primary); color: var(--z-color-white); }
+.demo-jump__hint {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: var(--z-color-text-secondary);
+}
+
+/* ── 站内搜索（命令面板） ── */
+/* 入口放在页头而不是侧栏：侧栏在窄屏是抽屉（默认关着），页头是唯一「任何宽度都在」的位置。 */
+.demo-search-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-bg-secondary);
+  color: var(--z-color-text-secondary);
+  font: inherit;
+  font-size: var(--z-font-size-xs, 12px);
+  cursor: pointer;
+}
+
+.demo-search-trigger:hover {
+  color: var(--z-color-text);
+  border-color: var(--z-color-border-control);
+}
+
+.demo-search-trigger:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: 2px;
+}
+
+.demo-search-trigger__icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.demo-search-trigger__kbd {
+  padding: 0 4px;
+  border: 1px solid var(--z-color-border);
+  border-radius: 3px;
+  font-family: var(--z-font-mono, ui-monospace, monospace);
+  font-size: 10px;
+}
+
+/* 窄屏只留图标：页头已有 ☰ + 品牌 + 版本 + 语言 + 主题，再塞一个文字按钮会挤成两行 */
+@media (max-width: 768px) {
+  .demo-search-trigger__text,
+  .demo-search-trigger__kbd {
+    display: none;
+  }
+}
+
+.demo-search {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-z-modal);
+}
+
+.demo-search[hidden] {
+  display: none;
+}
+
+.demo-search__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.42);
+}
+
+.demo-search__panel {
+  position: relative;
+  width: min(640px, calc(100vw - 32px));
+  margin: 12vh auto 0;
+  overflow: hidden;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-lg);
+  background: var(--z-color-bg);
+  box-shadow: var(--z-shadow-xl);
+}
+
+.demo-search__input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--z-color-border);
+  background: transparent;
+  color: var(--z-color-text);
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+}
+
+.demo-search__input:focus-visible {
+  box-shadow: inset 0 -2px 0 var(--z-color-primary);
+}
+
+.demo-search__hint,
+.demo-search__status,
+.demo-search__empty {
+  margin: 0;
+  padding: 6px 16px;
+  font-size: var(--z-font-size-xs, 12px);
+  color: var(--z-color-text-secondary);
+}
+
+.demo-search__hint {
+  border-bottom: 1px solid var(--z-color-border);
+}
+
+.demo-search__status:empty,
+.demo-search__empty[hidden] {
+  display: none;
+}
+
+.demo-search__list {
+  max-height: min(52vh, 420px);
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.demo-search__item {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  gap: 2px 8px;
+  padding: 7px 10px;
+  border-radius: var(--z-radius-sm);
+  cursor: pointer;
+}
+
+/* 选中态本来就是给读屏的那条信息，
+   两套状态类会分叉（滚动高亮只改其中一套，另一套停在旧行）。 */
+.demo-search__item[aria-selected="true"] {
+  background: var(--z-color-bg-secondary);
+}
+
+.demo-search__glyph {
+  color: var(--z-color-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.demo-search__label {
+  font-family: var(--z-font-mono, ui-monospace, monospace);
+  font-size: 13px;
+  color: var(--z-color-text);
+}
+
+/* 组件名是等宽字体，页面名是自然语言 —— 用字体区分，比再加一个图标省事 */
+.demo-search__item:not([data-href*="component.html"]) .demo-search__label {
+  font-family: inherit;
+}
+
+.demo-search__kind {
+  font-size: 11px;
+  color: var(--z-color-text-secondary);
+  justify-self: end;
+}
+
+.demo-search__sub {
+  grid-column: 2 / -1;
+  overflow: hidden;
+  font-size: 12px;
+  color: var(--z-color-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

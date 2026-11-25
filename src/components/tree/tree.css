@@ -1,0 +1,22 @@
+:host {
+  display: block;
+}
+
+.z-tree {
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  line-height: var(--z-line-height);
+  color: var(--z-color-text);
+}
+
+/* [WHY 这里没有 :focus-visible 规则了] 容器的 tabindex 已去掉（焦点属于 treeitem，
+   见 Tree.ts 顶部的焦点模型说明）。焦点环改由 tree-node 的宿主绘制 —— 那条规则必须
+   在 tree-node.css 里，因为宿主是那个组件的 :host。留一条到不存在的元素上的规则
+   比没有更糟：它让人以为键盘能进容器。 */
+
+.z-tree__empty {
+  padding: var(--z-space-6);
+  text-align: center;
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-sm);
+}

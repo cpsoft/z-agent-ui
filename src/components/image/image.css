@@ -1,0 +1,114 @@
+/* ===== z-image ===== */
+
+:host {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+}
+
+.z-image {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.z-image__img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.z-image__placeholder,
+.z-image__fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 60px;
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text-secondary);
+  background: var(--z-color-bg-secondary);
+}
+
+/* [WHY] img 渲染期间的占位遮罩: 与 img 同层叠加而非并列（flex 容器内会被挤开） */
+.z-image__placeholder--overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.z-image__preview-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--z-radius-sm);
+  background: rgba(15, 23, 42, 0.55);
+  color: var(--z-color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--z-transition-fast);
+}
+
+.z-image:hover .z-image__preview-btn {
+  opacity: 1;
+}
+
+/* ── 灯箱 ── */
+
+.z-image__box {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-z-modal) + 100);
+  background: rgba(2, 6, 23, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+
+.z-image__box-imgwrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 90vw;
+  max-height: 85vh;
+  overflow: auto;
+}
+
+.z-image__box-img {
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+  transition: transform var(--z-transition-normal) ease;
+  transform-origin: center;
+  cursor: zoom-in;
+}
+
+.z-image__box-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: var(--z-radius-sm);
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--z-color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.z-image__box-close:hover {
+  background: rgba(255, 255, 255, 0.22);
+}

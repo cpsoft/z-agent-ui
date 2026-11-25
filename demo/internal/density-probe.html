@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head><meta charset="utf-8" /><title>密度探针</title>
+<style>
+  body { margin: 0; padding: 16px; font-family: system-ui, "PingFang SC", sans-serif; background: #fff; }
+  .box { margin-bottom: 18px; }
+  .cap { font-size: 11px; color: #64748b; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+  <div class="box"><div class="cap">data-list</div><div id="dl"></div></div>
+  <div class="box"><div class="cap">m-list</div><div id="ml" style="width:360px"></div></div>
+  <div class="box"><div class="cap">virtual-list</div><div id="vl" style="width:360px"></div></div>
+  <div class="box"><div class="cap">report-table</div><div id="rt"></div></div>
+<script type="module">
+  import "../../src/theme/index.js";
+  import "../../src/report/data-list/index.js";
+  import "../../src/components/m-list/index.js";
+  import "../../src/components/m-cell/index.js";   // m-list 的 barrel 不含 m-cell（它是独立组件）
+  import "../../src/components/virtual-list/index.js";
+  import "../../src/report/table/index.js";
+
+  const rows = Array.from({ length: 8 }, (_, i) => ({ name: `门店 ${i + 1}`, qty: 100 + i, note: "备注" }));
+
+  const dl = document.createElement("z-data-list");
+  dl.fields = [
+    { key: "name", label: "门店" },
+    { key: "qty", label: "销量", numeric: true },
+    { key: "note", label: "备注" },
+  ];
+  dl.items = rows;
+  document.getElementById("dl").appendChild(dl);
+
+  // 移动端标签是 `m-list` / `m-cell`，没有 z- 前缀。未注册的自定义元素被当行内元素渲染，
+  // 这一格会是空白且不报错。
+  const ml = document.createElement("m-list");
+  ml.innerHTML = rows.slice(0, 4).map((r) =>
+    `<m-cell label="${r.name}" desc="销量 ${r.qty}" divider></m-cell>`).join("");
+  document.getElementById("ml").appendChild(ml);
+
+  const vl = document.createElement("z-virtual-list");
+  vl.items = rows.map((r) => r.name);
+  vl.height = 200;
+  document.getElementById("vl").appendChild(vl);
+
+  const rt = document.createElement("z-report-table");
+  rt.columns = [{ key: "name", title: "门店" }, { key: "qty", title: "销量", numeric: true }];
+  rt.data = rows;
+  rt.showColumnSelector = false;
+  document.getElementById("rt").appendChild(rt);
+</script>
+</body>
+</html>

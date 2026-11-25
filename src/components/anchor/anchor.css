@@ -1,0 +1,40 @@
+/* ===== z-anchor ===== */
+
+:host {
+  display: block;
+}
+
+.z-anchor__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-left: 2px solid var(--z-color-border);
+  padding-left: 0;
+}
+
+.z-anchor__link {
+  display: block;
+  padding: 6px 12px;
+  border-left: 2px solid transparent;
+  margin-left: -2px;
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text-secondary);
+  text-decoration: none;
+  border-radius: 0 var(--z-radius-sm) var(--z-radius-sm) 0;
+  transition: color var(--z-transition-fast), background var(--z-transition-fast), border-color var(--z-transition-fast);
+}
+
+.z-anchor__link:hover {
+  color: var(--z-color-text);
+  background: var(--z-color-hover-subtle);
+}
+
+.z-anchor__link--active {
+  color: var(--z-color-primary);
+  border-left-color: var(--z-color-primary);
+  background: var(--z-color-primary-soft);
+  font-weight: 500;
+}

@@ -1,0 +1,44 @@
+/* ===== z-menu-item ===== */
+
+:host {
+  display: block;
+  outline: none;
+}
+
+.z-menu-item {
+  display: flex;
+  align-items: center;
+  padding: var(--z-space-2) var(--z-space-3);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+  border-radius: var(--z-radius-sm);
+  cursor: pointer;
+  user-select: none;
+  line-height: var(--z-line-height);
+  transition: background var(--z-transition-fast);
+}
+
+.z-menu-item:hover {
+  background: var(--z-color-hover);
+}
+
+.z-menu-item--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.z-menu-item--disabled:hover {
+  background: transparent;
+}
+
+/* [WHY] 面板里的子项由 z-menu 统一渲染（走 menu-panel.ts 的类名），
+   这里的 danger 只作用于「直接把 z-menu-item 当普通元素用」的场景；
+   两条路径共用同一个 token，颜色不会漂移。 */
+.z-menu-item--danger {
+  color: var(--z-color-danger);
+}
+
+.z-menu-item--danger:hover {
+  background: var(--z-color-danger-soft);
+}

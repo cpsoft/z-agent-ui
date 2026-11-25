@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>组件详情 — zAgentUI</title>
+  <link rel="stylesheet" href="./demo.css" />
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+
+  <!-- Sidebar：由 shell.ts 从 nav.ts 渲染（单一数据源） -->
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <main class="demo-main">
+
+    <!-- 面包屑：详情页是「靠 ?tag= 进入」的，没有一个回程链接时，浏览器后退是唯一出口 -->
+    <nav class="demo-crumb" id="comp-crumb" aria-label="breadcrumb"></nav>
+
+    <section class="demo-hero">
+      <h1 id="comp-title">组件详情</h1>
+      <p id="comp-sum">从总览页点进来，或直接带 <code>?tag=z-input</code> 打开。</p>
+      <p class="demo-crumb__jump" id="comp-jump" hidden></p>
+    </section>
+
+    <section class="demo-section" id="preview">
+      <div class="demo-section__header">
+        <h2>示例</h2>
+        <p>示例<b>不在这一页</b>：每个组件的可跑示例都放在它所属家族的那一节里，
+        因为要演示的往往不是孤立的一个控件，而是「它和邻居一起用」的样子。
+        下面的链接直接跳到那一节。</p>
+      </div>
+      <div class="demo-preview"><div class="demo-preview__live demo-preview__live--block" id="example-slot">
+        <p class="demo-empty" id="example-where">——</p>
+      </div></div>
+    </section>
+
+    <section class="demo-section" id="usage">
+      <div class="demo-section__header">
+        <h2>用法</h2>
+        <p>最小可运行片段。<b>入口那一行是推出来的</b>（由 <code>package.json</code> 的 exports 现算，
+        事件名取自清单）：组件搬家后示例不会过期。</p>
+      </div>
+      <div class="demo-usage">
+        <button class="demo-usage__copy" id="usage-copy" type="button">复制</button>
+        <pre><code id="usage-body">—</code></pre>
+      </div>
+      <p class="demo-usage__hint">CSS 那一行不能省：组件的间距 / 描边 / 密度全在令牌里，
+      漏了它组件「渲染得出来，但没有样式」。按需引入用目录 barrel，一个页面只用两三个控件时不必引全量。</p>
+    </section>
+
+    <section class="demo-section" id="props">
+      <div class="demo-section__header">
+        <h2>属性</h2>
+        <p>全部来自清单（B4 起由生成器从源码产出）。<code>默认</code> 列里 <code>—</code> 表示未声明默认值，与 <code>false</code> 是两件事。</p>
+      </div>
+      <table class="demo-props"><thead><tr><th style="width:150px">属性</th><th style="width:80px">类型</th><th style="width:110px">默认</th><th>取值 / 说明</th></tr></thead><tbody id="prop-body"></tbody></table>
+    </section>
+
+    <section class="demo-section" id="events">
+      <div class="demo-section__header">
+        <h2>事件</h2>
+        <p>以 <code>z-</code> 前缀派发。<code>detail</code> 里给什么，就在这行写什么。</p>
+      </div>
+      <p id="event-body" style="font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">—</p>
+    </section>
+
+    <section class="demo-section" id="slots">
+      <div class="demo-section__header">
+        <h2>插槽</h2>
+        <p>具名插槽才列出来；<code>default</code> 表示直接放子节点。</p>
+      </div>
+      <p id="slot-body" style="font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">—</p>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+  import { initShell } from "./shell.js";
+  import { byTag, COMPONENTS, formatDefault, eventNames, slotNames } from "./manifest.js";
+  import { usageSnippet } from "./usage.js";
+  import { FAMILIES } from "./nav.js";
+  import { getLang } from "./i18n.js";
+
+  const tag = new URLSearchParams(location.search).get("tag") || "z-input";
+  const c = byTag(tag);
+
+  // ── 面包屑 + 「示例在哪一节」 ─────────────────────────
+  // 家族归属只有 nav.ts 一份事实。
+  // 从 ?tag= 反查，任何入口进来（卡片、家族 chips、外链）都能得到同一个答案。
+  const family = FAMILIES.find((f) => f.members.includes(tag));
+  const crumb = document.getElementById("comp-crumb");
+  const jumpEl = document.getElementById("comp-jump");
+  const whereEl = document.getElementById("example-where");
+  if (family) {
+    const zh = getLang() === "zh";
+    const pageName = family.page.replace(/\.html$/, "");
+    const href = "./" + family.page + "#" + family.section;
+    if (crumb) {
+      crumb.innerHTML =
+        `<a href="./index.html">${zh ? "概览" : "Overview"}</a>` +
+        `<span aria-hidden="true">/</span>` +
+        `<a href="./${family.page}">${zh ? "L1 控件" : "L1 Controls"}</a>` +
+        `<span aria-hidden="true">/</span>` +
+        `<a href="${href}">${family.title}</a>` +
+        `<span aria-hidden="true">/</span>` +
+        `<span aria-current="page">${tag}</span>`;
+    }
+    if (jumpEl) {
+      jumpEl.hidden = false;
+      jumpEl.innerHTML =
+        `<a class="demo-jump" href="${href}">${zh ? "看示例" : "See example"}：${family.title} →</a>` +
+        `<span class="demo-jump__hint">${zh ? "（" + pageName + ".html #" + family.section + "）" : "(" + pageName + ".html #" + family.section + ")"}</span>`;
+    }
+    if (whereEl) {
+      whereEl.innerHTML = zh
+        ? `这个组件的示例在 <a href="${href}"><b>L1 控件页 · ${family.title}</b></a> 一节里。<br>点上面的「看示例」直接跳过去。`
+        : `Its example lives in <a href="${href}"><b>L1 Controls · ${family.title}</b></a>.<br>Use “See example” above to jump there.`;
+    }
+  }
+
+  if (!c) {
+    document.getElementById("comp-title").textContent = "找不到 " + tag;
+    document.getElementById("comp-sum").innerHTML =
+      '清单里没有这个标签。可能是拼错了 —— <a href="./components.html">回总览</a>看全部 ' +
+      COMPONENTS.length + " 个。";
+  } else {
+    document.title = c.tag + " — zAgentUI";
+    document.getElementById("comp-title").textContent = c.tag;
+    const sum = c.summary || "清单里没有这个组件的摘要（源码头部没有说明注释）";
+    document.getElementById("comp-sum").textContent = sum + "（" + c.layer + " · " + c.source + "）";
+
+    document.getElementById("prop-body").innerHTML = c.properties
+      .map(function (p) {
+        const vals = p.values && p.values.length ? p.values.join(" | ") : p.type;
+        const alias = p.aliases && p.aliases.length > 1 ? "（别名：" + p.aliases.slice(1).join(" / ") + "）" : "";
+        return (
+          "<tr><td><code>" + p.name + "</code></td><td>" + p.type + "</td><td>" +
+          formatDefault(p.default).replace(/"/g, "&quot;") + "</td><td>" + vals + alias + "</td></tr>"
+        );
+      })
+      .join("") || '<tr><td colspan="4" class="demo-empty">该组件没有可配置属性</td></tr>';
+
+    const evs = eventNames(c);
+    document.getElementById("event-body").innerHTML = evs.length
+      ? evs.map(function (e) { return "<code>" + e + "</code>"; }).join(" ")
+      : '<span class="demo-empty">无自定义事件（只用原生事件）</span>';
+
+    const sls = slotNames(c);
+    document.getElementById("slot-body").innerHTML = sls.length
+      ? sls.map(function (s) { return "<code>" + s + "</code>"; }).join(" ")
+      : '<span class="demo-empty">只用默认插槽</span>';
+
+    // ── 用法片段 ──
+    // 片段里有 <script> 与 <!-- -->，走 innerHTML 会被
+    // 浏览器的 HTML 解析器当成真标签执行/吞掉；这里要的是「一段字面文本」。
+    const usageEl = document.getElementById("usage-body");
+    const snip = usageSnippet(c);
+    if (usageEl) usageEl.textContent = snip;
+
+    const copyBtn = document.getElementById("usage-copy");
+    if (copyBtn) {
+      copyBtn.addEventListener("click", function () {
+        // 非 HTTPS / 非 localhost 下 navigator.clipboard 是 undefined
+        // （局域网手机打开演示站就是这种情形），静默失败比报错更糟：按钮看起来点了。
+        const done = function () {
+          copyBtn.textContent = getLang() === "zh" ? "已复制" : "Copied";
+          setTimeout(function () { copyBtn.textContent = getLang() === "zh" ? "复制" : "Copy"; }, 1400);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(snip).then(done, function () { copyByRange(snip, done); });
+        } else {
+          copyByRange(snip, done);
+        }
+      });
+    }
+
+    /** 旧路子：选中一段离屏文本再 execCommand。只为非安全上下文兜底。 */
+    function copyByRange(text, done) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.cssText = "position:fixed;left:-9999px;top:0";
+      document.body.appendChild(ta);
+      ta.select();
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      if (ok) done();
+      else alert(getLang() === "zh" ? "复制失败，请手动选中代码块" : "Copy failed — select the block manually");
+    }
+  }
+
+  initShell();
+</script>
+</body>
+</html>

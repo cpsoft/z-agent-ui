@@ -1,0 +1,178 @@
+/* ===== z-select ===== */
+
+:host {
+  display: inline-flex;
+  flex-direction: column;
+  vertical-align: middle;
+  width: 100%;
+  max-width: 320px;
+  /* 占位符色的组件钩子。它原先只在页面层（`page-view-block.css`）定义，
+     组件自己只有一句带 fallback 的引用 —— 组件库独立发布后，那个定义处不在了，
+     使用者看到的就是 fallback 色。在这里给出自己的默认值，页面要覆写照样能覆写。 */
+  --z-select-placeholder-color: var(--z-color-text-disabled);
+}
+
+/* ── Trigger ── */
+
+.z-select__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  width: 100%;
+  height: var(--_h, var(--z-input-height));
+  padding: 0 var(--z-input-padding-x);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-input-font-size);
+  color: var(--z-color-text);
+  background: var(--z-color-bg);
+  border: var(--z-input-border-width) solid var(--z-color-border-control);
+  border-radius: var(--z-input-radius);
+  cursor: pointer;
+  user-select: none;
+  text-align: left;
+  transition: border-color var(--z-transition-fast), box-shadow var(--z-transition-fast);
+}
+
+.z-select__trigger:hover:not(:disabled) {
+  border-color: var(--z-color-border-control-hover);
+}
+
+.z-select__trigger:focus-visible {
+  outline: none;
+  border-color: var(--z-color-primary);
+  box-shadow: var(--z-focus-ring);
+}
+
+.z-select__trigger--open {
+  border-color: var(--z-color-primary);
+  box-shadow: var(--z-focus-ring);
+}
+
+.z-select__trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--z-color-bg-secondary);
+}
+
+/* ── Value ── */
+
+.z-select__value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.z-select__placeholder {
+  /* [WHY 留一个出口] 默认仍是 disabled 灰（表单里一行能靠 label 认出字段，占位只是提示）。
+     但筛选栏的 bare 模式把字段名整个下沉到占位里，那里必须是可读的正文色，
+     而占位在组件的 shadow 树内、外部选择器够不着 —— 只能由宿主设变量进来。 */
+  color: var(--z-select-placeholder-color, var(--z-color-text-disabled));
+}
+
+/* ── 多选标签（方案 B） ── */
+
+/* 标签把左内边距吃掉一点，否则第一个标签看起来像多缩进了一格 */
+.z-select__trigger--multi {
+  padding-left: var(--z-space-1);
+}
+
+.z-select__tags {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  /* 不换行：trigger 固定 36px 高，换行会把控件撑高、与旁边的输入框错位 */
+  flex-wrap: nowrap;
+}
+
+.z-select__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  /* [WHY flex:none] 允许压缩的结果是窄容器里每个标签各剩一个字（实测「原」「包」「耗」），
+     比折叠更糟：用户既读不出内容，也看不出还有几项。宁可让超出的整块被容器裁掉。 */
+  flex: none;
+  padding: 1px 2px 1px 5px;
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-bg-secondary);
+  color: var(--z-color-text);
+  font-size: var(--z-font-size-xs);
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.z-select__tag-label {
+  /* inline 元素上 overflow / text-overflow 不生效，必须成为 flex item 才吃得住 */
+  display: block;
+  min-width: 0;
+  max-width: 5.5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.z-select__tag-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  color: var(--z-color-text-secondary);
+  cursor: pointer;
+  flex: none;
+}
+
+.z-select__tag-x:hover {
+  background: var(--z-color-border);
+  color: var(--z-color-text);
+}
+
+.z-select__tag--more {
+  padding: 1px 5px;
+  color: var(--z-color-text-secondary);
+  cursor: default;
+}
+
+/* ── 整框清除 ── */
+
+/* [WHY 加一条竖线] 多选时框里有两种叉：标签上的（去一项）和整框的（全清）。
+   只靠大小/间距区分，在 168px 里三个叉挨在一起，点错就是把整个筛选清掉。
+   一条 1px 分隔线是这里最便宜的消歧手段。 */
+.z-select__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 12px;
+  min-height: 16px;
+  margin-left: 3px;
+  padding-left: 6px;
+  border-left: 1px solid var(--z-color-border-control);
+  color: var(--z-color-text-secondary);
+  cursor: pointer;
+  flex: none;
+}
+
+.z-select__clear:hover {
+  color: var(--z-color-text);
+}
+
+/* ── Chevron ── */
+
+.z-select__chevron {
+  display: flex;
+  align-items: center;
+  color: var(--z-color-text-secondary);
+  transition: transform var(--z-transition-fast);
+  flex-shrink: 0;
+}
+
+.z-select__chevron--open {
+  transform: rotate(180deg);
+}
+
+/* Dropdown/option/empty styles are injected to document.head */
+/* by injectDropdownStyles() since the dropdown lives in light DOM. */

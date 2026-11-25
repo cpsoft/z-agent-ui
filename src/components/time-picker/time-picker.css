@@ -1,0 +1,13 @@
+/* Shadow styles: host + trigger wrapper. Panel styles are injected globally (see TimePicker.ts). */
+:host {
+  display: inline-flex;
+}
+
+.z-time-picker__trigger {
+  display: inline-flex;
+}
+
+:host([disabled]) .z-time-picker__trigger {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

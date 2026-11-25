@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>L2 流程 — zAgentUI</title>
+  <link rel="stylesheet" href="./demo.css" />
+</head>
+<body>
+
+<header class="demo-header">
+  <div class="demo-header__brand">
+    <span>z</span>AgentUI
+  </div>
+  <div class="demo-header__right">
+    <span class="demo-header__version" data-i18n="header.version">v2.0.0</span>
+    <z-button id="lang-toggle" appearance="ghost" size="sm">中</z-button>
+    <z-button id="theme-toggle" appearance="outline" size="sm">Dark</z-button>
+  </div>
+</header>
+
+<div class="demo-layout">
+
+  <!-- Sidebar：由 shell.ts 从 nav.ts 渲染（单一数据源） -->
+  <nav class="demo-sidebar" data-shell-sidebar></nav>
+
+  <main class="demo-main">
+
+    <section class="demo-hero">
+      <h1>L2 流程</h1>
+      <p>节点、连线、小地图、手势与几何计算。它自带数据契约：一份节点图就是一份状态机，拖拽、连线、缩放都在内部收敛。</p>
+    </section>
+
+    <div class="demo-migrate">
+      <b>下面这一块可以真的操作</b>
+      <p>画框里是真实运行的整页 demo：滚动、点击、打开弹层都生效，主题与密度跟随上面的切换。
+      想全屏试，点右上角「单独打开」。</p>
+    </div>
+    <section class="demo-section">
+      <div class="demo-section__header">
+        <h2>这一域有哪些件</h2>
+        <p>取自 <code>src/flow/</code>：</p>
+      </div>
+      <div class="card-grid" id="domain-cards"></div>
+    </section>
+
+    <section class="demo-section" id="fullpage">
+      <div class="demo-section__header">
+        <h2>整页 demo</h2>
+        <p>画框里是真实页面；主题与密度会跟随上面的切换。</p>
+      </div>
+      <div id="frame-host"></div>
+    </section>
+
+  </main>
+</div>
+
+<script type="module">
+  import { initShell } from "./shell.js";
+  import { renderCards } from "./cards.js";
+  import { mountFrames } from "./frame.js";
+  import { bySourcePrefix } from "./manifest.js";
+
+  renderCards(document.getElementById("domain-cards"), bySourcePrefix("src/flow/"));
+  mountFrames(document.getElementById("frame-host"), "flow");
+  initShell();
+</script>
+</body>
+</html>

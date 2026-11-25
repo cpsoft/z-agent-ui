@@ -1,0 +1,459 @@
+/* ===== Page Definition demo ===== */
+
+/* demo.css 给 `.demo-main` 的上限是「侧边栏 + 1040px 可读宽度」，
+   编辑模式是三栏工作台，那个宽度会把画布压窄到卡片内容换行（高度不再等于脚本里的
+   `height=`）。原 page-editor.html 用内联样式放开过同一条，合页后搬到这里。 */
+.demo-main--wide {
+  max-width: 1680px;
+}
+
+.pd-page {
+  /* `.demo-main` 已经给了 48px 左右内边距，这里再叠 32px 就是双重缩进：
+     编辑模式下画布 3 列从 199px 被压到 171px，卡片内容换行 ⇒ 实际高度比脚本里写的
+     `height=` 高出几像素（高度是 min-height）。去掉后编辑面板与原先的编辑器 demo 同宽。 */
+  padding: 0 0 64px;
+  /* 合页后「编辑」模式是编辑器三栏工作台，与 page-editor demo 同宽；
+     页面模式在这个宽度下两侧也不空（脚本列有 max-width 约束，预览列吃掉余量）。 */
+  max-width: 1680px;
+}
+
+/* 下面几个容器都带 display，浏览器默认的 `[hidden]` 会被覆盖 ——
+   切模式靠 hidden 属性，所以必须显式让 hidden 赢。 */
+.pd-view[hidden],
+.pd-edit[hidden],
+.pd-dirty[hidden] {
+  display: none;
+}
+
+.pd-hero h1 {
+  margin: 0 0 var(--z-space-2, 8px);
+  font-size: var(--z-font-size-2xl);
+  font-weight: var(--z-font-weight-semibold, 600);
+}
+
+.pd-hero p {
+  margin: 0;
+  max-width: 82ch;
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-sm, 13px);
+  line-height: 1.7;
+}
+
+/* 三段链路：脚本 → AST → 元素 */
+.pd-chain {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--z-space-3, 12px);
+  margin: var(--z-space-4, 16px) 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: chain;
+}
+
+.pd-chain li {
+  position: relative;
+  padding: 10px 12px 10px 34px;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md, 8px);
+  background: var(--z-color-bg);
+  font-size: var(--z-font-size-xs, 12px);
+  color: var(--z-color-text-secondary);
+  line-height: 1.5;
+  counter-increment: chain;
+}
+
+.pd-chain li::before {
+  content: counter(chain);
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--z-color-primary-soft);
+  color: var(--z-color-primary-strong, var(--z-color-primary));
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.pd-chain code {
+  display: block;
+  margin-bottom: 2px;
+  font-family: var(--z-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+  color: var(--z-color-text);
+}
+
+/* 工具栏 */
+.pd-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--z-space-2, 8px);
+  margin: var(--z-space-5, 20px) 0 var(--z-space-3, 12px);
+}
+
+.pd-toolbar__spacer {
+  margin-left: auto;
+}
+
+/* 此前「编辑」模式会收起导语、把标题从 26px 压到 20px，
+   切一次模式头部就跳一次（标题位置与整页起点都变）。头部是定位锚点，不是内容的一部分 ——
+   两个模式之间必须一动不动。编辑器要靠纵向空间就自己滚，不动别人的位置。 */
+
+/* ── 模式切换（页面 / 编辑） ─────────────────────────────────────
+   这是同一文档的**视图**切换，不产生新内容、不参与表单；
+   segmented 的视觉语义（贴着的一条）比标签页更准，也不引入 tab 面板的焦点管理。 */
+.pd-modes {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md, 8px);
+  background: var(--z-color-bg-secondary);
+}
+
+.pd-mode {
+  appearance: none;
+  border: 0;
+  padding: 4px 14px;
+  border-radius: var(--z-radius-sm, 4px);
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  font: inherit;
+  font-size: var(--z-font-size-xs, 12px);
+  line-height: 18px;
+  cursor: pointer;
+}
+
+.pd-mode:hover {
+  color: var(--z-color-text);
+}
+
+.pd-mode.is-active {
+  background: var(--z-color-bg);
+  color: var(--z-color-primary-strong, var(--z-color-primary));
+  font-weight: var(--z-font-weight-medium, 500);
+  box-shadow: var(--z-shadow-sm);
+}
+
+.pd-mode:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: 1px;
+}
+
+.pd-toolbar__sep {
+  width: 1px;
+  height: 18px;
+  background: var(--z-color-border);
+}
+
+/* ── 编辑面板 ── */
+.pd-edit__bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--z-space-2, 8px);
+  margin: 0 0 var(--z-space-3, 12px);
+  font-size: var(--z-font-size-xs, 12px);
+  color: var(--z-color-text-secondary);
+}
+
+.pd-dirty {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  border-radius: var(--z-radius-full, 999px);
+  background: var(--z-color-warning-soft);
+  color: var(--z-color-warning-strong);
+  font-weight: var(--z-font-weight-medium, 500);
+  line-height: 18px;
+}
+
+.pd-edit__warn {
+  color: var(--z-color-warning-strong);
+}
+
+.pd-edit__warn[hidden] {
+  display: none;
+}
+
+.pd-edit__tip {
+  font-family: var(--z-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  color: var(--z-color-text);
+}
+
+.pd-edit__hint {
+  margin-left: auto;
+}
+
+
+/* 渲染面板：整宽单栏。脚本面板已移除（脚本只在「编辑」里看）。 */
+.pd-pane {
+  min-width: 0;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md, 8px);
+  background: var(--z-color-bg);
+  overflow: hidden;
+}
+
+.pd-pane__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--z-space-2, 8px);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--z-color-border);
+  background: var(--z-color-bg-secondary);
+}
+
+.pd-pane__head h2 {
+  margin: 0;
+  font-size: var(--z-font-size-sm, 13px);
+  font-weight: var(--z-font-weight-semibold, 600);
+}
+
+.pd-pane__meta {
+  margin-left: auto;
+  font-size: var(--z-font-size-xs, 12px);
+  color: var(--z-color-text-secondary);
+  white-space: nowrap;
+}
+
+/* 源码块：现在只剩 AST 面板在用（脚本面板已移除）。 */
+.pd-code {
+  margin: 0;
+  padding: 12px 0;
+  scrollbar-width: thin;
+  max-height: 620px;
+  overflow: auto;
+  font-family: var(--z-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--z-color-text);
+  tab-size: 2;
+}
+
+/* macOS 默认隐藏滚动条 ⇒ 看不到「右边还有字」。这里常显一条细条。 */
+.pd-code::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.pd-code::-webkit-scrollbar-thumb {
+  background: var(--z-color-border);
+  border-radius: var(--z-radius-sm);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.pd-code--json {
+  max-height: 480px;
+  padding: 12px;
+  white-space: pre;
+}
+
+/* 预览区：整宽渲染（不再是左右分栏里的右半）。
+   宽度越接近真实页面，栅格越能反映发布后的样子。 */
+.pd-preview {
+  padding: var(--z-space-3, 12px);
+  /* 预览区 = 页面定义的"画布"，与 editor.css 的 .pe-mid 同义：比卡片更深，卡片才浮得起来。
+     See: wiki/audits/2026-10-26-pagedef-style-audit.md P0-5 */
+  background: var(--z-color-canvas);
+  min-height: 360px;
+}
+
+.pd-ast {
+  margin-top: var(--z-space-4, 16px);
+}
+
+.pd-ast .pd-pane__head {
+  border: 1px solid var(--z-color-border);
+  border-bottom: 0;
+  border-radius: var(--z-radius-md, 8px) var(--z-radius-md, 8px) 0 0;
+}
+
+.pd-ast .pd-code--json {
+  border: 1px solid var(--z-color-border);
+  border-radius: 0 0 var(--z-radius-md, 8px) var(--z-radius-md, 8px);
+  background: var(--z-color-bg);
+}
+
+.pd-notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--z-space-3, 12px);
+  margin-top: var(--z-space-5, 20px);
+}
+
+.pd-note {
+  padding: var(--z-space-3, 12px);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md, 8px);
+  background: var(--z-color-bg);
+}
+
+.pd-note h3 {
+  margin: 0 0 6px;
+  font-size: var(--z-font-size-sm, 13px);
+  font-weight: var(--z-font-weight-semibold, 600);
+}
+
+.pd-note p {
+  margin: 0;
+  font-size: var(--z-font-size-xs, 12px);
+  line-height: 1.65;
+  color: var(--z-color-text-secondary);
+}
+
+/* ── 脚本静态检查结果（链路第一环：AI 写完脚本先过这里）────── */
+.pd-pane__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pd-lint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 7px;
+  border-radius: var(--z-radius-full, 999px);
+  font-size: var(--z-font-size-xs, 12px);
+  font-weight: var(--z-font-weight-medium, 500);
+  line-height: 18px;
+}
+
+.pd-lint-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pd-lint-label {
+  font-size: var(--z-font-size-xs, 12px);
+  color: var(--z-color-text-secondary);
+}
+
+.pd-lint--ok {
+  color: var(--z-color-success-strong, #15803d);
+  background: var(--z-color-success-soft, #f0fdf4);
+}
+
+.pd-lint--error {
+  color: var(--z-color-danger-strong, #b91c1c);
+  background: var(--z-color-danger-soft, #fef2f2);
+}
+
+.pd-lint-list {
+  margin: 0;
+  padding: 8px 14px 10px;
+  list-style: none;
+  border-top: 1px solid var(--z-color-divider);
+  max-height: 180px;
+  overflow: auto;
+  font-family: var(--z-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: var(--z-font-size-xs, 12px);
+  background: var(--z-color-danger-soft, #fef2f2);
+  color: var(--z-color-danger-strong, #b91c1c);
+}
+
+.pd-lint-list li {
+  padding: 2px 0;
+  white-space: pre-wrap;
+}
+
+/* ── 事件控制台（宿主那一半）────────────────────────────────
+   页面上「点了没反应」有四种原因（契约没声明 / 卡没绑 / arg 少一个 / 宿主没监听），
+   前三种在这里表现为「没有行」，第四种是「有行」。所以这一栏的价值在于**有无**，
+   样式上保持等宽、低对比，避免抢走渲染结果的注意力。 */
+.pd-console {
+  margin-top: var(--z-space-4, 16px);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md, 8px);
+  background: var(--z-color-bg);
+  overflow: hidden;
+}
+
+.pd-console__head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--z-space-2, 8px);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--z-color-border);
+  background: var(--z-color-bg-secondary);
+}
+
+.pd-console__head h2 {
+  margin: 0;
+  font-size: var(--z-font-size-sm, 13px);
+  font-weight: var(--z-font-weight-semibold, 600);
+}
+
+.pd-console__count {
+  min-width: 18px;
+  padding: 0 6px;
+  border-radius: var(--z-radius-full, 999px);
+  background: var(--z-color-primary-soft);
+  color: var(--z-color-primary-strong, var(--z-color-primary));
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.pd-console__hint {
+  font-size: var(--z-font-size-xs, 12px);
+  color: var(--z-color-text-secondary);
+}
+
+#pd-console-clear {
+  margin-left: auto;
+}
+
+.pd-console__list {
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;
+  max-height: 220px;
+  overflow: auto;
+  font-family: var(--z-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: var(--z-font-size-xs, 12px);
+  line-height: 1.7;
+}
+
+/* 一条事件都没收到时给个静止的记号：空列表与「列表没渲染」看起来一样 */
+.pd-console__list:empty::after {
+  content: "—";
+  display: block;
+  padding: 0 12px;
+  color: var(--z-color-text-secondary);
+}
+
+.pd-console__row {
+  display: grid;
+  grid-template-columns: 62px 132px minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+  padding: 2px 12px;
+}
+
+.pd-console__row:nth-child(odd) {
+  background: var(--z-color-bg-secondary);
+}
+
+.pd-console__time {
+  color: var(--z-color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.pd-console__chan {
+  color: var(--z-color-primary-strong, var(--z-color-primary));
+}
+
+.pd-console__body {
+  color: var(--z-color-text);
+  overflow-wrap: anywhere;
+}

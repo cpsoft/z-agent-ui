@@ -1,0 +1,117 @@
+:host {
+  display: inline-flex;
+}
+
+.z-pagination {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+}
+
+.z-pagination__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* [WHY] 紧凑商务风分页按钮（REQ-010）：32 → 28 */
+  min-width: 28px;
+  height: var(--_h, var(--z-control-h-sm));
+  padding: 0 var(--z-space-2);
+  border: 1px solid var(--z-color-border-control);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg);
+  color: var(--z-color-text);
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  transition: all var(--z-transition-fast);
+  line-height: 1;
+}
+
+.z-pagination__btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.z-pagination__btn:hover:not(:disabled) {
+  background: var(--z-color-hover);
+  border-color: var(--z-color-border-control-hover);
+}
+
+.z-pagination__btn:disabled {
+  color: var(--z-color-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.z-pagination__item--active {
+  background: var(--z-color-primary-solid);
+  border-color: var(--z-color-primary-solid);
+  color: var(--z-color-primary-text);
+}
+
+.z-pagination__item--active:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.z-pagination__item--active:hover:not(:disabled) {
+  background: var(--z-color-primary-solid-hover);
+  border-color: var(--z-color-primary-solid-hover);
+}
+
+.z-pagination__ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: var(--_h, var(--z-control-h-sm));
+  color: var(--z-color-text-secondary);
+  user-select: none;
+}
+
+.z-pagination__prev svg,
+.z-pagination__next svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ── Info（总记录数 / 本页范围） ── */
+
+.z-pagination__info {
+  color: var(--z-color-text-secondary);
+  margin-right: var(--z-space-3);
+  white-space: nowrap;
+}
+
+/* ── Page size selector ── */
+
+.z-pagination__sizes {
+  display: inline-flex;
+  align-items: center;
+  margin-left: var(--z-space-3);
+}
+
+.z-pagination__sizes select {
+  /* [WHY] 紧凑商务风页容量选择器（REQ-010）：32 → 28 */
+  height: var(--_h, var(--z-control-h-sm));
+  padding: 0 var(--z-space-2);
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--z-color-text);
+  background: var(--z-color-bg);
+  border: 1px solid var(--z-color-border-control);
+  border-radius: var(--z-radius-md);
+  cursor: pointer;
+  transition: border-color var(--z-transition-fast), box-shadow var(--z-transition-fast);
+}
+
+.z-pagination__sizes select:hover {
+  border-color: var(--z-color-border-control-hover);
+}
+
+.z-pagination__sizes select:focus-visible {
+  outline: none;
+  border-color: var(--z-color-primary);
+  /* [WHY] 聚焦光环对齐主色 #2563eb（REQ-010） */
+  box-shadow: var(--z-focus-ring);
+}

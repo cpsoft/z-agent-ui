@@ -1,0 +1,90 @@
+/* ===== m-swipe-cell ===== */
+
+/*
+ * 两层结构：
+ *   .z-m-swipe__content  内容层（跟着手指平移，背景不透明 —— 它要盖住操作区）
+ *   .z-m-swipe__actions  操作层（绝对定位在右侧，平时被内容层压住）
+ *
+ * [WHY 用 translate3d 而不是 left/right] 位移走合成层，不触发重排：一行 56px 的
+ * 列表里逐帧改 left 会让整个列表参与 layout，移动端的掉帧是从这里来的。
+ */
+
+:host {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  /* 手势区不吃浏览器的点击高亮，否则按下时整行闪一下灰 */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.z-m-swipe__content {
+  position: relative;
+  /* 必须高于操作层：它靠「盖住」来隐藏右侧按钮，而不是靠 display:none */
+  z-index: 1;
+  background: var(--z-color-surface);
+  transition: transform var(--z-transition-normal) cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
+  /* 内容层本身要能接键盘焦点（左滑的键盘等价入口） */
+  outline: none;
+}
+
+/* 拖动中关掉过渡，位移才跟手；松手时由 JS 摘掉这个属性，过渡自然接上 */
+:host([dragging]) .z-m-swipe__content {
+  transition: none;
+}
+
+/*
+ * [WHY 焦点框画在内侧] 内容层是满宽的，外描边会被 host 的 overflow:hidden 切掉一半 ——
+ * 看起来像「左边有框、右边没有」，比没有焦点框更让人困惑。
+ */
+.z-m-swipe__content:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: -2px;
+}
+
+.z-m-swipe__actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  /* 操作区不参与布局宽度：它的宽度由按钮自己撑开，内容层按需平移过去 */
+  z-index: 0;
+}
+
+/*
+ * 宿主放进来的按钮：撑满行高、至少满足触摸下限。
+ *
+ * [WHY 用 ::slotted 定这些而不是让宿主自己写] 宿主只需要决定「是什么操作、什么颜色」，
+ * 「多高、多宽、怎么对齐」是组件契约的一部分 —— 放开会让每处左滑的按钮形状都不一样，
+ * 而它们的视觉位置恰好紧挨着，不一致一眼就能看出来。
+ */
+.z-m-swipe__actions ::slotted(*) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 72px;
+  height: 100%;
+  min-height: var(--z-m-row-h);
+  padding: 0 var(--z-space-4);
+  border: 0;
+  border-radius: 0;
+  background: var(--z-color-danger);
+  color: var(--z-color-white);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  font-weight: var(--z-font-weight-medium);
+  cursor: pointer;
+}
+
+/*
+ * [WHY 没有「第一个红、其余灰」这条规则] 本来写了 `::slotted(*:not(:first-child))`，
+ * 结果**两个按钮都是灰的**：`:first-child` 判的是它在 light DOM 里的位置，而第一行
+ * 放的是 `m-cell`（内容），按钮是第 2、3 个子元素，于是全都命中 `:not(:first-child)`。
+ * 而 `::slotted` 又不支持兄弟选择器，选不出「第一个按钮」。
+ *
+ * 更根本的是：第二个按钮该是什么颜色本来就取决于它是什么操作（「置顶」是中性、
+ * 「取消」也是中性、但「强制删除」又该是红的）—— 这个判断只有宿主有。所以这里
+ * 只给一个安全默认（全部危险色），配色交给宿主。
+ */

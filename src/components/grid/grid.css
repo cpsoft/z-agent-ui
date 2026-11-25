@@ -1,0 +1,11 @@
+/* ===== z-grid ===== */
+
+:host {
+  display: grid;
+  /* minmax(0, 1fr) 而不是 1fr：栅格里的长文本/表格默认会把列撑破
+     （`1fr` 的最小值是 auto）。这一条是栅格能装下 `z-table` 的前提。 */
+  grid-template-columns: repeat(var(--_cols, 12), minmax(0, 1fr));
+  align-items: var(--_align, stretch);
+  gap: var(--_gap, var(--z-space-4));
+  min-width: 0;
+}

@@ -1,0 +1,78 @@
+/* ===== m-tabbar ===== */
+
+:host {
+  display: block;
+}
+
+.m-tabbar {
+  display: flex;
+  height: 56px;
+  background: var(--z-color-surface);
+  border-top: 1px solid var(--z-color-border);
+  padding-bottom: env(safe-area-inset-bottom);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-tabbar__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--z-color-text-secondary);
+  cursor: pointer;
+  transition: color var(--z-transition-fast);
+}
+
+.m-tabbar__item--active {
+  color: var(--z-color-primary);
+}
+
+.m-tabbar__icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.m-tabbar__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 20px;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.m-tabbar__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.m-tabbar__label {
+  font-family: var(--z-font-sans);
+  font-size: 12px;
+  line-height: 1;
+  text-align: center;
+}
+
+.m-tabbar__badge {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--z-font-sans);
+  font-size: 10px;
+  font-weight: var(--z-font-weight-medium);
+  line-height: 1;
+  color: var(--z-color-white);
+  background: var(--z-color-danger);
+  border-radius: var(--z-radius-full);
+}

@@ -1,0 +1,187 @@
+/* ===== z-slider ===== */
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+  width: 100%;
+  max-width: 320px;
+}
+
+.z-slider {
+  position: relative;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  touch-action: none;
+}
+
+/* ── Track / Fill ── */
+
+.z-slider__track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: var(--z-radius-full);
+  background: var(--z-color-border-control);
+}
+
+.z-slider__fill {
+  position: absolute;
+  left: 0;
+  height: 4px;
+  border-radius: var(--z-radius-full);
+  background: var(--z-color-primary);
+  transition: width var(--z-transition-fast), height var(--z-transition-fast);
+}
+
+/* ── Thumb ── */
+
+.z-slider__thumb {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--z-color-white);
+  border: 2px solid var(--z-color-primary);
+  transform: translate(-50%, -50%);
+  top: 50%;
+  cursor: grab;
+  box-shadow: var(--z-shadow-sm);
+  outline: none;
+  box-sizing: border-box;
+  transition: box-shadow var(--z-transition-fast), border-color var(--z-transition-fast);
+}
+
+.z-slider__thumb:hover,
+.z-slider__thumb:focus-visible {
+  box-shadow: var(--z-focus-ring);
+}
+
+.z-slider__thumb:active,
+.z-slider--dragging .z-slider__thumb {
+  cursor: grabbing;
+}
+
+/* ── Tooltip ── */
+
+.z-slider__tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-inverse);
+  /* 与 m-chip--selected 同一对：底反色则字也要反色，否则暗色里白压近白 */
+  color: var(--z-color-inverse-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-xs);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--z-transition-fast);
+}
+
+.z-slider__thumb:hover .z-slider__tooltip,
+.z-slider__thumb:focus-visible .z-slider__tooltip,
+.z-slider--dragging .z-slider__tooltip {
+  opacity: 1;
+}
+
+/* ── Vertical ── */
+
+.z-slider--vertical {
+  width: 20px;
+  height: 100%;
+  min-height: 120px;
+  align-items: center;
+  justify-content: center;
+}
+
+.z-slider--vertical .z-slider__track {
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  height: auto;
+  transform: translateX(-50%);
+}
+
+.z-slider--vertical .z-slider__fill {
+  left: 50%;
+  bottom: 0;
+  width: 4px;
+  transform: translateX(-50%);
+  transition: height var(--z-transition-fast);
+}
+
+.z-slider--vertical .z-slider__thumb {
+  left: 50%;
+  top: auto;
+  transform: translate(-50%, 50%);
+}
+
+.z-slider--vertical .z-slider__tooltip {
+  bottom: 50%;
+  left: calc(100% + 8px);
+  transform: translateY(50%);
+}
+
+/* ── Marks ── */
+
+.z-slider__marks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 12px;
+  pointer-events: none;
+}
+
+.z-slider--vertical .z-slider__marks {
+  left: 14px;
+  top: 0;
+  bottom: 0;
+  right: auto;
+}
+
+.z-slider__mark {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.z-slider--vertical .z-slider__mark {
+  transform: translateY(50%);
+}
+
+.z-slider__mark-tick {
+  width: 1px;
+  height: 6px;
+  background: var(--z-color-fill-disabled);
+}
+
+.z-slider__mark-label {
+  margin-top: 4px;
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-xs);
+  color: var(--z-color-text-secondary);
+  white-space: nowrap;
+}
+
+/* ── Disabled ── */
+
+.z-slider--disabled {
+  opacity: 0.5;
+}
+
+.z-slider--disabled .z-slider__thumb {
+  cursor: not-allowed;
+  border-color: var(--z-color-fill-disabled);
+}
+
+.z-slider--disabled .z-slider__fill {
+  background: var(--z-color-fill-disabled);
+}

@@ -1,0 +1,41 @@
+/* 从 charts.html 的 <style> 搬出（D3 内联化）。cht- 前缀同理。 */
+/* 图表系列专用小样式：图表下方信息行 + API 表格（其余复用 demo.css 壳样式） */
+    .cht-info-row {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--z-color-text-secondary);
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      min-height: 16px;
+    }
+    .cht-api-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 12px;
+    }
+    .cht-api-table th {
+      text-align: left;
+      padding: 8px 12px;
+      font-weight: 600;
+      color: var(--z-color-text-secondary);
+      border-bottom: 1px solid var(--z-color-border);
+      font-size: 12px;
+    }
+    .cht-api-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--z-color-border);
+      vertical-align: top;
+    }
+    .cht-api-table td:first-child {
+      font-family: var(--z-font-mono);
+      font-size: 13px;
+      color: var(--z-color-primary);
+      white-space: nowrap;
+    }
+    .cht-api-table code {
+      font-family: var(--z-font-mono);
+      font-size: 13px;
+      color: var(--z-color-primary);
+    }

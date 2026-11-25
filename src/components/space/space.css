@@ -1,0 +1,19 @@
+/* ===== z-space ===== */
+
+/*
+  容器本身就是 flex 盒子，shadow 里只有一个 <slot>。
+  [为什么能这样] slot 的分配内容在**布局上**属于 slot 的父元素 —— 也就是 :host，
+  所以 `gap` / `flex-wrap` 直接作用于使用方的子节点，不需要给每个子项包一层 item。
+  这也是「不给子项包壳」的代价最小的实现：包壳会产生额外的 `::slotted(*)` 无法穿透的层级，
+  子项的 `flex: 1` 之类会失效。
+*/
+:host {
+  display: var(--_display, inline-flex);
+  flex-direction: var(--_dir, row);
+  flex-wrap: var(--_wrap, nowrap);
+  align-items: var(--_align, flex-start);
+  justify-content: var(--_justify, flex-start);
+  gap: var(--_gap, var(--z-space-4));
+  /* 让容器能被子元素撑破时正确收缩（否则 nowrap + 长文本会溢出而不是换行） */
+  min-width: 0;
+}

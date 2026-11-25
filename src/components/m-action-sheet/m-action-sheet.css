@@ -1,0 +1,129 @@
+/* ===== m-action-sheet ===== */
+
+:host {
+  /* [WHY] 防止 overflow 容器裁剪：整个组件 fixed 定位脱离文档流 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-z-modal);
+  -webkit-tap-highlight-color: transparent;
+  /* [WHY] 2026-09-17 [[bug-20260917-m-action-sheet-blocks-click]] 移动端整页无法点击根因：
+     host 是 fixed 全屏盒子，隐藏态（shadow 内 display:none）host 本身仍拦截 hit-test，
+     透明盖住整个页面吃掉所有触摸（TabBar/列表全部点不动）。修复：host 穿透，
+     overlay 显示态自身 pointer-events:auto 接管（子元素可覆盖父级 none，标准行为）。
+     对照 z-modal 的 :host{display:contents} 同理。 */
+  pointer-events: none;
+}
+
+.m-action-sheet__overlay {
+  pointer-events: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--z-color-bg-overlay);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: m-action-sheet-fade-in var(--z-anim-duration-normal);
+}
+
+.m-action-sheet__overlay--closing {
+  animation: m-action-sheet-fade-out var(--z-anim-duration-normal);
+}
+
+.m-action-sheet__panel {
+  width: 100%;
+  background: var(--z-color-bg-secondary);
+  border-radius: var(--z-radius-lg) var(--z-radius-lg) 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  animation: m-action-sheet-slide-up var(--z-anim-duration-normal);
+  box-shadow: var(--z-shadow-lg);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.m-action-sheet__panel--closing {
+  animation: m-action-sheet-slide-down var(--z-anim-duration-normal);
+}
+
+.m-action-sheet__title {
+  padding: var(--z-space-4) var(--z-space-4) var(--z-space-3);
+  text-align: center;
+  color: var(--z-color-text-secondary);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  font-weight: var(--z-font-weight-normal);
+  border-bottom: 1px solid var(--z-color-border);
+}
+
+.m-action-sheet__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.m-action-sheet__item {
+  border: none;
+  background: var(--z-color-popover);
+  color: var(--z-color-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-md);
+  font-weight: var(--z-font-weight-normal);
+  min-height: 48px;
+  padding: var(--z-space-3) var(--z-space-4);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--z-transition-fast);
+  border-bottom: 1px solid var(--z-color-border);
+}
+
+.m-action-sheet__item:active {
+  background: var(--z-color-hover);
+}
+
+.m-action-sheet__item--danger {
+  color: var(--z-color-danger);
+}
+
+.m-action-sheet__cancel {
+  margin-top: var(--z-space-2);
+  border: none;
+  background: var(--z-color-popover);
+  color: var(--z-color-primary);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-md);
+  font-weight: var(--z-font-weight-medium);
+  min-height: 48px;
+  width: 100%;
+  padding: var(--z-space-3) var(--z-space-4);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--z-transition-fast);
+}
+
+.m-action-sheet__cancel:active {
+  background: var(--z-color-hover);
+}
+
+@keyframes m-action-sheet-fade-in {
+  from { background: rgba(0, 0, 0, 0); }
+  to { background: var(--z-color-bg-overlay); }
+}
+
+@keyframes m-action-sheet-fade-out {
+  from { background: var(--z-color-bg-overlay); }
+  to { background: rgba(0, 0, 0, 0); }
+}
+
+@keyframes m-action-sheet-slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes m-action-sheet-slide-down {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}

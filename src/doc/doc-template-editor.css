@@ -1,0 +1,413 @@
+/* ===== z-doc-template-editor: 块编辑器（左画布 + 右面板） ===== */
+
+:host {
+  display: block;
+}
+
+.z-dte {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-3);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text);
+}
+
+/* ── 工具栏 ─────────────────────────────────────────── */
+.z-dte__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--z-space-2);
+  padding: var(--z-space-2) var(--z-space-3);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg-secondary);
+}
+
+.z-dte__btn {
+  height: var(--z-input-height);
+  padding: var(--z-button-padding-y) var(--z-button-padding-x);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-button-radius);
+  background: var(--z-color-bg);
+  color: var(--z-color-text);
+  font-size: var(--z-button-font-size);
+  cursor: pointer;
+  transition: var(--z-transition-fast);
+}
+
+.z-dte__btn:hover:not(:disabled) {
+  border-color: var(--z-color-primary);
+  color: var(--z-color-primary);
+}
+
+.z-dte__btn:disabled {
+  color: var(--z-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.z-dte__zoom-pct {
+  min-width: 56px;
+}
+
+.z-dte__sep {
+  width: 1px;
+  height: 18px;
+  background: var(--z-color-border);
+}
+
+.z-dte__multi {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--z-color-text-secondary);
+  cursor: pointer;
+}
+
+/* ── 主体布局 ───────────────────────────────────────── */
+.z-dte__main {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: var(--z-space-3);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .z-dte__main {
+    grid-template-columns: 1fr;
+  }
+}
+
+.z-dte__canvas-wrap {
+  display: flex;
+  /* [WHY] 纸张 794px 固定宽, 窄容器时靠横向滚动而非压缩纸张：画布不再 width:100%
+     随容器伸缩（随容器变宽=排版重排, 2026-09-26 实撞「随页面缩放改变排版」）。
+     margin auto 居中：比 justify-content:center 安全（后者在溢出时左端不可滚达） */
+  justify-content: flex-start;
+  overflow-x: auto;
+  padding: var(--z-space-4);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg-secondary);
+  /* [WHY] 不设 max-height 内滚（2026-09-25 线上实撞）：70vh + overflow:auto 把
+     纸张在视口 70% 处剪断, macOS 浮层滚动条平时不可见 → 用户看到的是「内容被
+     A4 底边截断且无第二页」而非可滚动区域。编辑器画布随内容自然长高,
+     整页滚动；分页是预览 tab 的职责, 编辑视图只保证内容全可见 */
+}
+
+/* [WHY] 缩放包装层：transform 等比挂此层, 不污染容器/纸张内联样式 */
+.z-dte__scale {
+  margin: 0 auto;
+  transform-origin: top center;
+  flex: 0 0 auto;
+}
+
+/* [WHY] 逐页独立 A4 纸张容器（Word 式多页, 2026-09-26 用户需求）：每页 = 完整
+   .z-doc-paper（794×1123px + 页边距 padding + 每页页眉页脚）, 容器只负责纵向堆叠
+   与页间距。CSS 变量（页边距/字体）挂容器经继承到达每页纸张 */
+.z-dte__canvas {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 794px;
+}
+
+.z-dte__page {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column; /* 页眉/正文/页脚三段（.z-doc-paper--hf 同款, 兜底） */
+}
+
+/* [WHY] 单块高过整页（超长表格）：Word 做文本级跨页切分, 块模型无法拆,
+   退化为该页增高容纳（不裁内容）; 其余页保持精确 A4 高 */
+.z-dte__page--tall {
+  height: auto !important;
+  min-height: 1123px;
+}
+
+.z-dte__empty {
+  padding: 48px 0;
+  text-align: center;
+  color: var(--z-color-text-disabled);
+}
+
+/* ── 块 ────────────────────────────────────────────── */
+.z-dte__block {
+  position: relative;
+  padding: 2px 4px 2px 28px;
+  border: 1px solid transparent;
+  border-radius: var(--z-radius-sm);
+}
+
+.z-dte__block:hover {
+  border-color: var(--z-color-border);
+}
+
+.z-dte__block--selected {
+  border-color: var(--z-color-primary);
+  background: color-mix(in srgb, var(--z-color-primary) 4%, transparent);
+}
+
+.z-dte__block--picked {
+  background: color-mix(in srgb, var(--z-color-primary) 8%, transparent);
+}
+
+.z-dte__handle {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--z-transition-fast);
+}
+
+.z-dte__block:hover .z-dte__handle,
+.z-dte__block--selected .z-dte__handle {
+  opacity: 1;
+}
+
+.z-dte__idx {
+  min-width: 14px;
+  text-align: center;
+  font-size: 10px;
+  color: var(--z-color-text-disabled);
+}
+
+.z-dte__mini {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid var(--z-color-border);
+  border-radius: 3px;
+  background: var(--z-color-bg);
+  color: var(--z-color-text-secondary);
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.z-dte__mini:hover {
+  border-color: var(--z-color-primary);
+  color: var(--z-color-primary);
+}
+
+.z-dte__mini--danger:hover {
+  border-color: var(--z-color-danger);
+  color: var(--z-color-danger);
+}
+
+.z-dte__body {
+  outline: none;
+}
+
+.z-dte__body [contenteditable="true"] {
+  outline: none;
+  min-width: 8px;
+}
+
+.z-dte__body [contenteditable="true"]:focus {
+  background: color-mix(in srgb, var(--z-color-primary) 6%, transparent);
+}
+
+/* ── 右侧面板 ───────────────────────────────────────── */
+.z-dte__aside {
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg);
+  overflow: hidden;
+}
+
+.z-dte__tabs {
+  display: flex;
+  border-bottom: 1px solid var(--z-color-border);
+  background: var(--z-color-bg-secondary);
+}
+
+.z-dte__tab {
+  flex: 1;
+  padding: var(--z-space-2) 0;
+  border: none;
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-sm);
+  cursor: pointer;
+}
+
+.z-dte__tab--active {
+  color: var(--z-color-primary);
+  font-weight: var(--z-font-weight-medium);
+  box-shadow: inset 0 -2px 0 var(--z-color-primary);
+}
+
+.z-dte__panel {
+  padding: var(--z-space-3);
+  max-height: 62vh;
+  overflow: auto;
+}
+
+.z-dte__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-2);
+}
+
+.z-dte__group-name {
+  color: var(--z-color-text-secondary);
+  font-weight: var(--z-font-weight-semibold);
+  text-transform: uppercase;
+  font-size: var(--z-font-size-xs);
+}
+
+.z-dte__sub {
+  margin-top: var(--z-space-2);
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-xs);
+}
+
+/* 表格配置面板：列定义行（字段下拉 / 表头 / 列宽 / 删列）与行操作 */
+.z-dte__cols {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-1);
+}
+
+.z-dte__col-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 56px 20px;
+  align-items: center;
+  gap: var(--z-space-1);
+}
+
+.z-dte__col-row select,
+.z-dte__col-row input {
+  height: var(--z-input-height);
+  min-width: 0;
+  padding: var(--z-input-padding-y) var(--z-input-padding-x);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg);
+  color: var(--z-color-text);
+  font-size: var(--z-input-font-size);
+  outline: none;
+}
+
+.z-dte__col-row select:focus,
+.z-dte__col-row input:focus {
+  border-color: var(--z-color-primary);
+  box-shadow: var(--z-focus-ring);
+}
+
+.z-dte__col-row .z-dte__mini {
+  width: 20px;
+  height: 20px;
+}
+
+.z-dte__row-ops {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  flex-wrap: wrap;
+}
+
+.z-dte__field {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  align-items: center;
+  gap: var(--z-space-2);
+}
+
+.z-dte__field > span {
+  color: var(--z-color-text-secondary);
+}
+
+/* 页边距四联输入（上/下/左/右） */
+.z-dte__margin-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--z-space-1);
+}
+
+.z-dte__field input[type="text"],
+.z-dte__field input[type="number"],
+.z-dte__field select {
+  height: var(--z-input-height);
+  padding: var(--z-input-padding-y) var(--z-input-padding-x);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg);
+  color: var(--z-color-text);
+  font-size: var(--z-input-font-size);
+  outline: none;
+  min-width: 0;
+}
+
+.z-dte__field input[type="color"] {
+  width: 40px;
+  height: var(--z-input-height);
+  padding: 0;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-bg);
+}
+
+.z-dte__field input:focus,
+.z-dte__field select:focus {
+  border-color: var(--z-color-primary);
+  box-shadow: var(--z-focus-ring);
+}
+
+.z-dte__hint {
+  padding: var(--z-space-3) 0;
+  text-align: center;
+  color: var(--z-color-text-secondary);
+}
+
+/* ── 占位符面板 ─────────────────────────────────────── */
+.z-dte__ph-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-2);
+}
+
+.z-dte__ph {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  padding: var(--z-space-2);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  cursor: grab;
+}
+
+.z-dte__ph:hover {
+  border-color: var(--z-color-primary);
+}
+
+.z-dte__ph-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.z-dte__ph-key {
+  font-family: var(--z-font-mono);
+  font-size: var(--z-font-size-xs);
+  color: var(--z-color-primary);
+}
+
+.z-dte__ph-label {
+  color: var(--z-color-text);
+}
+
+.z-dte__ph-sample {
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

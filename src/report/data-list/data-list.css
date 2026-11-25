@@ -1,0 +1,91 @@
+/* ===== z-data-list ===== */
+
+:host {
+  display: block;
+  color: var(--z-color-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+}
+
+.z-dl__filterbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 10px 16px;
+  border: 1px solid var(--z-color-border);
+  border-bottom: none;
+  border-radius: var(--z-radius-md) var(--z-radius-md) 0 0;
+  background: var(--z-color-surface);
+}
+
+.z-dl__filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.z-dl__filter-item--hidden {
+  display: none;
+}
+
+.z-dl__filter-label {
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text-secondary);
+  white-space: nowrap;
+}
+
+/* [WHY] flex-wrap 定宽: text 160 / number 110 / select 140 / datepicker 240,
+   控件 host 为 inline-flex, 宽度直接作用于 host */
+.z-dl__filter-item z-input {
+  width: 160px;
+}
+
+.z-dl__filter-item--number z-input {
+  width: 110px;
+}
+
+.z-dl__filter-item z-select {
+  width: 140px;
+}
+
+.z-dl__filter-item z-datepicker {
+  width: 240px;
+}
+
+/* [WHY] datepicker 触发按钮按内容宽, ::part 强制撑满 host 定宽 */
+.z-dl__filter-item z-datepicker::part(trigger) {
+  width: 100%;
+}
+
+.z-dl__reset {
+  margin-left: auto;
+  padding: 4px 12px;
+  font-family: inherit;
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text-secondary);
+  background: var(--z-color-bg-secondary);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-sm);
+  cursor: pointer;
+  transition: color var(--z-transition-fast), border-color var(--z-transition-fast);
+}
+
+.z-dl__reset:hover {
+  color: var(--z-color-primary);
+  border-color: var(--z-color-primary);
+}
+
+.z-dl__body {
+  border: 1px solid var(--z-color-border);
+}
+
+.z-dl__footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 16px;
+  border: 1px solid var(--z-color-border);
+  border-top: none;
+  border-radius: 0 0 var(--z-radius-md) var(--z-radius-md);
+  background: var(--z-color-surface);
+}

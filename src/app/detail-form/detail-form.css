@@ -1,0 +1,26 @@
+:host {
+  display: block;
+}
+
+.z-detail-form__required {
+  color: var(--z-color-danger);
+  margin-left: 2px;
+}
+
+.z-detail-form__static {
+  color: var(--z-color-text);
+  word-break: break-word;
+}
+
+.z-detail-form__extra {
+  margin-top: var(--z-space-3);
+}
+
+.z-detail-form__footer {
+  margin-top: var(--z-space-3);
+  padding-top: var(--z-space-3);
+  border-top: 1px solid var(--z-color-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--z-space-3);
+}

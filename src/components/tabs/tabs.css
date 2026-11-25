@@ -1,0 +1,129 @@
+/* ===== z-tabs ===== */
+
+:host {
+  display: block;
+}
+
+/* ── Tablist ── */
+
+.z-tabs__tablist {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--z-color-border);
+  position: relative;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.z-tabs__tablist::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Tab button ── */
+
+.z-tabs__tab {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--z-space-2) var(--z-space-4);
+  border: none;
+  background: none;
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  font-weight: 500;
+  color: var(--z-color-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  outline: none;
+  transition: color var(--z-transition-fast);
+  position: relative;
+}
+
+.z-tabs__tab:hover:not(:disabled) {
+  color: var(--z-color-text);
+}
+
+.z-tabs__tab--active {
+  color: var(--z-color-primary);
+}
+
+.z-tabs__tab:focus-visible {
+  border-radius: var(--z-radius-sm);
+  box-shadow: var(--z-focus-ring-contrast);
+}
+
+.z-tabs__tab--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Panels ── */
+
+.z-tabs__panels {
+  padding-top: var(--z-space-4);
+}
+
+/* ── Variant: underline (default) ── */
+
+:host([tab-style="underline"]) .z-tabs__tablist::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: var(--z-tabs-indicator-left, 0);
+  width: var(--z-tabs-indicator-width, 0);
+  height: 2px;
+  background: var(--z-color-primary);
+  transition: left var(--z-transition-normal), width var(--z-transition-normal);
+}
+
+/* ── Variant: pills ── */
+
+:host([tab-style="pills"]) .z-tabs__tablist {
+  border-bottom: none;
+  gap: var(--z-space-2);
+}
+
+:host([tab-style="pills"]) .z-tabs__tab {
+  border-radius: var(--z-radius-full);
+  padding: var(--z-space-1-5) var(--z-space-4);
+}
+
+:host([tab-style="pills"]) .z-tabs__tab:hover:not(:disabled) {
+  background: var(--z-color-hover);
+}
+
+:host([tab-style="pills"]) .z-tabs__tab--active {
+  background: var(--z-color-primary-solid);
+  color: var(--z-color-primary-text);
+}
+
+/* ── Variant: cards ── */
+
+:host([tab-style="cards"]) .z-tabs__tablist {
+  border-bottom: none;
+  gap: 0;
+}
+
+:host([tab-style="cards"]) .z-tabs__tab {
+  border: 1px solid var(--z-color-border);
+  border-bottom: none;
+  border-radius: var(--z-radius-md) var(--z-radius-md) 0 0;
+  background: var(--z-color-bg-secondary);
+  margin-bottom: -1px;
+}
+
+:host([tab-style="cards"]) .z-tabs__tab:hover:not(:disabled) {
+  background: var(--z-color-bg);
+}
+
+:host([tab-style="cards"]) .z-tabs__tab--active {
+  background: var(--z-color-bg);
+  color: var(--z-color-text);
+  border-bottom-color: var(--z-color-bg);
+}
+
+:host([tab-style="cards"]) .z-tabs__panels {
+  border: 1px solid var(--z-color-border);
+  border-top: none;
+  border-radius: 0 0 var(--z-radius-md) var(--z-radius-md);
+  padding: var(--z-space-4);
+}

@@ -1,0 +1,48 @@
+/* ===== z-virtual-list ===== */
+
+:host {
+  display: block;
+}
+
+.z-vlist {
+  position: relative;
+  overflow-y: auto;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg);
+}
+
+.z-vlist__space {
+  position: relative;
+}
+
+/* [WHY] 切片绝对定位 + translateY: 只渲染可视区上下 overscan 行,
+   行高由调用方 render 或默认行样式决定 */
+.z-vlist__slice {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.z-vlist__row {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--z-color-gray-100);
+  color: var(--z-color-text);
+  font-size: var(--z-font-size-sm);
+}
+
+.z-vlist__row:last-child {
+  border-bottom: none;
+}
+
+.z-vlist--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-sm);
+}

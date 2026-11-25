@@ -1,0 +1,25 @@
+/* ===== z-statistic ===== */
+
+:host {
+  display: inline-block;
+}
+
+.z-statistic {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.z-statistic__prefix,
+.z-statistic__suffix {
+  font-size: var(--z-font-size-sm);
+  color: var(--z-color-text-secondary);
+}
+
+.z-statistic__value {
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--z-color-text);
+}

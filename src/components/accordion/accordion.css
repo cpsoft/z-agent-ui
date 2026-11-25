@@ -1,0 +1,13 @@
+:host {
+  display: block;
+}
+
+.z-accordion--bordered {
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  overflow: hidden;
+}
+
+.z-accordion--bordered ::slotted(z-accordion-item:not(:last-of-type)) {
+  border-bottom: 1px solid var(--z-color-border);
+}

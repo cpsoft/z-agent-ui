@@ -1,0 +1,152 @@
+/* ===== z-app-switcher ===== */
+/* [WHY 全部走 token、零裸 hex] 四个宿主各自挂主题（zWorker 覆盖了 --primary 等语义层），
+   写死颜色会让切换器在某个宿主里变成「白底白字」。tokens.css 的暗色块已统一处理。 */
+
+:host {
+  display: inline-flex;
+  position: relative;
+  font-family: var(--z-font-sans);
+}
+
+.z-app-switcher {
+  position: relative;
+  display: inline-flex;
+}
+
+/* ── 触发钮：品牌名 ── */
+
+.z-app-switcher__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  min-height: var(--z-control-h-sm);
+  padding: 0 var(--z-space-2);
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: var(--z-radius-md);
+  background: transparent;
+  color: var(--z-color-text);
+  font-family: inherit;
+  font-size: var(--z-font-size-base);
+  font-weight: var(--z-font-weight-medium);
+  line-height: 1.2;
+  cursor: default;
+  transition: background var(--z-transition-fast), color var(--z-transition-fast);
+}
+
+/* 只有真的能切换时才给「可点」的视觉与手型；纯标题态不该装成按钮 */
+.z-app-switcher__trigger.is-switchable {
+  cursor: pointer;
+}
+
+.z-app-switcher__trigger.is-switchable:hover {
+  background: var(--z-color-bg-tertiary);
+}
+
+.z-app-switcher__trigger:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: 1px;
+}
+
+.z-app-switcher__label {
+  white-space: nowrap;
+}
+
+.z-app-switcher__caret {
+  font-size: 10px;
+  line-height: 1;
+  color: var(--z-color-text-secondary);
+}
+
+/* ── 图标：画布 24×24、stroke 1.5（与宿主自绘图标同支线）── */
+
+.z-app-switcher__icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  color: var(--z-color-text-secondary);
+}
+
+/* 未知图标名的首字兜底：等宽居中，避免与线性图标并排时跳动 */
+.z-app-switcher__icon--text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  font-size: 12px;
+  font-weight: var(--z-font-weight-medium);
+  line-height: 1;
+  text-align: center;
+}
+
+/* ── 面板 ── */
+
+.z-app-switcher__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: var(--z-z-dropdown);
+  display: flex;
+  flex-direction: column;
+  min-width: 184px;
+  padding: var(--z-space-1);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-lg);
+  background: var(--z-color-bg);
+  box-shadow: var(--z-shadow-md);
+}
+
+.z-app-switcher__item {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  width: 100%;
+  padding: 7px var(--z-space-2);
+  border: 0;
+  border-radius: var(--z-radius-md);
+  background: transparent;
+  color: var(--z-color-text);
+  font-family: inherit;
+  font-size: var(--z-font-size-sm);
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--z-transition-fast);
+}
+
+.z-app-switcher__item:hover {
+  background: var(--z-color-bg-tertiary);
+}
+
+.z-app-switcher__item:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: -2px;
+}
+
+.z-app-switcher__item-name {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 当前应用：可见但不可点（用户需要知道「我现在在哪」） */
+.z-app-switcher__item.is-current {
+  color: var(--z-color-text-disabled);
+  cursor: default;
+}
+
+.z-app-switcher__item.is-current:hover {
+  background: transparent;
+}
+
+.z-app-switcher__item-flag {
+  flex: 0 0 auto;
+  padding: 0 6px;
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-bg-secondary);
+  color: var(--z-color-text-secondary);
+  font-size: 11px;
+  line-height: 16px;
+}

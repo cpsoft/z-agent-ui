@@ -1,0 +1,5 @@
+/* [WHY] 宿主不参与布局：它只是「选项来源 + 事件出口」，面板挂在 body 上。
+   子元素（z-menu-item）也一并不显示 —— 它们的数据已被 readMenuEntries 读走。 */
+:host {
+  display: none;
+}

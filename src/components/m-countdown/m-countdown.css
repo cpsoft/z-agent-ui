@@ -1,0 +1,30 @@
+/* ===== m-countdown ===== */
+
+:host {
+  display: inline-block;
+}
+
+.m-countdown {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--z-space-1);
+  color: var(--z-color-text);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-sm);
+  line-height: 1.4;
+  /* 等宽数字：少了这一条，每到 1→0 / 9→0 整块文字就左右抖一下 */
+  font-variant-numeric: tabular-nums;
+}
+
+.m-countdown__label {
+  color: var(--z-color-text-secondary);
+}
+
+.m-countdown__head {
+  font-size: var(--z-font-size-xs);
+  color: var(--z-color-text-secondary);
+}
+
+.m-countdown__clock {
+  letter-spacing: 0.5px;
+}

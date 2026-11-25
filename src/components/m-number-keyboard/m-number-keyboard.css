@@ -1,0 +1,123 @@
+/* ===== m-number-keyboard ===== */
+
+/*
+ * 固定在视口底部的键盘。
+ *
+ * [WHY 用 :host([open]) 控制显隐而不是 display:none 切换类] open 是 @property（默认反射），
+ * 宿主直接写 `el.open = true` 就能出来 —— 类的增删要靠组件自己的 updated 去同步，
+ * 多一条会漂移的路径。
+ *
+ * [WHY 收起时用 visibility 而不是 display:none] 高度测量需要在收起态也能取到值
+ * （宿主拿 --z-m-keyboard-height 留白时可能还没打开过键盘）。display:none 的元素
+ * 尺寸恒为 0，那条路径就退化成「留白 0，一打开就盖住输入框」。
+ */
+:host {
+  display: block;
+  /* 安全区：全面屏底部的横条压住最后一排键就点不准了 */
+  --_safe: var(--z-safe-bottom);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.z-m-kb {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-z-modal);
+  box-sizing: border-box;
+  padding: var(--z-space-2) var(--z-space-2) calc(var(--z-space-2) + var(--_safe));
+  background: var(--z-color-bg-secondary);
+  border-top: 1px solid var(--z-color-border);
+  transform: translateY(100%);
+  visibility: hidden;
+  transition:
+    transform var(--z-transition-normal) cubic-bezier(0.22, 0.61, 0.36, 1),
+  /* [WHY visibility 要跟 transform 一起过渡] 只切 transform 的话，收起的键盘仍可被 Tab 到
+     —— 它只是被移出视口，DOM 里还在。visibility:hidden 会把它从焦序里摘掉，
+     而 delay 让「滑出」这段动画能播完。 */
+    visibility 0s linear var(--z-transition-normal);
+}
+
+.z-m-kb--open {
+  transform: translateY(0);
+  visibility: visible;
+  transition:
+    transform var(--z-transition-normal) cubic-bezier(0.22, 0.61, 0.36, 1),
+    visibility 0s linear 0s;
+}
+
+.z-m-kb__title {
+  padding: 0 var(--z-space-2) var(--z-space-2);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-xs);
+  color: var(--z-color-text-secondary);
+  text-align: center;
+}
+
+/*
+ * 3 列网格。
+ *
+ * [WHY gap 用 6px 而不是 8~12px] 12 个键 + 间距必须塞进 375px 宽的屏幕且每键 ≥44px
+ * 触摸下限：(375 - 2×8 - 2×6) / 3 ≈ 115px，够。间距再大就只是浪费手指的移动距离。
+ */
+.z-m-kb__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.z-m-kb__key {
+  appearance: none;
+  box-sizing: border-box;
+  /* 触摸下限：低于 44px 的键在真机上「点三次中两次」 */
+  min-height: 44px;
+  border: 0;
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-surface);
+  color: var(--z-color-text);
+  font-family: var(--z-font-sans);
+  /* 数字键要大：20px 让它在拇指下也能一眼确认按的是哪个 */
+  font-size: 20px;
+  font-weight: var(--z-font-weight-medium);
+  cursor: pointer;
+  transition: background var(--z-transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.z-m-kb__key:active {
+  background: var(--z-color-bg-secondary);
+}
+
+.z-m-kb__key:focus-visible {
+  outline: 2px solid var(--z-color-primary);
+  outline-offset: -2px;
+}
+
+/* 退格键：功能键，比数字轻一档，避免和「0」抢注意力 */
+.z-m-kb__key--fn {
+  background: var(--z-color-bg);
+  color: var(--z-color-text-secondary);
+}
+
+.z-m-kb__extra {
+  appearance: none;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 6px;
+  border: 0;
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-primary);
+  color: var(--z-color-white);
+  font-family: var(--z-font-sans);
+  font-size: var(--z-font-size-base);
+  font-weight: var(--z-font-weight-medium);
+  cursor: pointer;
+}
+
+.z-m-kb__extra:focus-visible {
+  outline: 2px solid var(--z-color-primary-strong);
+  outline-offset: 2px;
+}

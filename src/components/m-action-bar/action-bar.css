@@ -1,0 +1,65 @@
+/* ===== m-action-bar ===== */
+
+/*
+  [fixed 的三个失效原因 —— 都会「看起来只是没贴底」而不报错]
+    1. 任一祖先有 `transform` / `filter` / `perspective`：fixed 改成相对该祖先定位。
+       页面切换动画（`transform: translateX(...)`）最容易踩。
+    2. 祖先有 `contain: paint`。
+    3. 页面没有给底部留出空间（`padding-bottom`）—— 这不是失效，是**内容被盖住**，
+       表现为「列表最后一行点不到」。使用方要自己留 `--z-touch-min` + 安全区的高度。
+*/
+/*
+  [为什么连 `left/right/bottom` 也走变量，而不是用 `:host([inline])` 属性选择器]
+  属性选择器依赖 attribute 反射，而 `position` 已经走变量了 —— 两条路径一旦不同步，
+  会出现「position 变成 static 了但 left/right 还钉着 0」这种半生效状态，
+  表现是操作条缩成一条窄条贴在左边。全部走变量只有一个入口。
+*/
+:host {
+  position: var(--_pos, fixed);
+  left: var(--_left, 0);
+  right: var(--_right, 0);
+  bottom: var(--_bottom, 0);
+  z-index: var(--z-z-dropdown);
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  /* 左右留白 + 纵向留白；底部额外加安全区（令牌本身在 PC 上是 0px） */
+  padding: var(--z-space-2) var(--z-space-4);
+  padding-bottom: var(--_padb, calc(var(--z-space-2) + var(--z-safe-bottom)));
+  min-height: var(--_minh, calc(var(--z-touch-min) + var(--z-space-4)));
+  border-radius: var(--_radius, 0);
+  box-sizing: border-box;
+  background: var(--z-color-bg);
+  border-top: 1px solid var(--_border, var(--z-color-border));
+  -webkit-tap-highlight-color: transparent;
+}
+
+.z-m-action-bar__left {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  flex: 0 0 auto;
+}
+
+.z-m-action-bar__left:empty {
+  display: none;
+}
+
+/*
+  主区域：按钮组。
+  `flex: 1` + `justify-content` —— 对齐方式由 `align` 属性决定，
+  默认 end（主操作靠右，拇指最容易够到）。
+*/
+.z-m-action-bar__main {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  flex: 1 1 auto;
+  justify-content: var(--_justify, flex-end);
+  min-width: 0;
+}
+
+/* 触控目标下限：iOS HIG / Material 都要求 44px。按钮自己没设高度时由这里兜底。 */
+::slotted(*) {
+  min-height: var(--z-touch-min-sm);
+}

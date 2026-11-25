@@ -1,0 +1,67 @@
+/* ===== z-typography ===== */
+
+/*
+  字号与字重全部来自 `--_*` 变量（由 willUpdate 写入），CSS 里没有任何字面量 ——
+  「改阶梯只改一张表」。这也是密度切换能自动跟随的原因：令牌变了，这里不变。
+*/
+:host {
+  display: block;
+  font-size: var(--_size, var(--z-font-size-base));
+  font-weight: var(--_weight, 400);
+  color: var(--z-color-text);
+  line-height: var(--z-line-height);
+  /* 标题的默认外边距在组件里统一抹掉：由使用方的布局容器（z-space / z-flex）
+     决定间距，否则每处都要写 `margin: 0` 去覆盖 UA 样式。 */
+  margin: 0;
+}
+
+:host([hidden]) {
+  display: none;
+}
+
+.z-typography--secondary {
+  color: var(--z-color-text-secondary);
+}
+
+/* 单行省略：必须有确定的宽度约束才能生效 —— 父级 min-width:0 由 z-flex / z-grid 提供 */
+.z-typography--ellipsis {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/*
+  多行省略。行数走 `--_lines`，0 表示不限 —— 那条分支由类名控制，
+  因为 `-webkit-line-clamp: 0` 不是「不限」而是「显示 0 行」。
+*/
+.z-typography--clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--_lines, 2);
+  line-clamp: var(--_lines, 2);
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.z-typography__copy {
+  margin-left: var(--z-space-2);
+  padding: 0 var(--z-space-1);
+  font-size: var(--z-font-size-xs);
+  font-family: inherit;
+  color: var(--z-color-primary);
+  background: none;
+  border: none;
+  border-radius: var(--z-radius-sm);
+  cursor: pointer;
+  vertical-align: baseline;
+}
+
+.z-typography__copy:hover {
+  background: var(--z-color-primary-soft);
+}
+
+.z-typography__copy:focus-visible {
+  outline: var(--z-focus-ring-outline);
+  outline-offset: 1px;
+}
