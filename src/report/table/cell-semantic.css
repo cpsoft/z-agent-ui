@@ -153,6 +153,23 @@
 .z-rpt__td .is-down {
   color: var(--z-color-data-down);
 }
+
+/* ── 合计行（tfoot）里的语义色 ──
+ *
+ * [WHY 需要单独一组] 合计行用的是 `<th class="z-rpt__tf">`，上面那组选择器只匹配
+ * `.z-rpt__td`。少这一条的后果与「有 class 没样式」同型：数据行红了、合计行还是灰的，
+ * 而同一份脚本、同一个 `tone`。class 只能由 `col.footerRender` 产出 —— `footer` 的
+ * 纯文本路径一律转义，写 `<span>` 也只会被当字面量印出来。
+ * 与 td 同口径：只给字色，整格底色交给 `is-badge` 或行级 tone。
+ * [注] 本文件已逼近 400 行红线（lines-guard），下次再加语义色先合并 `td / tf`
+ * 两处选择器，别继续复制整块。 */
+.z-rpt__tf .is-danger { color: var(--z-color-danger-strong); }
+.z-rpt__tf .is-warning { color: var(--z-color-warning-strong); }
+.z-rpt__tf .is-success { color: var(--z-color-success-strong); }
+.z-rpt__tf .is-muted { color: var(--z-color-text-secondary); }
+.z-rpt__tf .is-primary { color: var(--z-color-primary-strong); }
+.z-rpt__tf .is-up { color: var(--z-color-data-up); }
+.z-rpt__tf .is-down { color: var(--z-color-data-down); }
 /* ── 进度条（format=progress）── */
 /*
  * 条与文字并排而非叠放：叠在条上的数字在填充过半时会被色块压住读不出来。

@@ -62,6 +62,20 @@ export interface ReportColumn extends CellSpec {
   numeric?: boolean;
   render?: (value: unknown, row: Record<string, unknown>, index: number) => string;
   footer?: string | ((data: Record<string, unknown>[]) => string);
+  /**
+   * 合计行的自定义渲染（返回 HTML），与列的 `render` 对称。
+   *
+   * [WHY 需要它] `footer` 只出纯文本且一律转义 —— 数据行能靠 `render` 里的
+   * `<span class="is-danger">` 标红，合计行却只能是一段灰字：「超预算的合计」
+   * 与「没超预算的合计」长得一样（2026-11-25 反馈）。
+   * 语义色类（`is-danger` / `is-up` / `is-badge` …）由 `cell-semantic.css` 提供，
+   * 合计行那一份选择器也补在同一个文件里。
+   *
+   * [安全口径] 这里不转义，因为模板是**列定义作者**写的（与 `render` 同一可信级别）；
+   * 数据仍必须由作者自己 `escapeAttr` / 转义 —— 直接把行数据拼进 HTML 与 `render`
+   * 里的风险完全一样。
+   */
+  footerRender?: (data: Record<string, unknown>[]) => string;
 }
 
 // [WHY] 列单元格格式: 纯展示层配置, 仅影响单元格文本渲染, 与数据/SQL 无关。

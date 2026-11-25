@@ -560,6 +560,10 @@ export function renderFooter(ctx: FooterRenderContext): string {
     // [WHY] 列级合计开关: showFooter === false 时该列合计单元格留空, 编辑态下拉可配置
     if (col.showFooter === false) {
       content = "";
+    } else if (col.footerRender) {
+      // [WHY 不转义] 模板由列定义作者写（与 col.render 同一可信级别）；footer 那条
+      // 纯文本路径仍然 esc —— 两者是「可信模板 / 不可信值」的分界，不是风格差异。
+      content = col.footerRender(ctx.data);
     } else if (col.footer !== undefined) {
       content = typeof col.footer === "function"
         ? esc(col.footer(ctx.data))
