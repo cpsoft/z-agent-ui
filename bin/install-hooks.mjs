@@ -44,8 +44,12 @@ for (const name of HOOKS) {
   const src = join(SRC, name);
   const dst = join(DST, name);
   if (!existsSync(src)) {
-    console.error(`[hooks] 模板缺失：${src}`);
-    process.exit(1);
+    // [WHY 不 exit 1] 这个脚本挂在 `prepare` 上，而 `prepare` 是 `npm install` / `npm publish`
+    // 的必经步骤。仓库拆出来后模板没跟过来，硬失败会让**安装与发布**一并停摆 ——
+    // 一个可选的钩子不该有这种权力。`--check` 仍然判失败，那是显式检查该有的态度。
+    stale++;
+    console.error(`[hooks] 模板缺失：${src}（跳过安装）`);
+    continue;
   }
 
   const want = readFileSync(src, "utf8");
