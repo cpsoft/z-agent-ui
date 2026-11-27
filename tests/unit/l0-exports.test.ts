@@ -31,10 +31,14 @@ import { describe, expect, it } from "vitest";
 const PROMISED = [
   "APPEARANCES",
   "BaseElement",
+  "ContextConsumer",
+  "ContextProvider",
+  "ContextRequestEvent",
   "DEFAULT_LOCALE",
   "SIZES",
   "TONES",
   "TONE_ALIASES",
+  "createContext",
   "css",
   "escapeAttr",
   "escapeHtml",
@@ -59,6 +63,12 @@ const PROMISED = [
 /** 只在类型空间存在，运行时不可见。列在这里是为了让「承诺了什么」一眼看全。 */
 const PROMISED_TYPES = [
   "UpdateContext",
+  "ReactiveController",
+  "ReactiveControllerHost",
+  "Context",
+  "ContextCallback",
+  "ContextProviderOptions",
+  "ContextConsumerOptions",
   "SanitizeOptions",
   "Tone",
   "Appearance",

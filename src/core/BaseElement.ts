@@ -1,4 +1,5 @@
 import { applyPropertyMeta, convertFromAttribute, metaAliases } from "./decorators.js";
+import type { ReactiveController, ReactiveControllerHost } from "./controller.js";
 import { localeVersion, onLocaleChange, t } from "./i18n.js";
 import { morphChildren } from "./morph.js";
 import type { RawHtml } from "./template.js";
@@ -62,7 +63,7 @@ interface FocusMemo {
   dir: "forward" | "backward" | "none" | null;
 }
 
-export abstract class BaseElement extends HTMLElement {
+export abstract class BaseElement extends HTMLElement implements ReactiveControllerHost {
   // [WHY 这里没有 observedAttributes] 2026-11-14 删掉了两个「看起来在生效、实际从未被读」的机制：
   // 本类曾有一个 `static get observedAttributes()` 返回 `__observedAttributes`，以及
   // `connectedCallback` 里的 `registerObservedAttributes()` 去填那个字段。
@@ -100,6 +101,7 @@ export abstract class BaseElement extends HTMLElement {
   private __unsubLocale: (() => void) | null = null;
   private __localeVer = -1;
   private __abortController: AbortController | null = null;
+  private __controllers: Set<ReactiveController> | null = null;
   /** 本微任务批次内发生变化的属性 → 变更前旧值（供 decorators.ts 写入）。 */
   private __zui_changedProps = new Map<string, unknown>();
 
@@ -120,10 +122,16 @@ export abstract class BaseElement extends HTMLElement {
     if (!this.__unsubLocale) {
       this.__unsubLocale = onLocaleChange(() => this.__onLocaleChange());
     }
+    if (this.__controllers) {
+      for (const c of this.__controllers) c.hostConnected?.();
+    }
     this.requestUpdate();
   }
 
   disconnectedCallback(): void {
+    if (this.__controllers) {
+      for (const c of this.__controllers) c.hostDisconnected?.();
+    }
     if (this.__unsubLocale) {
       this.__unsubLocale();
       this.__unsubLocale = null;
@@ -132,6 +140,20 @@ export abstract class BaseElement extends HTMLElement {
       this.__abortController.abort();
       this.__abortController = null;
     }
+  }
+
+  /** 注册一个 ReactiveController，自动接入宿主连接/更新/断开生命周期，并返回控制器实例。 */
+  addController<T extends ReactiveController>(controller: T): T {
+    (this.__controllers ??= new Set()).add(controller);
+    if (this.isConnected) {
+      controller.hostConnected?.();
+    }
+    return controller;
+  }
+
+  /** 移除已注册的 ReactiveController。 */
+  removeController(controller: ReactiveController): void {
+    this.__controllers?.delete(controller);
   }
 
   /**
@@ -230,6 +252,9 @@ export abstract class BaseElement extends HTMLElement {
     this.__zui_changedProps.clear();
     const ctx: UpdateContext = { isFirst: !this.__hasRendered, changed };
     (this as any).willUpdate?.(ctx);
+    if (this.__controllers) {
+      for (const c of this.__controllers) c.hostUpdate?.();
+    }
 
     const rawRendered = this.render();
     const rendered =
@@ -269,6 +294,9 @@ export abstract class BaseElement extends HTMLElement {
     }
     // 传入本帧变更的属性映射（prop → oldValue）；0 参旧子类不受影响。
     (this as any).updated?.(changed);
+    if (this.__controllers) {
+      for (const c of this.__controllers) c.hostUpdated?.();
+    }
     (this as any).updateComplete?.();
   }
 

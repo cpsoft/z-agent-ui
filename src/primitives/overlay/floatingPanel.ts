@@ -129,6 +129,11 @@ export class FloatingPanelController {
     setTimeout(cleanup, fallbackMs);
   }
 
+  /** ReactiveController 钩子：宿主脱离文档时自动拆除残留浮层、定位器与文档监听。 */
+  hostDisconnected(): void {
+    this._discard();
+  }
+
   /** 摘掉定位器与文档 mousedown 监听（close 与重入拆除共用）。 */
   private _stopWatching(): void {
     this._position?.destroy();

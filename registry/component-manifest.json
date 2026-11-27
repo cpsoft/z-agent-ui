@@ -13,7 +13,7 @@
     "events": 213,
     "componentsWithEvents": 95,
     "componentsWithNamedSlots": 28,
-    "propertiesWithValues": 72,
+    "propertiesWithValues": 71,
     "attributesOnly": 85
   },
   "components": [
@@ -9050,7 +9050,7 @@
       "tag": "z-report-table",
       "source": "src/report/table/ReportTable.ts",
       "layer": "composite",
-      "summary": "<z-report-table> 报表表格：columns 与 data 驱动，支持排序、列宽与列显隐、分组、分页，动作各发事件。",
+      "summary": "<z-report-table> 报表表格：columns 与 data 驱动，支持排序、列宽与列显隐、分组、分页、虚拟滚动，动作各发事件。",
       "events": [
         "z-cell-act",
         "z-cell-change",
@@ -10087,10 +10087,7 @@
           ],
           "type": "String",
           "default": "frontend",
-          "values": [
-            "frontend",
-            "backend"
-          ]
+          "values": null
         },
         {
           "name": "searchPlaceholder",

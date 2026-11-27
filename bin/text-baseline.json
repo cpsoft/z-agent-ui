@@ -13,7 +13,7 @@
     "src/report/chart/geometry/build-cartesian.ts": 1,
     "src/report/chart/geometry/build-radar.ts": 1,
     "src/report/chart/geometry/build-waterfall.ts": 2,
-    "src/report/chart/geometry/extra.ts": 11,
+    "src/report/chart/geometry/extra.ts": 7,
     "src/report/column-selector/ColumnSelector.ts": 2,
     "src/report/core/cell-mount.ts": 2,
     "src/report/core/exploration.ts": 1,
@@ -33,7 +33,6 @@
     "src/report/elements/card-export.ts": 1,
     "src/report/gantt/gantt-view.ts": 15,
     "src/report/table/column-config-panel.ts": 1,
-    "src/report/table/ReportTable.ts": 2,
     "src/report/table/table-render.ts": 1
   }
 }
