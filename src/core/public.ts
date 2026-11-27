@@ -31,6 +31,17 @@ export {
   type ContextConsumerOptions,
 } from "./context.js";
 
+export {
+  discover,
+  registerTagLoader,
+  resolveTagSubpath,
+  startAutoloader,
+  unregisterTagLoader,
+  type AutoloaderHandle,
+  type AutoloaderOptions,
+  type TagLoader,
+} from "./autoloader.js";
+
 // 模板与转义：组件拼 HTML 的唯一入口（自写转义会绕过这里的引号处理）
 export { html, safeHtml, unsafeHTML, escapeHtml, escapeAttr, type RawHtml } from "./template.js";
 
