@@ -50,7 +50,7 @@ export class ZTooltip extends BaseElement {
   @property({ type: Number }) offset = 6;
   @property({ type: Number }) delay = 400;
 
-  private _floating = new FloatingPanelController(this);
+  private _floating = this.addController(new FloatingPanelController(this));
   private _showTimer: ReturnType<typeof setTimeout> | null = null;
 
   render(): string {

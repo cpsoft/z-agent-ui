@@ -24,11 +24,12 @@ import {
 import { esc, extractPlaceholderKeys, parseBlocks } from "./render.js";
 import documentCSS from "./document.css?raw";
 import docTemplateEditorCSS from "./doc-template-editor.css?raw";
+import docTemplateEditorPanelCSS from "./doc-template-editor-panel.css?raw";
 import { type EditorView, type PanelTab, blockHtml, renderEditorShell } from "./editor-html.js";
 import { compensateScale, createPageShell, layoutPages, syncPagesStyle } from "./editor-page-layout.js";
 
 export abstract class DocTemplateEditorBase extends BaseElement {
-  static styles = documentCSS + docTemplateEditorCSS;
+  static styles = documentCSS + docTemplateEditorCSS + docTemplateEditorPanelCSS;
 
   /** 块结构 DSL（JSON 串）；也兼容 HTML / Markdown 降级内容（只读展示, 编辑按段落块处理） */
   @property({ type: String, attribute: false }) content = "";

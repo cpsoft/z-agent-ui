@@ -1,13 +1,6 @@
 {
   "note": "超阈值的欠债表（只减不增）。拆完一个就 `node bin/lines-guard.mjs --update` 划掉它。阈值见 wiki/reference/component-implementation-standard.md §9。",
   "files": {
-    "src/doc/doc-template-editor.css": 412,
-    "src/report/gantt/gantt.css": 515,
-    "src/report/table/report-table.css": 496,
-    "src/theme/tokens.css": 872,
-    "tests/unit/chart/extra-geometry.test.ts": 713,
-    "tests/unit/components/datepicker.test.ts": 664,
-    "tests/unit/components/report-a11y.test.ts": 763,
-    "tests/unit/components/tree.test.ts": 688
+    "src/theme/tokens.css": 872
   }
 }

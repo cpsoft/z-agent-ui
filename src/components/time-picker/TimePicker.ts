@@ -102,7 +102,7 @@ export class ZTimePicker extends BaseElement {
   @property({ type: String }) pmLabel = "PM";
 
   // [WHY] 浮层面板生命周期（创建/定位/外部关闭/隐藏动画）委托给公共控制器
-  private _floating = new FloatingPanelController(this);
+  private _floating = this.addController(new FloatingPanelController(this));
   private _h = 0;
   private _m = 0;
   private _s = 0;

@@ -9,11 +9,11 @@
       "composite": 30,
       "foundation": 2
     },
-    "properties": 964,
+    "properties": 967,
     "events": 213,
     "componentsWithEvents": 95,
     "componentsWithNamedSlots": 28,
-    "propertiesWithValues": 71,
+    "propertiesWithValues": 72,
     "attributesOnly": 85
   },
   "components": [
@@ -6405,6 +6405,41 @@
           "type": "Boolean",
           "default": true,
           "values": null
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "aliases": [
+            "disabled"
+          ],
+          "type": "Boolean",
+          "default": false,
+          "values": null
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "aliases": [
+            "readonly"
+          ],
+          "type": "Boolean",
+          "default": false,
+          "values": null
+        },
+        {
+          "name": "controlSize",
+          "attribute": "control-size",
+          "aliases": [
+            "control-size"
+          ],
+          "type": "String",
+          "default": "md",
+          "values": [
+            "xs",
+            "sm",
+            "md",
+            "lg"
+          ]
         }
       ]
     },

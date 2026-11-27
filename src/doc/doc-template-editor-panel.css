@@ -1,0 +1,197 @@
+/* ===== z-doc-template-editor: 右侧面板 / 表格列配置 / 占位符面板 ===== */
+
+.z-dte__aside {
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg);
+  overflow: hidden;
+}
+
+.z-dte__tabs {
+  display: flex;
+  border-bottom: 1px solid var(--z-color-border);
+  background: var(--z-color-bg-secondary);
+}
+
+.z-dte__tab {
+  flex: 1;
+  padding: var(--z-space-2) 0;
+  border: none;
+  background: transparent;
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-sm);
+  cursor: pointer;
+}
+
+.z-dte__tab--active {
+  color: var(--z-color-primary);
+  font-weight: var(--z-font-weight-medium);
+  box-shadow: inset 0 -2px 0 var(--z-color-primary);
+}
+
+.z-dte__panel {
+  padding: var(--z-space-3);
+  max-height: 62vh;
+  overflow: auto;
+}
+
+.z-dte__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-2);
+}
+
+.z-dte__group-name {
+  color: var(--z-color-text-secondary);
+  font-weight: var(--z-font-weight-semibold);
+  text-transform: uppercase;
+  font-size: var(--z-font-size-xs);
+}
+
+.z-dte__sub {
+  margin-top: var(--z-space-2);
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-xs);
+}
+
+.z-dte__cols {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-1);
+}
+
+.z-dte__col-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 56px 20px;
+  align-items: center;
+  gap: var(--z-space-1);
+}
+
+.z-dte__col-row select,
+.z-dte__col-row input {
+  height: var(--z-input-height);
+  min-width: 0;
+  padding: var(--z-input-padding-y) var(--z-input-padding-x);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg);
+  color: var(--z-color-text);
+  font-size: var(--z-input-font-size);
+  outline: none;
+}
+
+.z-dte__col-row select:focus,
+.z-dte__col-row input:focus {
+  border-color: var(--z-color-primary);
+  box-shadow: var(--z-focus-ring);
+}
+
+.z-dte__col-row .z-dte__mini {
+  width: 20px;
+  height: 20px;
+}
+
+.z-dte__row-ops {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  flex-wrap: wrap;
+}
+
+.z-dte__field {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  align-items: center;
+  gap: var(--z-space-2);
+}
+
+.z-dte__field > span {
+  color: var(--z-color-text-secondary);
+}
+
+.z-dte__margin-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--z-space-1);
+}
+
+.z-dte__field input[type="text"],
+.z-dte__field input[type="number"],
+.z-dte__field select {
+  height: var(--z-input-height);
+  padding: var(--z-input-padding-y) var(--z-input-padding-x);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  background: var(--z-color-bg);
+  color: var(--z-color-text);
+  font-size: var(--z-input-font-size);
+  outline: none;
+  min-width: 0;
+}
+
+.z-dte__field input[type="color"] {
+  width: 40px;
+  height: var(--z-input-height);
+  padding: 0;
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-color-bg);
+}
+
+.z-dte__field input:focus,
+.z-dte__field select:focus {
+  border-color: var(--z-color-primary);
+  box-shadow: var(--z-focus-ring);
+}
+
+.z-dte__hint {
+  padding: var(--z-space-3) 0;
+  text-align: center;
+  color: var(--z-color-text-secondary);
+}
+
+.z-dte__ph-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--z-space-2);
+}
+
+.z-dte__ph {
+  display: flex;
+  align-items: center;
+  gap: var(--z-space-2);
+  padding: var(--z-space-2);
+  border: 1px solid var(--z-color-border);
+  border-radius: var(--z-radius-md);
+  cursor: grab;
+}
+
+.z-dte__ph:hover {
+  border-color: var(--z-color-primary);
+}
+
+.z-dte__ph-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.z-dte__ph-key {
+  font-family: var(--z-font-mono);
+  font-size: var(--z-font-size-xs);
+  color: var(--z-color-primary);
+}
+
+.z-dte__ph-label {
+  color: var(--z-color-text);
+}
+
+.z-dte__ph-sample {
+  color: var(--z-color-text-secondary);
+  font-size: var(--z-font-size-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

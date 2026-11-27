@@ -43,7 +43,7 @@ export class ZPopover extends BaseElement {
   @property({ type: Number }) offset = 8;
   @property({ type: String }) trigger: "click" | "hover" = "click";
 
-  private _floating = new FloatingPanelController(this);
+  private _floating = this.addController(new FloatingPanelController(this));
   private _showTimer: ReturnType<typeof setTimeout> | null = null;
   private _hideTimer: ReturnType<typeof setTimeout> | null = null;
   private _wasOpen = false;

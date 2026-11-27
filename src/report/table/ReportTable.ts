@@ -5,6 +5,7 @@ import { COPY, BaseElement, html, property, observeLegacyAttribute, defineElemen
 import "../column-selector/ColumnSelector.js";
 import type { ZColumnSelector } from "../column-selector/ColumnSelector.js";
 import reportTableCSS from "./report-table.css?raw";
+import reportTableConfigCSS from "./report-table-config.css?raw";
 import reportTableGroupedCSS from "./report-table-grouped.css?raw";
 import cellSemanticCSS from "./cell-semantic.css?raw";
 import reportTableBodyCSS from "./report-table-body.css?raw";
@@ -62,7 +63,7 @@ const MAX_COL_WIDTH = 2000;
 
 export class ZReportTable extends BaseElement {
   static styles =
-    reportTableCSS + reportTableGroupedCSS + reportTableBodyCSS + reportTableFixedCSS + cellSemanticCSS;
+    reportTableCSS + reportTableConfigCSS + reportTableGroupedCSS + reportTableBodyCSS + reportTableFixedCSS + cellSemanticCSS;
 
   @property({ type: String, attribute: "selected-row-id" }) selectedRowId = "";
   @property({ attribute: false }) rowClass:

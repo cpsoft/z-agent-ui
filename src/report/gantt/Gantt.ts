@@ -35,11 +35,12 @@ import type {
   ZGanttViewMode,
 } from "./types.js";
 import ganttCSS from "./gantt.css?raw";
+import ganttBarsCSS from "./gantt-bars.css?raw";
 
 const VIEW_MODES: ZGanttViewMode[] = ["day", "week", "month", "quarter"];
 
 export class ZGantt extends BaseElement {
-  static styles = ganttCSS;
+  static styles = ganttCSS + ganttBarsCSS;
 
   @property({ type: Object, attribute: false }) data: ZGanttData | null = null;
   @property({ type: Array, attribute: false }) columns: GanttListColumn[] = [];

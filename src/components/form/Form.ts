@@ -12,9 +12,19 @@
 // [WHY] 组合组件依赖注册：validate() 调用 item.validate() 要求 z-form-item 已定义
 import "../form-item/FormItem.js";
 
-import { BaseElement, html, property, defineElement } from "../../core/index.js";
+import {
+  BaseElement,
+  ContextProvider,
+  html,
+  property,
+  defineElement,
+  type ControlSize,
+} from "../../core/index.js";
 import formCSS from "./form.css?raw";
 import type { ZFormItem } from "../form-item/FormItem.js";
+import { FORM_CONTEXT, type FormContextValue } from "./form-context.js";
+
+export { FORM_CONTEXT, type FormContextValue } from "./form-context.js";
 
 export class ZForm extends BaseElement {
   static styles = formCSS;
@@ -24,19 +34,37 @@ export class ZForm extends BaseElement {
   // [WHY] 多词属性需显式 attribute 名（decorators 只做 toLowerCase，不做 kebab 转换，见 src/core/decorators.ts:22）
   @property({ type: Boolean, attribute: "validate-on-change" }) validateOnChange = false;
   @property({ type: Boolean, attribute: "validate-on-submit" }) validateOnSubmit = true;
+  @property({ type: Boolean }) disabled = false;
+  @property({ type: Boolean }) readonly = false;
+  @property({ type: String, attribute: "control-size" }) controlSize: ControlSize = "md";
+
+  private _ctx = this.addController(
+    new ContextProvider<FormContextValue>(this, {
+      context: FORM_CONTEXT,
+      initialValue: { disabled: false, readonly: false, controlSize: "md" },
+    }),
+  );
+
+  protected willUpdate(): void {
+    const prev = this._ctx.value;
+    if (
+      prev.disabled !== this.disabled ||
+      prev.readonly !== this.readonly ||
+      prev.controlSize !== this.controlSize
+    ) {
+      this._ctx.setValue({
+        disabled: this.disabled,
+        readonly: this.readonly,
+        controlSize: this.controlSize,
+      });
+    }
+  }
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.addEventListener("z-change", this._onFieldChange);
-    this.addEventListener("z-reset", this._onFieldReset);
-    this.shadowRoot!.addEventListener("submit", this._onSubmit);
-  }
-
-  disconnectedCallback(): void {
-    this.removeEventListener("z-change", this._onFieldChange);
-    this.removeEventListener("z-reset", this._onFieldReset);
-    this.shadowRoot!.removeEventListener("submit", this._onSubmit);
-    super.disconnectedCallback();
+    this.listen(this, "z-change", this._onFieldChange);
+    this.listen(this, "z-reset", this._onFieldReset);
+    if (this.shadowRoot) this.listen(this.shadowRoot, "submit", this._onSubmit);
   }
 
   render(): string {

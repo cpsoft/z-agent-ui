@@ -4,6 +4,7 @@
 import { html } from "../../core/index.js";
 import { renderColumnConfig, type ColumnConfigTexts } from "./column-config-panel.js";
 import { esc, type ReportColFormat, type ReportColumn, type SortEntry } from "./report-table-types.js";
+import { resolveCellRendererHtml } from "./table-cell-registry.js";
 import { normalizeCell } from "../core/cell-spec.js";
 import type { ViewRow } from "./table-view-rows.js";
 
@@ -474,18 +475,16 @@ export function renderRow(
 
     // [WHY null 在小计/总计行显示「—」] 聚合不可重算（avg / countDistinct 的小计）时
     // 交上来的是 null；显示空白会读成「这一组分文没有」，而事实是「算不出」。
+    const customHtml =
+      meta && kind !== "data" && (value === null || value === undefined)
+        ? null
+        : resolveCellRendererHtml(col, value, row, index);
     const content =
       meta && kind !== "data" && (value === null || value === undefined)
-        ? col.numeric
-          ? "—"
-          : ""
-        : col.render
-          ? col.render(value, row, index)
-          : esc(value);
-    // [WHY] 严谨性: 纯文本截断时以 title 提供完整内容, 自定义渲染不做猜测。
-    // 内容槽（cellTag）也算自定义：里面画什么由宿主决定，td 上的 title 会和它打架。
+        ? col.numeric ? "—" : ""
+        : customHtml ?? esc(value);
     const titleAttr =
-      !col.render && !col.cellTag && !(meta && kind !== "data") && (typeof value === "string" || typeof value === "number")
+      customHtml === null && !col.cellTag && !(meta && kind !== "data") && (typeof value === "string" || typeof value === "number")
         ? ` title="${esc(String(value))}"`
         : "";
     // [WHY 内容槽先渲染文本、再挂元素] 这是「降级承诺」的落点：标签没注册、宿主少 import

@@ -182,7 +182,7 @@ export class ZDateRange extends BaseElement {
   @property({ type: String }) ariaLabel = COPY.dateRangePicker;
 
   // [WHY] 浮层面板生命周期（创建/定位/外部关闭/隐藏动画）委托给公共控制器
-  private _floating = new FloatingPanelController(this);
+  private _floating = this.addController(new FloatingPanelController(this));
   private _viewYear = 0;
   private _viewMonth = 0; // 左月，0-11；右月恒为左月+1
   private _focusISO: ISOString | null = null;

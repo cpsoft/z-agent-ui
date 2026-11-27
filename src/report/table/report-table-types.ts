@@ -61,6 +61,8 @@ export interface ReportColumn extends CellSpec {
   // [WHY] 数字列标记: 编辑态表头菜单额外显示"小数位/千分位"格式项, 文本列不显示避免误导
   numeric?: boolean;
   render?: (value: unknown, row: Record<string, unknown>, index: number) => string;
+  /** 命名单元格渲染器键（通过 `registerTableCellRenderer` 注册）；`render` 优先。 */
+  cellRenderer?: string;
   footer?: string | ((data: Record<string, unknown>[]) => string);
   /**
    * 合计行的自定义渲染（返回 HTML），与列的 `render` 对称。

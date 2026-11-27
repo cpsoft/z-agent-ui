@@ -1,0 +1,242 @@
+/* ===== z-gantt: 行、条形、依赖连线、关键路径与拖拽手柄 ===== */
+
+.z-gantt__row {
+  position: relative;
+  border-bottom: 1px solid var(--z-gantt-border-soft, var(--z-color-border));
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.z-gantt__row:hover {
+  background: var(--z-gantt-row-hover, color-mix(in srgb, var(--z-color-text) 4%, transparent));
+}
+
+.z-gantt__row--selected.z-gantt__row {
+  background: var(--z-gantt-row-selected, color-mix(in srgb, var(--z-color-primary) 12%, transparent));
+}
+
+.z-gantt__bar {
+  position: absolute;
+  height: 24px;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--z-gantt-bar-bg, var(--z-color-primary-solid)) 0%,
+    color-mix(in srgb, var(--z-gantt-bar-bg, var(--z-color-primary-solid)) 92%, var(--z-color-white)) 100%
+  );
+  box-shadow: var(--z-gantt-bar-shadow, 0 1px 3px rgba(0, 0, 0, 0.12));
+  overflow: hidden;
+  z-index: 1;
+}
+
+.z-gantt__bar,
+.z-gantt__bar-progress,
+.z-gantt__handle,
+.z-gantt__connect,
+.z-gantt__milestone {
+  touch-action: none;
+}
+
+.z-gantt__bar-progress {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: var(--z-gantt-bar-progress-bg, rgba(255, 255, 255, 0.25));
+  cursor: ew-resize;
+}
+
+.z-gantt__bar-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  box-sizing: border-box;
+  color: var(--z-gantt-bar-text, var(--z-color-primary-text));
+  font-size: 11px;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.z-gantt__bar-days {
+  margin-left: 6px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.z-gantt__bar--real.z-gantt__bar {
+  height: 14px;
+  border-radius: 3px;
+  background: var(
+    --z-gantt-bar-real-bg,
+    color-mix(in srgb, var(--z-color-success) 14%, transparent)
+  );
+  border: 1.5px solid
+    color-mix(in srgb, var(--z-gantt-bar-real-border, var(--z-color-success)) 50%, transparent);
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.z-gantt__bar--summary.z-gantt__bar {
+  height: 10px;
+  border-radius: 5px;
+  background: var(
+    --z-gantt-summary-bg,
+    color-mix(in srgb, var(--z-color-text-secondary) 18%, transparent)
+  );
+  border: 1.5px solid
+    color-mix(in srgb, var(--z-gantt-summary-border, var(--z-color-text-secondary)) 45%, transparent);
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.z-gantt__milestone-anchor {
+  position: absolute;
+  z-index: 1;
+}
+
+.z-gantt__milestone {
+  position: absolute;
+  inset: 0;
+  background: var(--z-gantt-milestone-bg, var(--z-color-warning));
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+
+.z-gantt__connect {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: var(--z-color-primary);
+  border: 1px solid var(--z-color-bg);
+  box-sizing: border-box;
+  cursor: crosshair;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--z-transition-instant);
+  z-index: 2;
+}
+
+.z-gantt__connect--start {
+  left: -4px;
+}
+
+.z-gantt__connect--end {
+  right: -4px;
+}
+
+.z-gantt__row:hover .z-gantt__connect {
+  opacity: 0.9;
+  pointer-events: auto;
+}
+
+.z-gantt__arrows {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.z-gantt__arrow {
+  fill: none;
+  stroke: var(--z-gantt-arrow-color, var(--z-color-text-secondary));
+  stroke-width: 1.5;
+  pointer-events: none;
+}
+
+.z-gantt__arrow-head {
+  fill: var(--z-gantt-arrow-color, var(--z-color-text-secondary));
+}
+
+.z-gantt__temp-line {
+  fill: none;
+  stroke: var(--z-color-primary);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  pointer-events: none;
+}
+
+.z-gantt__bar--critical.z-gantt__bar,
+.z-gantt__bar--critical.z-gantt__bar--summary,
+.z-gantt__bar--critical.z-gantt__milestone {
+  background: var(--z-gantt-critical-bg, var(--z-color-danger));
+}
+
+.z-gantt__bar--near-critical.z-gantt__bar,
+.z-gantt__bar--near-critical.z-gantt__bar--summary,
+.z-gantt__bar--near-critical.z-gantt__milestone {
+  background: var(--z-gantt-near-critical-bg, var(--z-color-warning));
+}
+
+.z-gantt__handle {
+  position: absolute;
+  top: 0;
+  width: 7px;
+  height: 100%;
+  cursor: ew-resize;
+  opacity: 0;
+  transition: opacity var(--z-transition-instant);
+}
+
+.z-gantt__handle--start {
+  left: 0;
+}
+
+.z-gantt__handle--end {
+  right: 0;
+}
+
+.z-gantt__handle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 3px;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 2px;
+  background: var(--z-gantt-bar-text, var(--z-color-primary-text));
+}
+
+.z-gantt__handle--start::after {
+  left: 2px;
+}
+
+.z-gantt__handle--end::after {
+  right: 2px;
+}
+
+.z-gantt__bar:hover .z-gantt__handle,
+.z-gantt__row:hover .z-gantt__handle {
+  opacity: 0.9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-gantt__handle,
+  .z-gantt__connect {
+    transition: none;
+  }
+}
+
+.z-gantt__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

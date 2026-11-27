@@ -41,7 +41,7 @@ export class ZContextMenu extends BaseElement {
   /** 菜单与光标之间的间距。0 = 左上角正好压住光标（Windows 习惯），2 更易读。 */
   @property({ type: Number }) offset = 2;
 
-  private _floating = new FloatingPanelController(this);
+  private _floating = this.addController(new FloatingPanelController(this));
   private _focusTrap: FocusTrap | null = null;
   private _nav: MenuNav | null = null;
   private _uid = "";

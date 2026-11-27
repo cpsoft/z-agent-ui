@@ -19,7 +19,7 @@ export class ZMenu extends BaseElement {
   @property({ type: Number }) offset = 4;
   @property({ type: Boolean }) disabled = false;
 
-  private _floating = new FloatingPanelController(this);
+  private _floating = this.addController(new FloatingPanelController(this));
   private _focusTrap: FocusTrap | null = null;
   private _nav: MenuNav | null = null;
   /** 面板独有的 id 前缀：同页可能有两个菜单，选项 id 撞了 activedescendant 会指到别人家。 */
