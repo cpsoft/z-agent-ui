@@ -5,7 +5,7 @@
 // 而后者在手机上无法用 hover 自救。
 //
 // 只上报 z-click，不做跳转（与 ADR-004 一致：组件不决定去哪）。
-import { BaseElement, escapeHtml, html, property } from "../../core/index.js";
+import { BaseElement, escapeHtml, html, property, defineElement } from "../../core/index.js";
 import mCellCSS from "./m-cell.css?raw";
 
 export class MCell extends BaseElement {
@@ -82,4 +82,4 @@ export class MCell extends BaseElement {
   }
 }
 
-customElements.define("m-cell", MCell);
+defineElement("m-cell", MCell);

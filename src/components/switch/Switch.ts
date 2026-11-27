@@ -1,5 +1,5 @@
 // <z-switch> 开关：checked 双向绑定、size 两档，切换发 z-change。
-import { BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, defineElement } from "../../core/index.js";
 import switchCSS from "./switch.css?raw";
 
 export class ZSwitch extends BaseElement {
@@ -82,4 +82,4 @@ export class ZSwitch extends BaseElement {
   };
 }
 
-customElements.define("z-switch", ZSwitch);
+defineElement("z-switch", ZSwitch);

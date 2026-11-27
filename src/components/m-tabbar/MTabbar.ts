@@ -1,7 +1,7 @@
 // <m-tabbar> 底部标签栏：items 给标签、active 由宿主控制，点击发 z-change。
 // [WHY] 移动端底部 TabBar：受控（active 由宿主给），点击只派发 z-change。
 // 标签/角标来自配置或数据，插值必须转义 —— html`` 不做自动转义。
-import { BaseElement, html, property, escapeHtml, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeHtml, escapeAttr, defineElement } from "../../core/index.js";
 import mTabbarCSS from "./m-tabbar.css?raw";
 
 export interface TabbarItem {
@@ -73,4 +73,4 @@ export class MTabbar extends BaseElement {
   }
 }
 
-customElements.define("m-tabbar", MTabbar);
+defineElement("m-tabbar", MTabbar);

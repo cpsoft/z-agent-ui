@@ -2,7 +2,7 @@
 // [WHY] z-rate [[2026-08-11-W13-form-basics]]:
 // 星形评分; hover 预览(鼠标移过重渲染, 移出恢复); allowHalf 用前景裁剪宽度实现;
 // 键盘 Arrow/Home/End; disabled/readonly 无交互。
-import { BaseElement, html, property, escapeAttr, ariaBool } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, ariaBool, defineElement } from "../../core/index.js";
 import rateCSS from "./rate.css?raw";
 
 // 16x16 五角星 path（fill=currentColor）
@@ -151,4 +151,4 @@ export class ZRate extends BaseElement {
   };
 }
 
-customElements.define("z-rate", ZRate);
+defineElement("z-rate", ZRate);

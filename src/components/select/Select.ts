@@ -1,6 +1,6 @@
 // <z-select> 下拉选择：searchable 带搜索、multiple 多选、clearable 清空，开、合、变更、搜索各发事件。
 import { DROPDOWN_CSS } from "./dropdown-css.js";
-import { COPY, BaseElement, html, property, injectGlobalStyles, escapeHtml, escapeAttr, controlHeight, type ControlSize } from "../../core/index.js";
+import { COPY, BaseElement, html, property, t, injectGlobalStyles, escapeHtml, escapeAttr, controlHeight, type ControlSize, defineElement } from "../../core/index.js";
 import { FloatingPanelController, FocusTrap, listIntent, resolveIndex } from "../../primitives/index.js";
 import type { ZOption } from "../option/Option.js";
 import selectCSS from "./select.css?raw";
@@ -254,7 +254,7 @@ export class ZSelect extends BaseElement {
         `<span class="z-select__tag" title="${escapeAttr(text)}">` +
         `<span class="z-select__tag-label">${escapeHtml(text)}</span>` +
         `<span class="z-select__tag-x" role="button" tabindex="-1" data-value="${escapeAttr(v)}"` +
-        ` aria-label="移除 ${escapeAttr(text)}">` +
+        ` aria-label="${escapeAttr(t("removeItem", { label: text }))}">` +
         `<svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden="true">` +
         `<path d="M1.6 1.6l4.8 4.8M6.4 1.6L1.6 6.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>` +
         `</span></span>`
@@ -418,8 +418,8 @@ export class ZSelect extends BaseElement {
           ? `<div class="z-select__footer" part="footer">` +
             `<span class="z-select__count" part="count"></span>` +
             `<span class="z-select__footer-actions">` +
-            `<button type="button" class="z-select__btn" data-act="reset">清空</button>` +
-            `<button type="button" class="z-select__btn z-select__btn--primary" data-act="confirm">确定</button>` +
+            `<button type="button" class="z-select__btn" data-act="reset">${escapeHtml(t("clearAll"))}</button>` +
+            `<button type="button" class="z-select__btn z-select__btn--primary" data-act="confirm">${escapeHtml(t("confirm"))}</button>` +
             `</span></div>`
           : "";
         // listbox 自身 `tabindex="-1"`：非搜索模式下焦点要落在它身上（见 _updateActive）。
@@ -605,7 +605,7 @@ export class ZSelect extends BaseElement {
     if (!count) return;
     const n = (this._draft ?? []).length;
     // 计数而不是「已选 N 项」在 0 时的空串：空串会让底部只剩两个右对齐按钮，看起来像缺了一块
-    count.textContent = n > 0 ? `已选 ${n} 项` : "未选择";
+    count.textContent = n > 0 ? t("selectedCount", { count: n }) : t("noneSelected");
     const reset = panel.querySelector<HTMLButtonElement>('[data-act="reset"]');
     if (reset) reset.disabled = n === 0;
   }
@@ -842,4 +842,4 @@ export class ZSelect extends BaseElement {
 
 }
 
-customElements.define("z-select", ZSelect);
+defineElement("z-select", ZSelect);

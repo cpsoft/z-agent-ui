@@ -1,7 +1,7 @@
 // <m-empty> 空状态：type 区分「空 / 错误 / 无权限」三种语义，三者共用一套版式。
 // [WHY] 移动端空状态：三种语义（空 / 错误 / 无权限）共用一套版式，避免各页各画一个。
 // 文案多来自接口错误信息，插值必须转义（html`` 不做自动转义）。
-import { BaseElement, html, property, escapeHtml } from "../../core/index.js";
+import { BaseElement, html, property, escapeHtml, defineElement } from "../../core/index.js";
 import mEmptyCSS from "./m-empty.css?raw";
 
 const ICONS: Record<string, string> = {
@@ -35,4 +35,4 @@ export class MEmpty extends BaseElement {
   }
 }
 
-customElements.define("m-empty", MEmpty);
+defineElement("m-empty", MEmpty);

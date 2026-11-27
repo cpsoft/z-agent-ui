@@ -12,7 +12,7 @@
 // [WHY 不自己把输入框推上去] 「键盘弹出时输入框不能被盖住」是页面级的事：谁知道输入框在
 // 哪儿、谁该滚、滚多少，只有宿主知道。组件能做的是两件确定性的事：打开时把自身高度
 // 通过 `--z-m-keyboard-height` 暴露出来，并在 `z-open` 里带上高度。宿主据此留白或滚动。
-import { BaseElement, COPY, html, property } from "../../core/index.js";
+import { BaseElement, COPY, html, property, defineElement } from "../../core/index.js";
 import kbCSS from "./m-number-keyboard.css?raw";
 
 /**
@@ -164,4 +164,4 @@ export class ZMNumberKeyboard extends BaseElement {
   }
 }
 
-customElements.define("m-number-keyboard", ZMNumberKeyboard);
+defineElement("m-number-keyboard", ZMNumberKeyboard);

@@ -1,6 +1,6 @@
 // [WHY] 统计数字 [[2026-08-11-W17-data]] [2026-08-11] night-hawk:
 // Intl.NumberFormat 千分位/精度 + count-up rAF 缓动（从 0 到 value）。
-import { BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, defineElement } from "../../core/index.js";
 import statisticCSS from "./statistic.css?raw";
 
 
@@ -85,4 +85,4 @@ export class ZStatistic extends BaseElement {
   }
 }
 
-customElements.define("z-statistic", ZStatistic);
+defineElement("z-statistic", ZStatistic);

@@ -4,7 +4,7 @@
 // updated() 按节点重绑、wasOpen 快照防关闭分支重复执行）。
 // [WHY] 栈/Esc/滚动锁已抽取为公共原语 [[2026-08-11-W13-form-basics]]
 // (src/primitives/overlay/overlayManager.ts),本组件只消费。
-import { COPY, BaseElement, html, property, injectGlobalStyles, escapeAttr } from "../../core/index.js";
+import { COPY, BaseElement, html, property, injectGlobalStyles, escapeAttr, defineElement } from "../../core/index.js";
 import { DialogStateController, type DialogHost } from "../../primitives/index.js";
 import modalCSS from "./modal.css?raw";
 
@@ -288,4 +288,4 @@ export class ZModal extends BaseElement {
   }
 }
 
-customElements.define("z-modal", ZModal);
+defineElement("z-modal", ZModal);

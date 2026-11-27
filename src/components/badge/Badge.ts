@@ -6,7 +6,7 @@ import {
   observeLegacyAttribute,
   syncAlias,
   resolveTone,
-} from "../../core/index.js";
+ defineElement } from "../../core/index.js";
 import type { Tone } from "../../core/index.js";
 import badgeCSS from "./badge.css?raw";
 
@@ -56,4 +56,4 @@ export class ZBadge extends BaseElement {
 
 observeLegacyAttribute(ZBadge, "variant");
 
-customElements.define("z-badge", ZBadge);
+defineElement("z-badge", ZBadge);

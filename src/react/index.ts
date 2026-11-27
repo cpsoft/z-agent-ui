@@ -185,3 +185,6 @@ export const ZPrintReact = createReactWrapper("z-print");
 // [2026-11-17] 侧栏导航（[[REQ-040-app-nav]]）。与 z-print 同类：宿主很容易「只 import 了
 // z-app-shell 就以为菜单也有了」—— 骨架里那个槽位没内容，界面上是一块空白。
 export const ZAppNavReact = createReactWrapper("z-app-nav");
+// 浮层与定位原语（与 component-manifest.json 对齐，由 react-wrapper-guard 守住）
+export const ZPortalReact = createReactWrapper("z-portal");
+export const ZPositionReact = createReactWrapper("z-position");

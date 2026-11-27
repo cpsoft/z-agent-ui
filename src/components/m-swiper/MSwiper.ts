@@ -7,7 +7,7 @@
 // `loop` 只是**索引回绕**（最后一张再往右回到第一张），不做首尾克隆的无缝轮播：
 // 无缝做法需要 3 份副本 + 位置纠偏，出问题时表现为「拖到某一张就白屏」，而回绕
 // 唯一的问题是接缝处会露一下底色。
-import { BaseElement, ariaBool, escapeAttr, html, property } from "../../core/index.js";
+import { BaseElement, COPY, ariaBool, escapeAttr, html, property, t, defineElement } from "../../core/index.js";
 import mSwiperCSS from "./m-swiper.css?raw";
 
 /** 方向锁定的最小位移（px）：小于它不判方向，避免纵向滚动起步被当成横滑。 */
@@ -40,7 +40,7 @@ export class MSwiper extends BaseElement {
   /** 固定高度（如 `180px`）。不写则按 4:3 撑开。 */
   @property({ type: String }) height = "";
   /** 无障碍名称（读屏念「<名字>，轮播」）。 */
-  @property({ type: String }) label = "图片轮播";
+  @property({ type: String }) label = COPY.imageCarousel;
 
   /** 上一次渲染时的页号。`-1` = 还没画过，首帧不播动画。 */
   private _prevIndex = -1;
@@ -91,7 +91,7 @@ export class MSwiper extends BaseElement {
             .map(
               (_, i) =>
                 `<button type="button" class="m-swiper__dot${i === idx ? " is-active" : ""}" data-goto="${i}"
-                  aria-label="第 ${i + 1} 张" aria-current="${ariaBool(i === idx)}" part="dot"></button>`,
+                  aria-label="${escapeAttr(t("slideNumber", { index: i + 1 }))}" aria-current="${ariaBool(i === idx)}" part="dot"></button>`,
             )
             .join("")}</div>`
         : "";
@@ -110,7 +110,7 @@ export class MSwiper extends BaseElement {
       .join(" ");
 
     return html`
-      <div class="${cls}" part="root" role="group" aria-roledescription="轮播"
+      <div class="${cls}" part="root" role="group" aria-roledescription="${escapeAttr(t("carouselRole"))}"
         aria-label="${escapeAttr(this.label)}"
         ${this.height ? `style="--m-swiper-h:${escapeAttr(this.height)}"` : ""}>
         <div class="m-swiper__viewport" part="viewport">
@@ -310,4 +310,4 @@ export class MSwiper extends BaseElement {
   }
 }
 
-customElements.define("m-swiper", MSwiper);
+defineElement("m-swiper", MSwiper);

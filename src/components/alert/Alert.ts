@@ -8,7 +8,7 @@ import {
   syncAlias,
   resolveTone,
   COPY,
-} from "../../core/index.js";
+ defineElement } from "../../core/index.js";
 import type { Tone } from "../../core/index.js";
 import alertCSS from "./alert.css?raw";
 
@@ -137,4 +137,4 @@ export class ZAlert extends BaseElement {
 
 observeLegacyAttribute(ZAlert, "variant");
 
-customElements.define("z-alert", ZAlert);
+defineElement("z-alert", ZAlert);

@@ -1,5 +1,5 @@
 // <z-accordion> 折叠面板容器：装若干 z-accordion-item，multiple 允许多个同时展开，展开变化由容器统一转出 z-change。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import accordionCSS from "./accordion.css?raw";
 import type { ZAccordionItem } from "../accordion-item/AccordionItem.js";
 
@@ -48,4 +48,4 @@ export class ZAccordion extends BaseElement {
   }
 }
 
-customElements.define("z-accordion", ZAccordion);
+defineElement("z-accordion", ZAccordion);

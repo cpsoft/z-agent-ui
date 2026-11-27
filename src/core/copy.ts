@@ -1,252 +1,43 @@
-// 通用文案词表（中文为基线）。
+// 通用文案词表（动态视图：实时从 core/i18n 的当前语言包取值，默认 zh-CN）。
 //
 // ═══════════════════════════════════════════════════════════
-// [WHY 需要一份词表而不是各组件各写一遍]
+// [WHY 保留 COPY 作为动态 getter 视图]
 //
-// 2026-11-15 实测（修 L2 文案时）：同一个概念在不同组件里各写了一份字面量，
-// 于是同一块屏幕上出现了三种空态：
-//   · z-table / z-tree / z-report-table → "No data"   （英文！）
-//   · z-virtual-list / z-report-card    → "暂无数据"
-//   · z-doc-template-manager            → "暂无模板"
-// 三者都不是错别字，是**没有单一来源**。同类还有「加载中…」的三种写法
-// （"Loading..." / "加载中..." / "加载中…"）、"Close" 与 "Close alert"。
-//
-// 而这些东西恰好是**宿主最难发现的一类缺陷**：不报错、不崩溃，只是界面上
-// 中英混排。它也不会被任何断言抓住 —— 因为没有任何判据看这个维度
-// （对比度有守卫、令牌有守卫、清单有守卫，文案没有）。
-//
-// [WHY 中文是基线而不是英文]
-// 这套库的目标场景是中文业务系统。默认值给中文，英文宿主覆盖属性即可 ——
-// demo 的 `i18n/messages-en.ts` 就是这么做的（它按 locale 把英文注入组件属性）。
-// 反过来（默认英文、中文靠注入）的代价是：**任何没有接 i18n 的宿主都会得到中英混排**，
-// 而这类宿主恰恰是最省事的那批（直接引组件、不配任何文案）。
+// 2026-11-15 引入词表时，全仓 94 处组件属性默认值与模板写成 `COPY.empty` / `COPY.close`。
+// 2026-11-27 升级为多语言运行时（`core/i18n.ts`）后，中文词条迁入 `core/locales/zh-CN.ts`
+// 作为默认语言包；`COPY` 本身改为 getter 代理，每次读取都走 `t(key)`：
+//   · 现有 `COPY.xxx`、`Object.keys(COPY)`、`Object.values(COPY)` 全部零破坏兼容；
+//   · 切换语言（`setLocale("en-US", enUS)`）后，模板里读 `COPY.xxx` 立即返回新语言，
+//     `BaseElement` 也会自动刷新由 `COPY.*` 初始化的默认文案属性。
 //
 // [WHY 放在 core 而不是 components]
-// 它被 L1（components）、L2（report / doc / page）、L3（editor）同时消费；
+// 它被 L1（components）、L2（report / doc / content / app）同时消费；
 // 放到任何一层都会让上层反向依赖下层。core 是唯一合法的位置（依赖只向下）。
 // ═══════════════════════════════════════════════════════════
 
+import { t } from "./i18n.js";
+import { zhCN, type MessageKey } from "./locales/zh-CN.js";
+
+/** 词表的键（与默认语言包 `zhCN` 的键完全一致）。 */
+export type CopyKey = MessageKey;
+
 /**
- * 通用文案。
+ * 通用文案（动态读取当前语言包，默认 zh-CN）。
  *
- * 只收**跨组件复用的概念**。组件专属文案（如 `z-doc-template-manager.titleText = "文档模板"`、
- * `z-login.usernameLabel = "用户名"`）不进词表 —— 硬塞进来会让这里变成第二个垃圾桶，
- * 而"桶里什么都有"等于"没有单一来源"。
- *
- * [WHY `satisfies` 而不是 `as const`] 这是踩过的坑：`as const` 会把每个值收成**字面量类型**，
- * 于是 `@property({ type: String }) closeLabel = COPY.close` 的属性类型是 `"关闭"` 而不是
- * `string` —— 宿主写 `el.closeLabel = "关闭弹窗"` 会**编译报错**（运行期其实没问题）。
- * 对公开属性来说这是真的 API 退化：库的作者只是想统一默认值，却顺手把类型收窄了。
- * `satisfies` 只校验形状，值仍然是 `string`，键仍然是字面量（`CopyKey` 照常可用）。
+ * [WHY 类型为 `Record<CopyKey, string>` 而不是字面量]
+ * 若收成字面量类型，`@property({ type: String }) closeLabel = COPY.close` 的属性类型
+ * 会变成 `"关闭"` 而不是 `string`，宿主赋别的值会编译报错。
  */
-export const COPY = {
-  // ── 状态 ──
-  /** 列表/表格/树没有数据。 */
-  empty: "暂无数据",
-  /** 正在加载。用单个省略号字符 `…` 而不是三个点 —— 三个点在等宽字体下会被拆行。 */
-  loading: "加载中…",
+const copyView = {} as Record<CopyKey, string>;
+for (const key of Object.keys(zhCN) as CopyKey[]) {
+  Object.defineProperty(copyView, key, {
+    enumerable: true,
+    configurable: false,
+    get: () => t(key),
+  });
+}
 
-  // ── 通用动作（按钮 / aria 名称） ──
-  confirm: "确定",
-  cancel: "取消",
-  close: "关闭",
-  /** 清除已选值（日期、下拉）。 */
-  clear: "清除",
-  /** 输入框的清除按钮：比 `clear` 多一层宾语，因为输入框周围可能还有别的"清除"。 */
-  clearInput: "清除输入",
-  reset: "重置",
-  remove: "移除",
-  /** 关闭一条提示条（aria）。比 `close` 具体，读屏时能听出关的是什么东西。 */
-  closeAlert: "关闭提示",
-  /**
-   * 列表行左滑露出的那组操作（`m-swipe-cell` 的操作区名称）。
-   *
-   * [WHY 需要它而不是留空] 读屏进到操作区会念「分组，<名字>」；没有名字时只念「分组」，
-   * 用户不知道这是这一行的操作还是整页的工具栏 —— 而左滑出来的按钮在视觉上恰好
-   * 盖在行上，听起来更像后者的概率更高。
-   */
-  rowActions: "行操作",
-  /**
-   * 数字键盘上的退格键（图标按钮的可访问名称）。
-   *
-   * [WHY 不能沿用 `remove` / `clear`] 那两个是「移除这一项」「清空整个值」；退格只删一个
-   * 字符。读屏念「删除」时用户没法区分这两种后果，而它们在金额输入里相差一个数量级。
-   */
-  backspace: "退格删除",
-
-  // ── 选择 ──
-  all: "全部",
-  yes: "是",
-  no: "否",
-
-  // ── 分页 ──
-  /** 分页导航区的 aria 名称（`<nav aria-label>`）。 */
-  pagination: "分页",
-  prevPage: "上一页",
-  nextPage: "下一页",
-  /** 每页条数后缀，拼成「10 条/页」。 */
-  pageSizeSuffix: "条/页",
-
-  // ── 日历 ──
-  prevMonth: "上个月",
-  nextMonth: "下个月",
-
-  // ── 表格 / 列设置 ──
-  /** 列选择入口的按钮文案。 */
-  columns: "列选择",
-  columnSettings: "列设置",
-  requiredField: "必选字段",
-  /** 列选择器里拖拽手柄的提示（悬停可见）：说明这个把手能把列挪位。 */
-  reorderColumn: "拖动调整顺序",
-  alignLeft: "左对齐",
-  alignCenter: "居中",
-  alignRight: "右对齐",
-  pinNone: "不冻结",
-  pinLeft: "冻结到左侧",
-  pinRight: "冻结到右侧",
-  /** 合计行的行首标签。 */
-  total: "合计",
-  /**
-   * Markdown 表格外层那个横向滚动容器的名称（`role="region"` 的名字）。
-   *
-   * [WHY 需要名字 + 为什么它是 `region` 而不是普通 div] 表格宽过容器时会被包进一个
-   * `overflow-x: auto` 的 div。2026-11-16 Chrome 157 实测：那个 div **会**进 Tab 序
-   * （可滚动容器的默认行为），方向键能滚（`scrollLeft` 0 → 30 → 67 → 80），
-   * 但它没有 role、没有名字 —— 键盘用户 Tab 到一个「什么都不说」的东西上，
-   * 读屏也不告诉他这里能左右滚。名字进词表而不是写字面量：它是会被念出来的文案。
-   */
-  tableRegion: "表格",
-
-  // ── 图表 / 甘特 ──
-  /**
-   * 图表键盘导航的提示语。
-   *
-   * [WHY 需要它] 图表的宿主是可聚焦的，但方向键只是把视觉焦点环挪到下一个数据点
-   * （`z-chart__focus-ring`）。2026-11-16 实测：按方向键之后 shadow 里
-   * `[aria-live]`/`[role=status]` 的数量是 **0**，读屏用户按下去屏幕上什么都没发生。
-   * 补上播报之后，还得有人告诉他「这里能用方向键」，否则他不会去试。
-   */
-  chartKeyboardHint: "方向键逐个查看数据点，Home / End 跳到首尾，Esc 关闭；开了框选时 Shift 加方向键选一段、Enter 提交",
-  /**
-   * 缩放条三个可聚焦部件的可读名。
-   *
-   * [WHY 必须分开命名] 两个手柄加一个窗口都是 `role="slider"` / 可拖区块，读屏只报
-   * 「滑块 20」而不说是哪一个。三个同名滑块等于没有标签。
-   */
-  chartZoomStart: "缩放起点",
-  chartZoomEnd: "缩放终点",
-  chartZoomWindow: "缩放区间（左右拖动平移）",
-  /** 甘特图键盘导航的提示语（与图表同一类问题，选中变化原先零播报）。 */
-  ganttKeyboardHint:
-    "上下方向键切换任务，右方向键展开、左方向键收起，Shift 加左右方向键横向滚动时间轴，Home / End 首尾，Esc 取消选中",
-  /**
-   * 甘特图的编辑键位（仅在可编辑时拼进提示）。
-   *
-   * [WHY 与浏览键位分开两条] 只读的甘特不该念「Alt 加左右方向键平移一天」——
-   * 念了按下去什么也不会发生。合成一条长字符串就没法按 readonly 开关。
-   */
-  ganttEditHint:
-    "Alt 加左右方向键整体平移一天，Alt 加 Shift 加左右方向键改结束日期，Alt 加上下方向键改进度，Alt 加回车建立前置依赖，回车确认，Esc 取消",
-  /**
-   * 连线待定的播报（`Alt + Enter` 之后立刻念一次）。
-   *
-   * [WHY 必须播报] 键盘建依赖是两段式：先在源任务上按 Alt+Enter 记住起点，再移到
-   * 目标任务按回车。中间那一步**界面上没有任何变化**（选的还是同一行、样式也没变），
-   * 不播报的话用户根本不知道自己在「连线模式」里，接着按回车只会觉得「怎么没反应」。
-   * 三个占位符 `{task}` / `{from}` / `{to}` 由 Gantt 用任务名填充。
-   */
-  ganttLinkArmed: "已把「{task}」设为前置任务，用上下方向键选择后继任务，回车建立依赖，Esc 取消",
-  ganttLinkDone: "已建立依赖：{from} → {to}",
-  ganttLinkCancelled: "已取消连线",
-  /** 拒绝原因要念出来：静默失败和「产品没实现」在用户那里是同一件事。 */
-  ganttLinkRejectedSelf: "不能把任务连到它自己",
-  ganttLinkRejectedDuplicate: "这两个任务之间已经有依赖了",
-  ganttLinkNoSelection: "先选中一条任务",
-  /** 甘特图的区域名称（原先写死英文 "Gantt chart"）。 */
-  gantt: "甘特图",
-
-  // ── 数值控件 ──
-  increment: "增加",
-  decrement: "减少",
-
-  // ── 编辑器类 ──
-  /**
-   * 富文本工具条的 aria 名称（`role="toolbar"` 的名字）。
-   *
-   * [WHY 工具条必须有名字] 读屏进到一个 `toolbar` 会念「工具栏，<名字>」。没有名字时只念
-   * 「工具栏」——而这套布局里工具条紧贴编辑区上方，用户无法从位置判断这是**当前这个**
-   * 编辑器的格式栏，还是整页的另一个操作区。
-   *
-   * [WHY 不叫「格式」] 两件不同的事共用过一个字面量：报表表格里有一列叫「格式」
-   * （`z-report-table` 的 `formatTypeText`，指数字/日期/百分比那种格式）。工具条这个
-   * 名字说的是**文字格式**（粗体、列表、引用），写成「文本格式」既区分得开，也更准确
-   * ——读屏念「工具栏，文本格式」。顺带说：`copy-guard` 的 C3 正是按**值**判重的，
-   * 所以「两个概念撞同一个字面量」在它那里会直接红，这是它该管的事。
-   */
-  formatToolbar: "文本格式",
-  // ── 视图缩放 ──
-  /**
-   * 缩放控件（`z-doc-preview` / `z-doc-template-editor` 的工具条按钮名字）。
-   *
-   * [WHY 进词表] 这两个组件的缩放按钮此前只有 `title="缩小"`，而按钮的**文本**是
-   * `−` / `＋` —— 无障碍名的计算里文本优先，`title` 只退化成描述。于是读屏念的是
-   * 「减号 按钮」（CDP 实测 name="−" desc="缩小"），用户听到的是一串标点。
-   */
-  zoomOut: "缩小",
-  zoomIn: "放大",
-  /**
-   * 把视图缩放重置回 100%。
-   *
-   * [WHY 不写「重置 100%」] 它要同时当按钮的名字。名字该说**动作**，而「100%」是结果 ——
-   * 而且那个按钮上显示的数字是**当前**缩放（150%），名字若跟着显示值走，就会出现
-   * 「一个写着 150% 的按钮，按下去变成 100%」，名字与行为对不上。
-   */
-  zoomReset: "重置缩放",
-  /**
-   * 数字键盘上的小数点键。
-   *
-   * [WHY 不能只留 `.`] 它的名字就是那段文本 `.`，读屏念「句点」—— 在一排数字键里
-   * 用户没法确定这是小数点还是别的标点。与 `backspace` 同理（见那一项的说明）。
-   */
-  decimalPoint: "小数点",
-
-  // ── 应用切换器 ──
-  /**
-   * 应用切换面板的名字（`role="menu"` 的 `aria-label`）。
-   *
-   * [WHY 进词表] 原先写死在模板里，英文宿主换不掉 —— 而这是读屏进入面板时**唯一**
-   * 听到的定位信息（「菜单，切换应用」）。同 `formatToolbar` 的理由。
-   */
-  switchApp: "切换应用",
-  /**
-   * 标记「当前所在的应用」。
-   *
-   * [WHY 与 switchApp 分开] 它同时是视觉徽标文字与可访问名的一部分：读屏念
-   * 「zWorker 当前」才知道自己在哪个应用里。写死中文会让英文宿主里那一条变成
-   * 「zWorker 当前」—— 一句话半中半英。
-   */
-  currentApp: "当前",
-
-  /**
-   * 侧栏导航的 `<nav>` 名称（`aria-label`）。
-   *
-   * [WHY 必须有名字] 页面上通常有两个 navigation 地标（侧栏 + 面包屑），读屏靠
-   * `aria-label` 区分它们；不给名字时两个地标都念「导航」，用户只能在两个「导航」之间猜。
-   * 见 [[REQ-040-app-nav]]。
-   */
-  mainNav: "主导航",
-
-  /**
-   * 代码编辑器补全列表的 aria 名称（`role="listbox"` 的名字）。
-   *
-   * [WHY 不叫「下拉列表」] 它不是用户主动打开的选择器，而是在打字时**自动**出现的建议；
-   * 名字要能让用户意识到「这是我刚输入的前缀筛出来的」。
-   */
-  suggestions: "补全建议",
-} satisfies Record<string, string>;
-
-/** 词表的键。 */
-export type CopyKey = keyof typeof COPY;
+export const COPY: Readonly<Record<CopyKey, string>> = copyView;
 
 /**
  * 允许**不写中文**的文案属性（逐条给理由，不许空口豁免）。
@@ -278,16 +69,6 @@ export const COPY_EXEMPT: ReadonlyArray<{ tag: string; prop: string; why: string
 
 /**
  * 已登记的**合理差异**：同一个属性名在不同组件里给不同默认文案。
- *
- * [WHY 不是所有差异都要抹平] 「空态」这件事在不同场景里最好的写法本来就不同 ——
- * 模板列表空着是「暂无模板」，报表没有行是「暂无数据」，模板编辑器的空画布该给
- * 一句**操作指引**（「点击上方按钮添加区块」）而不是陈述句。为了统一而统一，
- * 是拿文案质量换表面整齐。
- *
- * [WHY 还是要登记] 差异和漂移在代码里长得一模一样：都是一条
- * `emptyText = "..."`。不登记的话，下一个人无法判断「这个值是不是随手写的」。
- * 所以这里是一份**清单**：新增一种写法 → 守卫变红，逼你在这里写一句为什么。
- * 清单里也不许留已经消失的条目（守卫会反向核对）。
  */
 export const COPY_DIVERGENCE: Record<string, { values: string[]; why: string }> = {
   confirmText: {

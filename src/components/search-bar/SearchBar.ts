@@ -9,14 +9,14 @@
 //
 // [WHY 输入期间不改 this.value] 赋值会触发重渲染 → shadow 重建 → 输入框丢焦点与输入法
 // 组合态（中文一个词没组完就没了）。只在清空/外部赋值时回写属性，等价于 `m-search`。
-import { BaseElement, COPY, controlHeight, escapeAttr, html, property, type ControlSize } from "../../core/index.js";
+import { BaseElement, COPY, controlHeight, escapeAttr, html, property, type ControlSize, defineElement } from "../../core/index.js";
 import searchBarCSS from "./search-bar.css?raw";
 
 export class ZSearchBar extends BaseElement {
   static styles = searchBarCSS;
 
   @property({ type: String }) value = "";
-  @property({ type: String }) placeholder = "搜索";
+  @property({ type: String }) placeholder = COPY.search;
   /** 防抖时长（ms）。0 = 逐键上报（仅本地筛选时用）。 */
   @property({ type: Number }) debounce = 200;
   @property({ type: Boolean }) disabled = false;
@@ -174,4 +174,4 @@ export class ZSearchBar extends BaseElement {
   }
 }
 
-customElements.define("z-search-bar", ZSearchBar);
+defineElement("z-search-bar", ZSearchBar);

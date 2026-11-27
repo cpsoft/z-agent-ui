@@ -1,7 +1,7 @@
 // <z-flow-minimap> 流程图小地图：data 画缩略节点、viewport 画可视框，尺寸由 width / height 定。
 // [WHY] 小地图：flow 推节点 bbox + viewport（含 flow 尺寸），点击跳转
 // See: wiki/requirements/REQ-013-node-flow-editor.md
-import { BaseElement, html, property, escapeAttr } from "../core/index.js";
+import { BaseElement, html, property, escapeAttr, defineElement } from "../core/index.js";
 import minimapCSS from "./minimap.css?raw";
 
 export interface FlowMinimapNode {
@@ -130,4 +130,4 @@ export class ZFlowMinimap extends BaseElement {
   };
 }
 
-customElements.define("z-flow-minimap", ZFlowMinimap);
+defineElement("z-flow-minimap", ZFlowMinimap);

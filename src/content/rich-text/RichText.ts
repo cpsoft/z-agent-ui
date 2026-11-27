@@ -7,7 +7,7 @@
 // updated() 将其重新挂载进新 shell（re-parent 保内容保选区）。内部输入直写
 // __zui_prop_value（slider 先例），外部赋值走 setter → requestUpdate → 覆盖
 // innerHTML。lastRange 实例级保存选区（mousedown preventDefault 保焦点双保险）。
-import { BaseElement, html, property, sanitizeHtml, escapeAttr, ariaBool, deepActiveElement, COPY } from "../../core/index.js";
+import { BaseElement, html, property, sanitizeHtml, escapeAttr, ariaBool, deepActiveElement, COPY, t, defineElement } from "../../core/index.js";
 import { roveByKey } from "../../primitives/index.js";
 import richTextCSS from "./rich-text.css?raw";
 
@@ -37,15 +37,17 @@ const STATEFUL_COMMANDS = new Set([
   "insertOrderedList",
 ]);
 
-const DEFAULT_TOOLBAR: ZRichTextToolbarItem[] = [
-  { id: "bold", label: "B", command: "bold", title: "粗体" },
-  { id: "italic", label: "I", command: "italic", title: "斜体" },
-  { id: "underline", label: "U", command: "underline", title: "下划线" },
-  { id: "ul", label: "• 列表", command: "insertUnorderedList", title: "无序列表" },
-  { id: "ol", label: "1. 列表", command: "insertOrderedList", title: "有序列表" },
-  { id: "quote", label: "❝ 引用", command: "formatBlock", value: "blockquote", title: "引用块" },
-  { id: "clear", label: "清除格式", command: "removeFormat", title: "清除格式" },
-];
+function defaultToolbar(): ZRichTextToolbarItem[] {
+  return [
+    { id: "bold", label: "B", command: "bold", title: t("bold") },
+    { id: "italic", label: "I", command: "italic", title: t("italic") },
+    { id: "underline", label: "U", command: "underline", title: t("underline") },
+    { id: "ul", label: t("bulletListLabel"), command: "insertUnorderedList", title: t("unorderedList") },
+    { id: "ol", label: t("numberedListLabel"), command: "insertOrderedList", title: t("orderedList") },
+    { id: "quote", label: t("quoteLabel"), command: "formatBlock", value: "blockquote", title: t("blockquote") },
+    { id: "clear", label: t("clearFormatting"), command: "removeFormat", title: t("clearFormatting") },
+  ];
+}
 
 
 export class ZRichText extends BaseElement {
@@ -54,7 +56,7 @@ export class ZRichText extends BaseElement {
   // [WHY] 全部 attribute:false：属性变更只走 JS setter，attribute→渲染路径
   // 不参与（编辑区持久化前提之一）
   @property({ attribute: false }) value = "";
-  @property({ attribute: false }) placeholder = "输入内容...";
+  @property({ attribute: false }) placeholder = COPY.inputPlaceholder;
   @property({ type: Boolean, attribute: false }) readonly = false;
   @property({ type: Boolean, attribute: false }) disabled = false;
   // null = 默认工具栏；[] = 无工具栏
@@ -83,7 +85,7 @@ export class ZRichText extends BaseElement {
   private _rovingIndex = 0;
 
   private _toolbarItems(): ZRichTextToolbarItem[] {
-    return this.toolbar ?? DEFAULT_TOOLBAR;
+    return this.toolbar ?? defaultToolbar();
   }
 
   render(): string {
@@ -338,4 +340,4 @@ export class ZRichText extends BaseElement {
   }
 }
 
-customElements.define("z-rich-text", ZRichText);
+defineElement("z-rich-text", ZRichText);

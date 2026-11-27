@@ -1,7 +1,7 @@
 // <z-flow-controls> 流程图画布控制条：缩放 / 适应 / 复位按钮，动作以 z-control-* 交给宿主执行。
 // [WHY] 缩放控件：按钮点击经 host 委托识别，派发 z-control-* 事件冒泡给 flow
 // See: wiki/requirements/REQ-013-node-flow-editor.md
-import { BaseElement, html } from "../core/index.js";
+import { BaseElement, escapeAttr, html, t, defineElement } from "../core/index.js";
 import controlsCSS from "./controls.css?raw";
 
 const ACTIONS = ["zoom-in", "zoom-out", "fit-view"] as const;
@@ -22,9 +22,9 @@ export class ZFlowControls extends BaseElement {
   render(): string {
     return html`
       <div class="z-flow-controls" part="root">
-        <button type="button" class="z-flow-controls__btn" data-action="zoom-in" aria-label="放大">+</button>
-        <button type="button" class="z-flow-controls__btn" data-action="zoom-out" aria-label="缩小">−</button>
-        <button type="button" class="z-flow-controls__btn" data-action="fit-view" aria-label="适应视图">⛶</button>
+        <button type="button" class="z-flow-controls__btn" data-action="zoom-in" aria-label="${escapeAttr(t("zoomIn"))}">+</button>
+        <button type="button" class="z-flow-controls__btn" data-action="zoom-out" aria-label="${escapeAttr(t("zoomOut"))}">−</button>
+        <button type="button" class="z-flow-controls__btn" data-action="fit-view" aria-label="${escapeAttr(t("fitView"))}">⛶</button>
       </div>
     `;
   }
@@ -50,4 +50,4 @@ export class ZFlowControls extends BaseElement {
   }
 }
 
-customElements.define("z-flow-controls", ZFlowControls);
+defineElement("z-flow-controls", ZFlowControls);

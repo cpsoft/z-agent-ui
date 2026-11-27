@@ -8,7 +8,7 @@
 // 直绑新 body 并按元素身份守卫重绑。
 // 重排/重算合并用 setTimeout/queueMicrotask 而非 rAF（happy-dom 挂起）。
 // See: wiki/requirements/REQ-018-gantt.md
-import { BaseElement, COPY, property } from "../../core/index.js";
+import { BaseElement, COPY, property, defineElement } from "../../core/index.js";
 import type { GanttMenuAction } from "./context-menu.js";
 import type { ChartRenderOptions } from "./chart-render.js";
 import { applyCommit, type DragApplyHost } from "./drag-apply.js";
@@ -704,4 +704,4 @@ export class ZGantt extends BaseElement {
   };
 }
 
-customElements.define("z-gantt", ZGantt);
+defineElement("z-gantt", ZGantt);

@@ -5,7 +5,7 @@
 // See: wiki/requirements/REQ-016-doc-template.md（issue IKICYW）
 // ═══════════════════════════════════════════════════════════
 
-import { COPY, BaseElement, html, property } from "../core/index.js";
+import { COPY, BaseElement, html, property, defineElement } from "../core/index.js";
 // 搜索框走 L1 组件（防抖/清空/焦点光晕一份实现），本文件不再自己计时
 import "../components/search-bar/index.js";
 import { esc } from "./render.js";
@@ -25,24 +25,24 @@ export class ZDocTemplateManager extends BaseElement {
   @property({ type: String }) selectedId = "";
 
   // ── i18n 文案（属性化, 见 [[REQ-001]]；默认简体中文, 宿主可覆盖） ──
-  @property({ type: String }) titleText = "文档模板";
-  @property({ type: String }) searchPlaceholder = "搜索模板名称";
-  @property({ type: String }) newText = "新建模板";
-  @property({ type: String }) allCategoryText = "全部分类";
-  @property({ type: String }) nameLabel = "模板名称";
-  @property({ type: String }) categoryLabel = "分类";
-  @property({ type: String }) descriptionLabel = "描述";
-  @property({ type: String }) updatedLabel = "更新时间";
-  @property({ type: String }) defaultText = "默认";
-  @property({ type: String }) actionsLabel = "操作";
-  @property({ type: String }) editText = "编辑";
-  @property({ type: String }) deleteText = "删除";
-  @property({ type: String }) emptyText = "暂无模板";
+  @property({ type: String }) titleText = COPY.docTemplates;
+  @property({ type: String }) searchPlaceholder = COPY.searchTemplatePlaceholder;
+  @property({ type: String }) newText = COPY.newTemplate;
+  @property({ type: String }) allCategoryText = COPY.allCategories;
+  @property({ type: String }) nameLabel = COPY.templateName;
+  @property({ type: String }) categoryLabel = COPY.category;
+  @property({ type: String }) descriptionLabel = COPY.description;
+  @property({ type: String }) updatedLabel = COPY.updatedAt;
+  @property({ type: String }) defaultText = COPY.defaultBadge;
+  @property({ type: String }) actionsLabel = COPY.actionsColumn;
+  @property({ type: String }) editText = COPY.editAction;
+  @property({ type: String }) deleteText = COPY.deleteItem;
+  @property({ type: String }) emptyText = COPY.emptyTemplates;
   @property({ type: String }) loadingText = COPY.loading;
-  @property({ type: String }) totalText = "共 {total} 条";
+  @property({ type: String }) totalText = COPY.totalCount;
   @property({ type: String }) prevText = COPY.prevPage;
   @property({ type: String }) nextText = COPY.nextPage;
-  @property({ type: String }) confirmDeleteText = "确定删除该模板？";
+  @property({ type: String }) confirmDeleteText = COPY.confirmDeleteTemplate;
 
   private _items: DocTemplate[] = [];
   private _total = 0;
@@ -276,4 +276,4 @@ export class ZDocTemplateManager extends BaseElement {
 }
 
 // [WHY] 行内按钮（编辑/删除）与分页按钮同走 click 委托；行点击选中以 z-select 交由宿主
-customElements.define("z-doc-template-manager", ZDocTemplateManager);
+defineElement("z-doc-template-manager", ZDocTemplateManager);

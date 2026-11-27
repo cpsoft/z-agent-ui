@@ -9,7 +9,7 @@
 // [WHY 键盘路径是必须的，不是加分项] 左滑在手势设备上是「天然」的，在键盘上根本不存在。
 // 只做 touch 等于把操作入口对键盘用户完全关闭 —— 而它们恰好是读屏用户。所以内容区
 // 可聚焦，按 Enter / ArrowLeft 展开并把焦点送进操作区，Escape 收起并回焦。
-import { BaseElement, COPY, html, property } from "../../core/index.js";
+import { BaseElement, COPY, html, property, defineElement } from "../../core/index.js";
 import swipeCSS from "./m-swipe-cell.css?raw";
 
 /**
@@ -348,4 +348,4 @@ export class ZMSwipeCell extends BaseElement {
   }
 }
 
-customElements.define("m-swipe-cell", ZMSwipeCell);
+defineElement("m-swipe-cell", ZMSwipeCell);

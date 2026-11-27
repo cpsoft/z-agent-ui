@@ -82,7 +82,13 @@ describe("BaseCell 默认盒", () => {
   }
   if (!customElements.get("z-styled-test-cell")) customElements.define("z-styled-test-cell", ZStyledCell);
 
-  const css = (cell: HTMLElement) => cell.shadowRoot!.querySelector("style")?.textContent ?? "";
+  const css = (cell: HTMLElement) => {
+    const sr = cell.shadowRoot!;
+    const inline = sr.querySelector("style")?.textContent;
+    if (inline) return inline;
+    const sheets = (sr as unknown as { adoptedStyleSheets?: CSSStyleSheet[] }).adoptedStyleSheets ?? [];
+    return sheets.map((s) => Array.from(s.cssRules).map((r) => r.cssText).join("\n")).join("\n");
+  };
 
   it("子类不写样式时继承「撑满格子」", async () => {
     const el = document.createElement("z-base-test-cell") as HTMLElement;
@@ -96,6 +102,6 @@ describe("BaseCell 默认盒", () => {
     document.body.appendChild(el);
     await tick();
     expect(css(el)).toContain("width: 100%");
-    expect(css(el)).toContain("color:red");
+    expect(css(el)).toMatch(/color:\s*red/);
   });
 });

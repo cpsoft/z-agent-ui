@@ -1,5 +1,5 @@
 // <z-tag> 标签：tone 定语义色，closable 出删除按钮并发 z-tag-close。
-import { COPY, BaseElement, html, property, escapeAttr, observeLegacyAttribute, syncAlias, resolveTone } from "../../core/index.js";
+import { COPY, BaseElement, html, property, escapeAttr, observeLegacyAttribute, syncAlias, resolveTone, defineElement } from "../../core/index.js";
 import type { Tone } from "../../core/index.js";
 import tagCSS from "./tag.css?raw";
 
@@ -90,4 +90,4 @@ export class ZTag extends BaseElement {
 // 兼容读登记：必须在 define 之前 —— 定义后浏览器已缓存观察名单，新加的 attribute 永远不回调
 observeLegacyAttribute(ZTag, "variant");
 
-customElements.define("z-tag", ZTag);
+defineElement("z-tag", ZTag);

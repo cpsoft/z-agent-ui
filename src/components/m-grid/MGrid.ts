@@ -1,7 +1,7 @@
 // <m-grid> 宫格：columns 定每行列数，子项 m-grid-item 按它均分；framed 画卡片式外框。
 // [WHY] 移动端宫格：首页功能入口、快捷操作都用它。用一条「列数」属性代替让使用方自己写
 // grid-template-columns —— 后者会让 4 列宫格在 5 个页面里出现 4 种间距。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import mGridCSS from "./m-grid.css?raw";
 
 export class MGrid extends BaseElement {
@@ -24,4 +24,4 @@ export class MGrid extends BaseElement {
   }
 }
 
-customElements.define("m-grid", MGrid);
+defineElement("m-grid", MGrid);

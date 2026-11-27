@@ -7,7 +7,7 @@
 // See: wiki/requirements/REQ-016-doc-template.md
 // ═══════════════════════════════════════════════════════════
 
-import { BaseElement, html, property, COPY } from "../core/index.js";
+import { BaseElement, html, property, COPY, defineElement } from "../core/index.js";
 import {
   type DocData,
   type DocFormatConfig,
@@ -46,15 +46,15 @@ export class ZDocPreview extends BaseElement {
   @property({ type: Number }) zoom = 1;
 
   // ── i18n 文案（属性化, 见 [[REQ-001]]） ──
-  @property({ type: String }) previewText = "文档预览";
-  @property({ type: String }) printText = "打印";
-  @property({ type: String }) exportText = "导出 docx";
-  @property({ type: String }) generateText = "生成文档";
-  @property({ type: String }) emptyText = "暂无内容";
-  @property({ type: String }) exportingText = "导出中...";
-  @property({ type: String }) exportFailedText = "导出失败";
-  @property({ type: String }) noAdapterText = "未注入导出适配器";
-  @property({ type: String }) pageText = "第 {page} 页 / 共 {total} 页";
+  @property({ type: String }) previewText = COPY.docPreview;
+  @property({ type: String }) printText = COPY.printAction;
+  @property({ type: String }) exportText = COPY.exportDocx;
+  @property({ type: String }) generateText = COPY.generateDoc;
+  @property({ type: String }) emptyText = COPY.emptyContent;
+  @property({ type: String }) exportingText = COPY.exporting;
+  @property({ type: String }) exportFailedText = COPY.exportFailed;
+  @property({ type: String }) noAdapterText = COPY.noExportAdapter;
+  @property({ type: String }) pageText = COPY.docPageInfo;
   /**
    * 缩放按钮的文案与**可访问名**。
    *
@@ -419,4 +419,4 @@ export class ZDocPreview extends BaseElement {
 
 // [WHY] 事件回调（onExport/onPrint/onGenerate）与 composed 事件双通道：函数式属性便于宿主
 // 直接挂业务流程, composed 事件便于跨 shadow 边界监听（issue IKICYW「事件回调」约定）
-customElements.define("z-doc-preview", ZDocPreview);
+defineElement("z-doc-preview", ZDocPreview);

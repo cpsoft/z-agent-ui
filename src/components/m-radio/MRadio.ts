@@ -3,7 +3,7 @@
 // [WHY 互斥不能靠原生 name] 每个自定义元素有自己的 shadow root，而原生 radio 的
 // `name` 分组**只在同一个 shadow root 内**生效 —— 三个 <m-radio> 各自成组，
 // 于是「选了一个，另外两个不灭」，一屏三个都亮着。所以互斥由 `m-radio-group` 显式做。
-import { BaseElement, escapeAttr, html, property } from "../../core/index.js";
+import { BaseElement, escapeAttr, html, property, defineElement } from "../../core/index.js";
 import mRadioCSS from "./m-radio.css?raw";
 
 export class MRadio extends BaseElement {
@@ -85,4 +85,4 @@ export class MRadio extends BaseElement {
   };
 }
 
-customElements.define("m-radio", MRadio);
+defineElement("m-radio", MRadio);

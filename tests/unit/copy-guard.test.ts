@@ -134,7 +134,7 @@ describe("文案：默认值必须中文、同概念必须一致", () => {
     for (const file of walk(SRC)) {
       if (file.endsWith(path.join("core", "copy.ts"))) continue;
       const text = fs.readFileSync(file, "utf8");
-      if (!/customElements\.define\s*\(/.test(text)) continue; // 只看组件元素类
+      if (!/(?:customElements\.define|defineElement)\s*\(/.test(text)) continue; // 只看组件元素类
 
       for (const m of text.matchAll(/([A-Za-z_$][\w$]*(?:Text|Label))\s*=\s*"([^"]*)"/g)) {
         const [, prop, value] = m;

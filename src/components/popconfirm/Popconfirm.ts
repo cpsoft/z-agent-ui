@@ -7,7 +7,7 @@
 //
 // 所以把 popover 的 `_show` 拆出三个 protected 钩子（锚点 / 面板配置 / 面板内容），
 // popover 的骨架只留一份，popconfirm 只覆盖「面板里放什么」。
-import { COPY, html, property, escapeAttr, injectGlobalStyles } from "../../core/index.js";
+import { COPY, html, property, escapeAttr, injectGlobalStyles, defineElement } from "../../core/index.js";
 import { ZPopover } from "../popover/Popover.js";
 import popconfirmCSS from "./popconfirm.css?raw";
 
@@ -89,7 +89,7 @@ const PANEL_STYLES = `
 export class ZPopconfirm extends ZPopover {
   static styles = popconfirmCSS;
 
-  @property({ type: String }) title = "确认执行此操作？";
+  @property({ type: String }) title = COPY.confirmAction;
   @property({ type: String }) description = "";
   /** 确认按钮的语气。删除类操作传 `danger`。 */
   @property({ type: String }) tone: ZPopconfirmTone = "primary";
@@ -175,4 +175,4 @@ export class ZPopconfirm extends ZPopover {
   }
 }
 
-customElements.define("z-popconfirm", ZPopconfirm);
+defineElement("z-popconfirm", ZPopconfirm);

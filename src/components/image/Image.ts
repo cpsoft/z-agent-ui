@@ -1,7 +1,7 @@
 // [WHY] 图片 [[2026-08-11-W17-data]] [2026-08-11] night-hawk:
 // lazy(IO)/fit/fallback/placeholder + preview 灯箱（overlayManager 栈 + Esc + 滚动锁 + 缩放）。
 // happy-dom 无 IO/自然尺寸 → 守卫退化（chart.test.ts IO mock 先例）。
-import { BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, defineElement } from "../../core/index.js";
 import { pushOverlay, removeOverlay, lockScroll, unlockScroll } from "../../primitives/index.js";
 import imageCSS from "./image.css?raw";
 
@@ -195,4 +195,4 @@ export class ZImage extends BaseElement {
 
 const PREVIEW_ICON = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3"/><path d="M13.5 13.5L10 10"/></svg>';
 
-customElements.define("z-image", ZImage);
+defineElement("z-image", ZImage);

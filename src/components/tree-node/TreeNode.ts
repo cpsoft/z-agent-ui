@@ -1,5 +1,5 @@
 // <z-tree-node> 树节点：label 文案、level 层级、hasChildren 显示箭头，选中与展开各发事件。
-import { BaseElement, html, property, escapeAttr, ariaBool, setContentCollapsed } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, ariaBool, setContentCollapsed, defineElement } from "../../core/index.js";
 import { onAnimationEnd } from "../../primitives/index.js";
 import treeNodeCSS from "./tree-node.css?raw";
 
@@ -265,4 +265,4 @@ export class ZTreeNode extends BaseElement {
 
 }
 
-customElements.define("z-tree-node", ZTreeNode);
+defineElement("z-tree-node", ZTreeNode);

@@ -9,7 +9,7 @@ import {
   observeLegacyAttribute,
   syncAlias,
   resolveTone,
-} from "../../core/index.js";
+ defineElement } from "../../core/index.js";
 import type { Tone } from "../../core/index.js";
 import mChipCSS from "./m-chip.css?raw";
 
@@ -93,4 +93,4 @@ export class MChip extends BaseElement {
 
 observeLegacyAttribute(MChip, "variant");
 
-customElements.define("m-chip", MChip);
+defineElement("m-chip", MChip);

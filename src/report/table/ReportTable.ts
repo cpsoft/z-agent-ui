@@ -1,5 +1,5 @@
 // <z-report-table> 报表表格：columns 与 data 驱动，支持排序、列宽与列显隐、分组、分页，动作各发事件。
-import { COPY, BaseElement, html, property, observeLegacyAttribute } from "../../core/index.js";
+import { COPY, BaseElement, html, property, observeLegacyAttribute, defineElement } from "../../core/index.js";
 // [WHY] 列选择器已抽为独立组件 z-column-selector(可外部摆放绑定), 内置工具栏复用该组件,
 // import 先于 define 保证注册; 内嵌实例经 open 属性由 columnSelectorOpen 镜像开局, 见 [[REQ-015-column-selector]]
 import "../column-selector/ColumnSelector.js";
@@ -173,12 +173,12 @@ export class ZReportTable extends BaseElement {
   // [WHY] 列格式: 外部传入的列级格式配置(React 侧持久化), 菜单编辑后通过 z-column-format-change 上报
   @property({ type: Object, attribute: false }) colFormats: Record<string, ReportColFormat> = {};
   // [WHY] i18n: 列格式菜单文案属性化, 见 [[REQ-001]]
-  @property({ type: String }) formatTypeText = "格式";
-  @property({ type: String }) numberText = "数值";
-  @property({ type: String }) percentText = "百分数";
-  @property({ type: String }) decimalPlacesText = "小数位";
-  @property({ type: String }) thousandsText = "千分位";
-  @property({ type: String }) autoText = "自动";
+  @property({ type: String }) formatTypeText = COPY.formatLabel;
+  @property({ type: String }) numberText = COPY.numberFormat;
+  @property({ type: String }) percentText = COPY.percentFormat;
+  @property({ type: String }) decimalPlacesText = COPY.decimalPlaces;
+  @property({ type: String }) thousandsText = COPY.thousandsSep;
+  @property({ type: String }) autoText = COPY.autoOption;
   @property({ type: Boolean }) columnSelectorOpen = false;
   private _configOpen: string | null = null;
 
@@ -214,8 +214,8 @@ export class ZReportTable extends BaseElement {
    */
   @property({ type: Number, attribute: "total-records" }) totalRecords = 0;
   // [WHY] i18n: 与组件既有风格一致，分页文案全部属性化
-  @property({ type: String, attribute: "pager-total-text" }) pagerTotalText = "共 {n} 条";
-  @property({ type: String, attribute: "pager-page-text" }) pagerPageText = "第 {p} / {c} 页";
+  @property({ type: String, attribute: "pager-total-text" }) pagerTotalText = COPY.pagerTotal;
+  @property({ type: String, attribute: "pager-page-text" }) pagerPageText = COPY.pagerPage;
   @property({ type: String, attribute: "prev-page-text" }) prevPageText = COPY.prevPage;
   @property({ type: String, attribute: "next-page-text" }) nextPageText = COPY.nextPage;
   /**
@@ -227,9 +227,9 @@ export class ZReportTable extends BaseElement {
    */
   @property({ type: String, attribute: "page-size-options" }) pageSizeOptions = "";
   /** 档位文案模板（`{n}` 换成行数）。 */
-  @property({ type: String, attribute: "pager-size-text" }) pagerSizeText = "每页 {n} 行";
+  @property({ type: String, attribute: "pager-size-text" }) pagerSizeText = COPY.pagerSize;
   /** 档位下拉的无障碍标签（下拉可见文本是「每页 20 行」，标签说明它管什么）。 */
-  @property({ type: String, attribute: "pager-size-label" }) pagerSizeLabel = "每页行数";
+  @property({ type: String, attribute: "pager-size-label" }) pagerSizeLabel = COPY.pagerSizeLabel;
 
   /** 已折叠的组 key。折叠是**纯 UI 态**，不写回配置（刷新后恢复全展开）。 */
   private _collapsed = new Set<string>();
@@ -1018,4 +1018,4 @@ export class ZReportTable extends BaseElement {
 
 observeLegacyAttribute(ZReportTable, "variant");
 
-customElements.define("z-report-table", ZReportTable);
+defineElement("z-report-table", ZReportTable);

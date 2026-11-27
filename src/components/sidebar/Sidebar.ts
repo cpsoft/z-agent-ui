@@ -2,7 +2,7 @@
 // [WHY] [[REQ-012]] 后台布局骨架组件族：可折叠侧边栏面板，独立可用（不依赖 app-shell）
 // See: wiki/requirements/REQ-012-admin-layout.md
 // [2026-08-11] AI: 初始实现
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import sidebarCSS from "./sidebar.css?raw";
 
 export class ZSidebar extends BaseElement {
@@ -24,4 +24,4 @@ export class ZSidebar extends BaseElement {
   }
 }
 
-customElements.define("z-sidebar", ZSidebar);
+defineElement("z-sidebar", ZSidebar);

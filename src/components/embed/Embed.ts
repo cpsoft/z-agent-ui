@@ -20,7 +20,7 @@
 // 靠它做「加载失败」只会得到一个永假的判据。所以这里只有三种真实状态：
 // 未加载 / 加载中 / 已加载；以及一个诚实的 `timeout`（超时后置 `_stalled` 并 emit `z-timeout`，
 // 不谎称「失败」）。宁可少一个状态，也不要给宿主一个看起来能用、实际上永远不亮的开关。
-import { BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, escapeHtml, t, defineElement } from "../../core/index.js";
 import embedCSS from "./embed.css?raw";
 
 /** 未测高时的默认高度（CSS 长度） */
@@ -75,7 +75,7 @@ export class ZEmbed extends BaseElement {
     const hasSource = !!(this.html || this.src);
     const load = hasSource && (this._shouldLoad || !this.lazy);
     const frame = load ? this._renderFrame() : "";
-    const placeholder = load ? "" : this._renderState("进入视口后加载");
+    const placeholder = load ? "" : this._renderState(t("embedLazy"));
     const overlay = load && !this._ready ? this._renderLoading() : "";
     return html`<div class="z-embed" part="root" style="height:${escapeAttr(this._heightOf())}">
       ${frame}${placeholder}${overlay}
@@ -89,23 +89,23 @@ export class ZEmbed extends BaseElement {
       ? `srcdoc="${escapeAttr(this.html)}"`
       : `src="${escapeAttr(this.src)}"`;
     return `<iframe class="z-embed__frame" part="frame"
-      title="${escapeAttr(this.title || "嵌入页面")}"
+      title="${escapeAttr(this.title || t("embedTitle"))}"
       sandbox="${escapeAttr(this._effectiveSandbox())}"
       referrerpolicy="no-referrer"
       ${attr}></iframe>`;
   }
 
   private _renderLoading(): string {
-    const text = this._stalled ? "加载超时" : "加载中";
+    const text = this._stalled ? t("embedTimeout") : t("embedLoading");
     const retry = this._stalled
-      ? `<button type="button" class="z-embed__retry" part="retry">重试</button>`
+      ? `<button type="button" class="z-embed__retry" part="retry">${escapeHtml(t("retry"))}</button>`
       : "";
-    return `<div class="z-embed__state z-embed__state--overlay" part="state">${text}${retry}</div>`;
+    return `<div class="z-embed__state z-embed__state--overlay" part="state">${escapeHtml(text)}${retry}</div>`;
   }
 
   private _renderState(text: string): string {
-    const hint = this.html || this.src ? text : "未配置 src 或 html";
-    return `<div class="z-embed__state" part="state">${hint}</div>`;
+    const hint = this.html || this.src ? text : t("embedNoSource");
+    return `<div class="z-embed__state" part="state">${escapeHtml(hint)}</div>`;
   }
 
   /** 宿主高度：测量值优先，否则用 `height`。 */
@@ -267,4 +267,4 @@ export class ZEmbed extends BaseElement {
   }
 }
 
-customElements.define("z-embed", ZEmbed);
+defineElement("z-embed", ZEmbed);

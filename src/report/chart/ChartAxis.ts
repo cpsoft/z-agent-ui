@@ -1,4 +1,4 @@
-import { BaseElement, property } from "../../core/index.js";
+import { BaseElement, property, defineElement } from "../../core/index.js";
 
 // 轴配置子元素：render null，按 position 取首个（bottom=x、left/right=y）
 export class ZChartAxis extends BaseElement {
@@ -40,4 +40,4 @@ export class ZChartAxis extends BaseElement {
   }
 }
 
-customElements.define("z-chart-axis", ZChartAxis);
+defineElement("z-chart-axis", ZChartAxis);

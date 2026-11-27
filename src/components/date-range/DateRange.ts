@@ -22,7 +22,7 @@ import {
   type ISOString,
   COPY,
   bindTriggerAria,
-} from "../../core/index.js";
+ defineElement } from "../../core/index.js";
 import { FloatingPanelController } from "../../primitives/index.js";
 import dateRangeCSS from "./date-range.css?raw";
 // 只有「文案与表格标记」还留在 L1；纯算术已下沉 core/date（2026-11-15）
@@ -179,7 +179,7 @@ export class ZDateRange extends BaseElement {
   @property({ type: String }) prevMonthLabel = COPY.prevMonth;
   @property({ type: String }) nextMonthLabel = COPY.nextMonth;
   @property({ type: String }) clearLabel = COPY.clear;
-  @property({ type: String }) ariaLabel = "日期范围选择器";
+  @property({ type: String }) ariaLabel = COPY.dateRangePicker;
 
   // [WHY] 浮层面板生命周期（创建/定位/外部关闭/隐藏动画）委托给公共控制器
   private _floating = new FloatingPanelController(this);
@@ -594,4 +594,4 @@ export class ZDateRange extends BaseElement {
   }
 }
 
-customElements.define("z-date-range", ZDateRange);
+defineElement("z-date-range", ZDateRange);

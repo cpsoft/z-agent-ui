@@ -1,5 +1,5 @@
 // <z-accordion-item> 折叠面板的一项：title 当表头、open 控制展开，点表头转出 z-toggle，内容走高度动画。
-import { BaseElement, html, property, escapeAttr, setContentCollapsed } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, setContentCollapsed, defineElement } from "../../core/index.js";
 import { CollapseTween } from "../../primitives/index.js";
 import accordionItemCSS from "./accordion-item.css?raw";
 
@@ -108,4 +108,4 @@ export class ZAccordionItem extends BaseElement {
 
 }
 
-customElements.define("z-accordion-item", ZAccordionItem);
+defineElement("z-accordion-item", ZAccordionItem);

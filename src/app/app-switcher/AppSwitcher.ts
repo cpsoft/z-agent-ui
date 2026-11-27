@@ -18,7 +18,7 @@
 //   <z-app-switcher label="zWorker" current="zworker" .apps=${list}
 //                   @z-switch=${(e) => (location.href = e.detail.url)} />
 //   清单项形状：{ app, name?, icon?, url? }（与 zauth /portal/apps 一致）
-import { BaseElement, html, property, COPY } from "../../core/index.js";
+import { BaseElement, html, property, COPY, defineElement } from "../../core/index.js";
 import { resolveIndex } from "../../primitives/index.js";
 import appSwitcherCSS from "./app-switcher.css?raw";
 import { APP_ICONS, initialOf } from "./app-icons.js";
@@ -303,4 +303,4 @@ export class ZAppSwitcher extends BaseElement {
   }
 }
 
-customElements.define("z-app-switcher", ZAppSwitcher);
+defineElement("z-app-switcher", ZAppSwitcher);

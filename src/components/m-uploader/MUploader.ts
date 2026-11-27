@@ -23,7 +23,7 @@
 //      用户看到的是「点了没反应」。`max-size` 超限直接发 `z-reject`，不进列表。
 //   ③ **混合收（图 + 视频）按照片走** —— 一次点击只能开一种相机，混合时原生单会弹
 //      「拍照 / 录像 / 相册」菜单，反而丢掉「一次点击直入」；要录像直入就写 `video/*`。
-import { BaseElement, escapeAttr, escapeHtml, html, property } from "../../core/index.js";
+import { BaseElement, COPY, escapeAttr, escapeHtml, html, property, t, defineElement } from "../../core/index.js";
 import mUploaderCSS from "./m-uploader.css?raw";
 import { compressPhoto } from "./photo-compress.js";
 
@@ -53,7 +53,7 @@ export class MUploader extends BaseElement {
   /** 最多几张；达到上限后「添加」格子消失 */
   @property({ type: Number }) max = 9;
   @property({ type: Boolean }) disabled = false;
-  @property({ type: String, attribute: "add-label" }) addLabel = "上传";
+  @property({ type: String, attribute: "add-label" }) addLabel = COPY.upload;
   /**
    * 相机朝向：`environment` 后置（缺省语义）、`user` 前置、空串 = 不要相机入口。
    *
@@ -179,7 +179,7 @@ export class MUploader extends BaseElement {
     const tiles = this.files
       .map((f, i) => {
         const thumb = !f.url
-          ? html`<span class="m-uploader__name">${escapeHtml(f.name ?? "已选择")}</span>`
+          ? html`<span class="m-uploader__name">${escapeHtml(f.name ?? t("selectedFallback"))}</span>`
           : f.type === "video"
             ? html`<video
                   class="m-uploader__video"
@@ -189,7 +189,7 @@ export class MUploader extends BaseElement {
                   playsinline
                   preload="metadata"
                   role="img"
-                  aria-label="视频：${escapeAttr(f.name ?? "")}"
+                  aria-label="${escapeAttr(t("videoPrefix", { name: f.name ?? "" }))}"
                 ></video>
                 <span class="m-uploader__play" aria-hidden="true">
                   <svg width="9" height="11" viewBox="0 0 10 12" fill="currentColor">
@@ -202,7 +202,7 @@ export class MUploader extends BaseElement {
             ${thumb}
             ${this.disabled
               ? ""
-              : html`<button class="m-uploader__remove" part="remove" type="button" data-act="remove" data-index="${i}" aria-label="删除">
+              : html`<button class="m-uploader__remove" part="remove" type="button" data-act="remove" data-index="${i}" aria-label="${escapeAttr(t("deleteItem"))}">
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                     <path d="M2 2L8 8M8 2L2 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
                   </svg>
@@ -278,7 +278,7 @@ export class MUploader extends BaseElement {
     return html`
       <button class="m-uploader__tile m-uploader__add m-uploader__add--shot" part="shot" type="button" data-act="shot">
         ${shotIcon}
-        <span class="m-uploader__add-label">${video ? "录像" : "拍照"}</span>
+        <span class="m-uploader__add-label">${escapeHtml(video ? t("recordVideo") : t("takePhoto"))}</span>
       </button>
       <button class="m-uploader__tile m-uploader__add" part="album" type="button" data-act="album">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -286,10 +286,10 @@ export class MUploader extends BaseElement {
           <circle cx="9" cy="10" r="1.6" stroke="currentColor" stroke-width="1.3" />
           <path d="M4 16.5 9.6 12l4 3.4 2.6-2 3.8 3.1" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
         </svg>
-        <span class="m-uploader__add-label">相册</span>
+        <span class="m-uploader__add-label">${escapeHtml(t("album"))}</span>
       </button>
     `;
   }
 }
 
-customElements.define("m-uploader", MUploader);
+defineElement("m-uploader", MUploader);

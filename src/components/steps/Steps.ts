@@ -2,7 +2,7 @@
 // [WHY] 步骤条 [[2026-08-11-W16-nav]] [2026-08-11] night-hawk:
 // array-prop 驱动（breadcrumb 先例），current 高亮 + status 单步覆盖，
 // direction 横竖切换，clickable 点击发 z-change {index}。
-import { BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, defineElement } from "../../core/index.js";
 import stepsCSS from "./steps.css?raw";
 
 export interface StepItem {
@@ -115,4 +115,4 @@ export class ZSteps extends BaseElement {
   }
 }
 
-customElements.define("z-steps", ZSteps);
+defineElement("z-steps", ZSteps);

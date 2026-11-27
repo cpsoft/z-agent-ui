@@ -2,7 +2,7 @@
 // 不复用 z-input 的 multiline,提供 autosize 自适应高度 / 字数统计 / resize 策略。
 // 约束: 输入中直写 __zui_prop_value 不走重渲染(Input 先例);
 // autosize 高度直写 textarea.style(不进响应式循环,见 [[lesson-web-components-render-pitfalls]] §2)。
-import { BaseElement, html, property, escapeHtml, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeHtml, escapeAttr, defineElement } from "../../core/index.js";
 import textareaCSS from "./textarea.css?raw";
 
 export class ZTextarea extends BaseElement {
@@ -174,4 +174,4 @@ export class ZTextarea extends BaseElement {
 
 }
 
-customElements.define("z-textarea", ZTextarea);
+defineElement("z-textarea", ZTextarea);

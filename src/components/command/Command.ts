@@ -2,7 +2,7 @@
 // shadow overlay 固定居中（top 18%）+ FocusTrap + overlayManager 栈（Esc/滚动锁）。
 // 过滤/导航直写列表 DOM 不走 requestUpdate —— 否则每击键重建 input 丢焦点。
 // 不绑全局快捷键（应用职责,demo 演示 Ctrl+K wiring）。
-import { BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { BaseElement, COPY, html, property, t, escapeAttr, escapeHtml, defineElement } from "../../core/index.js";
 import {
   FocusTrap,
   pushOverlay,
@@ -32,7 +32,7 @@ export class ZCommand extends BaseElement {
   static styles = commandCSS;
 
   @property({ attribute: false }) items: ZCommandItem[] = [];
-  @property({ type: String }) placeholder = "输入命令…";
+  @property({ type: String }) placeholder = COPY.commandPlaceholder;
   @property({ type: Boolean }) open = false;
 
   private _query = "";
@@ -55,11 +55,11 @@ export class ZCommand extends BaseElement {
     // 与代码编辑器里 `role=textbox` 上刻意不写它不是矛盾：同样的属性在
     // 不同 role 上一个是必需、一个是非法。
     return html`<div class="z-command__overlay" part="overlay">
-      <div class="z-command__panel" part="panel" role="dialog" aria-label="命令面板">
+      <div class="z-command__panel" part="panel" role="dialog" aria-label="${escapeAttr(t("commandPalette"))}">
         <input class="z-command__input" part="input" placeholder="${escapeAttr(this.placeholder)}" value="${escapeAttr(this._query)}"
-          aria-label="搜索命令" role="combobox" aria-expanded="true" aria-autocomplete="list"
+          aria-label="${escapeAttr(t("commandSearch"))}" role="combobox" aria-expanded="true" aria-autocomplete="list"
           aria-controls="${this._uid}-list" />
-        <div class="z-command__list" part="list" id="${this._uid}-list" role="listbox" aria-label="命令结果"></div>
+        <div class="z-command__list" part="list" id="${this._uid}-list" role="listbox" aria-label="${escapeAttr(t("commandResults"))}"></div>
       </div>
     </div>`;
   }
@@ -133,7 +133,7 @@ export class ZCommand extends BaseElement {
         );
       }
     }
-    list.innerHTML = rows.join("") || `<div class="z-command__empty" role="presentation">无匹配结果</div>`;
+    list.innerHTML = rows.join("") || `<div class="z-command__empty" role="presentation">${escapeHtml(t("noMatches"))}</div>`;
     list.querySelector(".z-command__item--active")?.scrollIntoView({ block: "nearest" });
 
     // [WHY 每次重建都要重写这一条] 列表是 `innerHTML` 直写的（不走 requestUpdate），
@@ -244,4 +244,4 @@ export class ZCommand extends BaseElement {
   }
 }
 
-customElements.define("z-command", ZCommand);
+defineElement("z-command", ZCommand);

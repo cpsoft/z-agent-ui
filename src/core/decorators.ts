@@ -1,3 +1,6 @@
+import { messageKeyOf } from "./i18n.js";
+import type { MessageKey } from "./locales/zh-CN.js";
+
 type PropertyType = StringConstructor | NumberConstructor | BooleanConstructor | ArrayConstructor | ObjectConstructor;
 
 // [WHY] 默认 attribute 名必须 kebab-case（stickyHead → sticky-head）。
@@ -164,7 +167,13 @@ export function property(options?: PropertyOptions): PropertyDecorator {
   };
 }
 
+/** 按构造函数缓存聚合后的属性元数据，避免每个实例连接时重复遍历原型链。 */
+const metaCache = new WeakMap<Function, PropertyMeta[]>();
+
 function collectMeta(instance: HTMLElement): PropertyMeta[] {
+  const ctor = instance.constructor;
+  const cached = metaCache.get(ctor);
+  if (cached) return cached;
   const seen = new Set<string>();
   const result: PropertyMeta[] = [];
   let proto = Object.getPrototypeOf(instance);
@@ -180,6 +189,7 @@ function collectMeta(instance: HTMLElement): PropertyMeta[] {
     }
     proto = Object.getPrototypeOf(proto);
   }
+  metaCache.set(ctor, result);
   return result;
 }
 
@@ -215,6 +225,10 @@ function toAttribute(value: unknown, type: PropertyType): string | null {
 export function applyPropertyMeta(instance: HTMLElement, ctor: Function): void {
   const metaList = collectMeta(instance);
   (ctor as any).__zui_propertyMeta = metaList;
+  if ((instance as any).__zui_metaApplied) return;
+  (instance as any).__zui_metaApplied = true;
+  const i18nDefaults: Map<string, MessageKey> =
+    (instance as any).__zui_i18nDefaults ?? ((instance as any).__zui_i18nDefaults = new Map());
 
   for (const meta of metaList) {
     const { key, attribute, type, reflect } = meta;
@@ -229,8 +243,11 @@ export function applyPropertyMeta(instance: HTMLElement, ctor: Function): void {
         return (instance as any)[privateKey];
       },
       set(value: unknown) {
+        i18nDefaults.delete(key);
         const old = (instance as any)[privateKey];
         if (old === value) return;
+        const changed = (instance as any).__zui_changedProps as Map<string, unknown> | undefined;
+        if (changed && !changed.has(key)) changed.set(key, old);
         (instance as any)[privateKey] = value;
 
         if (reflect && attribute !== false) {
@@ -260,12 +277,21 @@ export function applyPropertyMeta(instance: HTMLElement, ctor: Function): void {
         if (attrVal !== null) break;
       }
       if (attrVal !== null) {
+        i18nDefaults.delete(key);
         (instance as any)[privateKey] = convertFromAttribute(attrVal, type);
       } else if (defaultValue !== undefined) {
         (instance as any)[privateKey] = defaultValue;
+        if (type === String && typeof defaultValue === "string") {
+          const mk = messageKeyOf(defaultValue);
+          if (mk) i18nDefaults.set(key, mk);
+        }
       }
     } else if (defaultValue !== undefined) {
       (instance as any)[privateKey] = defaultValue;
+      if (type === String && typeof defaultValue === "string") {
+        const mk = messageKeyOf(defaultValue);
+        if (mk) i18nDefaults.set(key, mk);
+      }
     }
   }
 }

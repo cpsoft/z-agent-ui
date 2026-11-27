@@ -2,7 +2,7 @@
 // [WHY] 提示条：移动端页面顶部用来放「只读/待审核/今日休市」这类状态。
 // 与 z-alert 的区别是它**不占版面块的位置**、不打断阅读，且默认单行不换行溢出省略 ——
 // 移动端一条提示换成三行会把首屏第一张卡挤下去。
-import { COPY, BaseElement, escapeHtml, html, property } from "../../core/index.js";
+import { COPY, BaseElement, escapeHtml, html, property, defineElement } from "../../core/index.js";
 import mNoticeBarCSS from "./m-notice-bar.css?raw";
 
 export type MNoticeType = "info" | "success" | "warning" | "danger";
@@ -56,4 +56,4 @@ export class MNoticeBar extends BaseElement {
   }
 }
 
-customElements.define("m-notice-bar", MNoticeBar);
+defineElement("m-notice-bar", MNoticeBar);

@@ -11,7 +11,7 @@
 // 为什么不用「容器 tabindex + aria-activedescendant」（另一种合法写法）：
 // 容器在 z-tree 的 shadow 里，而 treeitem 在 z-tree-node 的 shadow 里 ——
 // IDREF 跨树不解析，正是 D-L1-7 踩过的那个坑（见 architecture/l1-plan.html §12）。
-import { COPY, BaseElement, html, property, escapeAttr, deepActiveElement } from "../../core/index.js";
+import { COPY, BaseElement, html, property, escapeAttr, deepActiveElement, defineElement } from "../../core/index.js";
 import { roveByKey, roveTo } from "../../primitives/index.js";
 import type { ZTreeNode } from "../tree-node/TreeNode.js";
 import treeCSS from "./tree.css?raw";
@@ -350,4 +350,4 @@ export class ZTree extends BaseElement {
 
 }
 
-customElements.define("z-tree", ZTree);
+defineElement("z-tree", ZTree);

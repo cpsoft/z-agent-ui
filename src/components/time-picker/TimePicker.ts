@@ -7,7 +7,7 @@
 // （防面板重渲染滚动复位，slider 拖拽直写先例）。
 // See: wiki/planning/TASKS/2026-08-11-W15-date/task_plan.md
 // [2026-08-11] night-hawk: 创建
-import { BaseElement, html, property, injectGlobalStyles, escapeAttr, bindTriggerAria } from "../../core/index.js";
+import { BaseElement, html, property, injectGlobalStyles, escapeAttr, bindTriggerAria, defineElement } from "../../core/index.js";
 import { FloatingPanelController } from "../../primitives/index.js";
 import timePickerCSS from "./time-picker.css?raw";
 
@@ -401,4 +401,4 @@ export class ZTimePicker extends BaseElement {
 
 }
 
-customElements.define("z-time-picker", ZTimePicker);
+defineElement("z-time-picker", ZTimePicker);

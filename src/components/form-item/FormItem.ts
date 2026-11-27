@@ -8,7 +8,7 @@
 // 转发聚合 z-change 前 stopPropagation：防控件原始事件与聚合事件双发（DetailForm.ts:182 先例）。
 // See: wiki/planning/TASKS/2026-08-11-W14-form/task_plan.md
 // [2026-08-11] night-hawk: 创建
-import { BaseElement, html, property, escapeAttr, bindFieldName, slottedControl, type FieldNameBinder } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, bindFieldName, slottedControl, type FieldNameBinder, defineElement } from "../../core/index.js";
 import formItemCSS from "./form-item.css?raw";
 
 export type ZFormTrigger = "change" | "blur" | "submit";
@@ -255,4 +255,4 @@ export class ZFormItem extends BaseElement {
 
 }
 
-customElements.define("z-form-item", ZFormItem);
+defineElement("z-form-item", ZFormItem);

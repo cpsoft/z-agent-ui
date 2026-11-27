@@ -1,4 +1,4 @@
-import { COPY, BaseElement, composedContains, deepActiveElement, html, property, escapeAttr } from "../../core/index.js";
+import { COPY, BaseElement, composedContains, deepActiveElement, html, property, escapeAttr, defineElement } from "../../core/index.js";
 import { FloatingPosition, PointerDragSession } from "../../primitives/index.js";
 import columnSelectorCSS from "./column-selector.css?raw";
 
@@ -502,4 +502,4 @@ export class ZColumnSelector extends BaseElement {
   };
 }
 
-customElements.define("z-column-selector", ZColumnSelector);
+defineElement("z-column-selector", ZColumnSelector);

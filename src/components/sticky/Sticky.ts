@@ -6,7 +6,7 @@
 // 而且天然只在**最近的滚动祖先**内生效 —— 这正是「表头在表格容器里吸顶」要的语义。
 // 代价是父链上不能有 `overflow: hidden`（那会让 sticky 失效且**没有任何报错**）——
 // 这个坑写在 CSS 注释里，因为它在组件层无法检测。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import stickyCSS from "./sticky.css?raw";
 
 export class ZSticky extends BaseElement {
@@ -40,4 +40,4 @@ export class ZSticky extends BaseElement {
   }
 }
 
-customElements.define("z-sticky", ZSticky);
+defineElement("z-sticky", ZSticky);

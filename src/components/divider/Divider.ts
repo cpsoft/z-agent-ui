@@ -1,5 +1,5 @@
 // <z-divider> 分隔线：orientation 切横竖，默认槽可放居中文字。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import dividerCSS from "./divider.css?raw";
 
 export class ZDivider extends BaseElement {
@@ -21,4 +21,4 @@ export class ZDivider extends BaseElement {
   }
 }
 
-customElements.define("z-divider", ZDivider);
+defineElement("z-divider", ZDivider);

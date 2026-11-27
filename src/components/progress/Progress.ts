@@ -6,7 +6,7 @@ import {
   observeLegacyAttribute,
   syncAlias,
   resolveTone,
-} from "../../core/index.js";
+ defineElement } from "../../core/index.js";
 import type { Tone } from "../../core/index.js";
 import progressCSS from "./progress.css?raw";
 
@@ -75,4 +75,4 @@ export class ZProgress extends BaseElement {
 
 observeLegacyAttribute(ZProgress, "variant");
 
-customElements.define("z-progress", ZProgress);
+defineElement("z-progress", ZProgress);

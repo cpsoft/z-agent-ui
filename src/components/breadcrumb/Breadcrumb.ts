@@ -2,7 +2,7 @@
 // [WHY] [[REQ-012]] 后台布局骨架组件族：面包屑导航，items 属性驱动 + aria-current + z-select 事件
 // See: wiki/requirements/REQ-012-admin-layout.md
 // [2026-08-11] AI: 初始实现
-import { BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, defineElement } from "../../core/index.js";
 import breadcrumbCSS from "./breadcrumb.css?raw";
 
 export interface BreadcrumbItem {
@@ -59,4 +59,4 @@ export class ZBreadcrumb extends BaseElement {
 
 }
 
-customElements.define("z-breadcrumb", ZBreadcrumb);
+defineElement("z-breadcrumb", ZBreadcrumb);

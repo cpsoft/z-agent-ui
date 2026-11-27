@@ -1,5 +1,5 @@
 // <z-login> 登录页：标题、副标题、用户名与密码字段、记住我、注册入口都可配；提交时发 z-login。
-import { BaseElement, html, property, escapeAttr, fieldOf } from "../../core/index.js";
+import { BaseElement, COPY, html, property, escapeAttr, fieldOf, defineElement } from "../../core/index.js";
 import loginCSS from "./login.css?raw";
 import "../../components/input/index.js";
 import "../../components/button/index.js";
@@ -10,19 +10,19 @@ export class ZLogin extends BaseElement {
 
   @property({ type: String }) title = "Welcome Back";
   @property({ type: String }) subtitle = "Sign in to your account";
-  @property({ type: String }) usernameLabel = "用户名";
+  @property({ type: String }) usernameLabel = COPY.username;
   @property({ type: String }) usernamePlaceholder = "Enter your username";
-  @property({ type: String }) passwordLabel = "密码";
+  @property({ type: String }) passwordLabel = COPY.password;
   @property({ type: String }) passwordPlaceholder = "Enter your password";
-  @property({ type: String }) rememberLabel = "记住我";
-  @property({ type: String }) forgotLabel = "忘记密码？";
+  @property({ type: String }) rememberLabel = COPY.rememberMe;
+  @property({ type: String }) forgotLabel = COPY.forgotPassword;
   @property({ type: String }) forgotHref = "#";
-  @property({ type: String }) submitLabel = "登录";
+  @property({ type: String }) submitLabel = COPY.signIn;
   @property({ type: String }) signUpPrompt = "Don't have an account?";
-  @property({ type: String }) signUpLabel = "注册";
+  @property({ type: String }) signUpLabel = COPY.signUp;
   @property({ type: String }) signUpHref = "#";
   /** 必填校验的提示文案（宿主可换成英文）。 */
-  @property({ type: String }) requiredMessage = "请填写用户名和密码";
+  @property({ type: String }) requiredMessage = COPY.loginRequired;
   @property({ type: Boolean }) loading = false;
   @property({ type: Boolean }) showRemember = true;
   @property({ type: Boolean }) showForgot = true;
@@ -244,4 +244,4 @@ export class ZLogin extends BaseElement {
 
 }
 
-customElements.define("z-login", ZLogin);
+defineElement("z-login", ZLogin);

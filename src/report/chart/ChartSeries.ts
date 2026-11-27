@@ -1,5 +1,5 @@
 // <z-chart-series> 图表数据系列：name / type / data 定义一个系列，visible 控制显隐，颜色由 color 定。
-import { BaseElement, property } from "../../core/index.js";
+import { BaseElement, property, defineElement } from "../../core/index.js";
 
 // 数据系列子元素：render null，数据变更经 z-series-change 通知容器重绘
 export class ZChartSeries extends BaseElement {
@@ -27,4 +27,4 @@ export class ZChartSeries extends BaseElement {
   }
 }
 
-customElements.define("z-chart-series", ZChartSeries);
+defineElement("z-chart-series", ZChartSeries);

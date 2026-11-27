@@ -9,7 +9,7 @@
 // [WHY 用 radiogroup 而不是 tablist] APG 的分工：tablist 配 tabpanel（切内容），
 // radiogroup 配同质选项（切值）。分段控件的每一段都是一个**取值**，不是一块面板 ——
 // 用 tablist 会让读屏报「1 个标签页，未选中任何面板」，而页面上根本没有面板。
-import { BaseElement, escapeAttr, html, property, controlHeight, type ControlSize } from "../../core/index.js";
+import { BaseElement, escapeAttr, html, property, controlHeight, type ControlSize, defineElement } from "../../core/index.js";
 import { listIntent, resolveIndex } from "../../primitives/index.js";
 import segmentedCSS from "./segmented.css?raw";
 
@@ -159,4 +159,4 @@ export class ZSegmented extends BaseElement {
   }
 }
 
-customElements.define("z-segmented", ZSegmented);
+defineElement("z-segmented", ZSegmented);

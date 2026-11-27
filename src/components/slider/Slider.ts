@@ -3,7 +3,7 @@
 // 单 thumb; 拖拽中直写 __zui_prop_value + 局部样式, 绝不 requestUpdate
 // (整体重渲染会重建 thumb 丢 pointer capture, 见 [[lesson-web-components-render-pitfalls]] §2)。
 // 键盘变更走属性 setter(requestUpdate 后 updated() 按引用恢复焦点)。
-import { BaseElement, html, property, escapeHtml } from "../../core/index.js";
+import { BaseElement, html, property, escapeHtml, defineElement } from "../../core/index.js";
 import { PointerDragSession } from "../../primitives/index.js";
 import sliderCSS from "./slider.css?raw";
 
@@ -227,4 +227,4 @@ export class ZSlider extends BaseElement {
 
 }
 
-customElements.define("z-slider", ZSlider);
+defineElement("z-slider", ZSlider);

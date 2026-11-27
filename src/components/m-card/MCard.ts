@@ -2,7 +2,7 @@
 // [WHY] 移动端卡片：把「点击 / 长按」两种手势收成两个事件，宿主不用自己算计时器。
 // 判据是本组件最核心的部分 —— 手指在卡片上滑动（列表滚动、横向切换）**不能**当成点击，
 // 否则用户每滚一次列表就会误进详情页。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import { LongPressController } from "../../primitives/index.js";
 import mCardCSS from "./m-card.css?raw";
 
@@ -112,4 +112,4 @@ export class MCard extends BaseElement {
   }
 }
 
-customElements.define("m-card", MCard);
+defineElement("m-card", MCard);

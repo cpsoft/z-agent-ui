@@ -1,5 +1,5 @@
 // <z-pagination> 分页：current / total / pageSize 算页码，可挂「共 N 条」与每页条数，翻页发 z-change、换条数发 z-size-change。
-import { COPY, BaseElement, html, property, escapeAttr, controlHeight, type ControlSize } from "../../core/index.js";
+import { COPY, BaseElement, html, property, escapeAttr, controlHeight, type ControlSize, defineElement } from "../../core/index.js";
 import paginationCSS from "./pagination.css?raw";
 
 const PREV_SVG = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4l-4 4 4 4"/></svg>`;
@@ -199,4 +199,4 @@ export class ZPagination extends BaseElement {
   };
 }
 
-customElements.define("z-pagination", ZPagination);
+defineElement("z-pagination", ZPagination);

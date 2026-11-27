@@ -1,5 +1,5 @@
 // <z-property-group> 属性分组：title 作分组名，collapsible 才可收起，展开发 z-toggle。
-import { BaseElement, html, property, escapeAttr, setContentCollapsed } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, setContentCollapsed, defineElement } from "../../core/index.js";
 import { CollapseTween } from "../../primitives/index.js";
 import propertyGroupCSS from "./property-group.css?raw";
 
@@ -176,4 +176,4 @@ export class ZPropertyGroup extends BaseElement {
 
 }
 
-customElements.define("z-property-group", ZPropertyGroup);
+defineElement("z-property-group", ZPropertyGroup);

@@ -5,7 +5,7 @@
 // （happy-dom 测试挂起）。See: wiki/requirements/REQ-013-node-flow-editor.md
 // [WHY] 2026-10-25 系统审计：947 行按职责拆出 —— 几何/SVG → flow-geometry.ts，
 // 手势判定 → flow-interaction.ts，视图写 DOM → flow-view.ts，手势状态机 → flow-gestures.ts
-import { BaseElement, html, property, deepActiveElement } from "../core/index.js";
+import { BaseElement, html, property, deepActiveElement, escapeAttr, t, defineElement } from "../core/index.js";
 import {
   clamp,
   formatPosition,
@@ -159,7 +159,7 @@ export class ZFlow extends BaseElement {
     // roving」的写法在 Chrome 上都是死的**：焦点永远进不去那一族。
     // 所以「空白处点击把焦点收回画布」不能靠宿主聚焦，改为聚焦当前节点（见 focusHost）。
     this.setAttribute("role", "group");
-    this.setAttribute("aria-label", "流程图");
+    this.setAttribute("aria-label", t("flowChart"));
 
     this.addEventListener("pointerdown", this._onPointerDown);
     this.addEventListener("keydown", this._onKeyDown);
@@ -233,7 +233,7 @@ export class ZFlow extends BaseElement {
           class="z-flow__nodes"
           part="nodes"
           role="listbox"
-          aria-label="画布节点"
+          aria-label="${escapeAttr(t("flowNodes"))}"
           aria-multiselectable="true"
         ><slot></slot></div>
       </div>
@@ -629,4 +629,4 @@ export class ZFlow extends BaseElement {
   }
 }
 
-customElements.define("z-flow", ZFlow);
+defineElement("z-flow", ZFlow);

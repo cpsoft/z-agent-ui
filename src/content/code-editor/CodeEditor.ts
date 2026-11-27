@@ -6,7 +6,7 @@
 // 直写 __zui_prop_value 绕过渲染循环（slider/RichText 先例），高亮层在 input 时经
 // rAF 刷新，composition 期间跳过刷新保护中文 IME。键盘逻辑抽为纯函数导出供单测，
 // 规避 happy-dom 合成选区怪癖。
-import { BaseElement, html, property, ariaBool, COPY } from "../../core/index.js";
+import { BaseElement, html, property, ariaBool, COPY, defineElement } from "../../core/index.js";
 import codeEditorCSS from "./code-editor.css?raw";
 import { detectLanguage, highlightCode, type CodeLanguage } from "./highlight.js";
 import {
@@ -577,4 +577,4 @@ export class ZCodeEditor extends BaseElement {
   }
 }
 
-customElements.define("z-code-editor", ZCodeEditor);
+defineElement("z-code-editor", ZCodeEditor);

@@ -1,7 +1,7 @@
 // <m-grid-item> 宫格项：label 文案加 icon 插槽，badge 显示角标，disabled 置灰。
 // [WHY] 宫格单元：把「图标 + 文字 + 角标」这套最常见的入口样子收成一个组件。
 // 自己用 div 拼的话，图标尺寸/文字截断/角标定位每个页面都要重来一遍。
-import { BaseElement, escapeHtml, html, property } from "../../core/index.js";
+import { BaseElement, escapeHtml, html, property, defineElement } from "../../core/index.js";
 import mGridItemCSS from "./m-grid-item.css?raw";
 
 export class MGridItem extends BaseElement {
@@ -75,4 +75,4 @@ export class MGridItem extends BaseElement {
   }
 }
 
-customElements.define("m-grid-item", MGridItem);
+defineElement("m-grid-item", MGridItem);

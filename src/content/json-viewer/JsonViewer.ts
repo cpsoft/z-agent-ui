@@ -1,7 +1,7 @@
 // [WHY] JSON 查看器 [[2026-08-11-W18-enterprise]] [2026-08-11] night-hawk:
 // span 语法高亮递归渲染 + 展开/折叠（path 集合）+ z-copy + 行号。
 // 只读 v1：无编辑、无流式解析（超大 JSON 由调用方截断）。
-import { BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, escapeHtml, t, defineElement } from "../../core/index.js";
 import jsonViewerCSS from "./json-viewer.css?raw";
 
 
@@ -45,8 +45,8 @@ export class ZJsonViewer extends BaseElement {
    * path 是这棵树里唯一能定位"你在哪"的信息（根容器給「根」）。
    */
   private _toggleHtml(path: string, expanded: boolean): string {
-    const label = path || "根";
-    const name = `${expanded ? "折叠" : "展开"} ${label}`;
+    const label = path || t("rootNode");
+    const name = `${expanded ? t("collapse") : t("expand")} ${label}`;
     // data-focus-key：requestUpdate 会整体重建 shadow，开关节点被换掉 ⇒ 焦点掉到 <body>，
     // 于是**键盘只能展开一次**（与 z-radio-group 那轮同一个形态）。BaseElement 在重建后
     // 按这个 key 把焦点找回来；path 含引号/反斜杠时该机制会安全放弃（返回空选择器）。
@@ -124,7 +124,7 @@ export class ZJsonViewer extends BaseElement {
       this._rowLine(
         this._toggleHtml(path, false) +
         `<span class="z-jv__brace">${openBrace}</span>` +
-        `<span class="z-jv__count">${n} 项</span>` +
+        `<span class="z-jv__count">${escapeHtml(t("itemsShort", { count: n }))}</span>` +
         `<span class="z-jv__brace">${closeBrace}</span>`
       );
       return;
@@ -161,7 +161,7 @@ export class ZJsonViewer extends BaseElement {
   private _leaf(htmlStr: string, path: string, value: unknown): string {
     if (this.copyable) this._values.set(path, value);
     const copy = this.copyable
-      ? `<button type="button" class="z-jv__copy" data-copy="${path}" aria-label="复制 ${path}"><svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="8" height="8" rx="1"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg></button>`
+      ? `<button type="button" class="z-jv__copy" data-copy="${path}" aria-label="${escapeAttr(t("copyPath", { path }))}"><svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="8" height="8" rx="1"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg></button>`
       : "";
     return htmlStr + copy;
   }
@@ -215,4 +215,4 @@ export class ZJsonViewer extends BaseElement {
   }
 }
 
-customElements.define("z-json-viewer", ZJsonViewer);
+defineElement("z-json-viewer", ZJsonViewer);

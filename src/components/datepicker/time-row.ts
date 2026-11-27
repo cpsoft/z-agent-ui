@@ -10,7 +10,7 @@
 //   ② 非法值**不写入**、只标红：写进值里就会当成参数下推，后端把不认识的值当没写 ⇒
 //      查询静默退回全量。
 
-import { escapeAttr, escapeHtml } from "../../core/index.js";
+import { escapeAttr, escapeHtml, t } from "../../core/index.js";
 
 export interface TimeRowOpts {
   mode: "single" | "range";
@@ -22,17 +22,17 @@ export interface TimeRowOpts {
 
 /** 时间行的 HTML；`mode=range` 时两端各一对。 */
 export function timeRowHtml(o: TimeRowOpts): string {
-  const done = `<button type="button" class="z-datepicker__time-done" data-time-done>确定</button>`;
+  const done = `<button type="button" class="z-datepicker__time-done" data-time-done>${escapeHtml(t("confirm"))}</button>`;
   if (o.mode === "range") {
     return (
       `<div class="z-datepicker__time" part="time">` +
-      timeBox("start", "起", o.time) +
-      timeBox("end", "止", o.timeTo) +
+      timeBox("start", t("timeStart"), o.time) +
+      timeBox("end", t("timeEnd"), o.timeTo) +
       done +
       `</div>`
     );
   }
-  return `<div class="z-datepicker__time" part="time">` + timeBox("value", "时间", o.time) + done + `</div>`;
+  return `<div class="z-datepicker__time" part="time">` + timeBox("value", t("timeLabel"), o.time) + done + `</div>`;
 }
 
 function timeBox(side: string, label: string, time: string): string {
@@ -44,9 +44,9 @@ function timeBox(side: string, label: string, time: string): string {
     ` title="0–${max}">`;
   return (
     `<span class="z-datepicker__time-label">${escapeHtml(label)}</span>` +
-    box("h", h, 23, `${label}时`) +
+    box("h", h, 23, t("timeHour", { label })) +
     `<span class="z-datepicker__time-sep">:</span>` +
-    box("m", m, 59, `${label}分`)
+    box("m", m, 59, t("timeMinute", { label }))
   );
 }
 

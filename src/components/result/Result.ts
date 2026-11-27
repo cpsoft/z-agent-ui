@@ -1,6 +1,6 @@
 // [WHY] 结果页 [[2026-08-11-W17-data]] [2026-08-11] night-hawk:
 // 四状态图标/颜色（success|error|info|warning）+ title/subtitle + slots。
-import { BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, defineElement } from "../../core/index.js";
 import resultCSS from "./result.css?raw";
 
 
@@ -37,4 +37,4 @@ export class ZResult extends BaseElement {
   }
 }
 
-customElements.define("z-result", ZResult);
+defineElement("z-result", ZResult);

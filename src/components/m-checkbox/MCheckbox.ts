@@ -6,7 +6,7 @@
 //
 // [WHY 半选是独立状态而不是「未选中」] 购物车的「全选」在「买了三件里的两件」时必须
 // 画成横杠：画成未选，用户会以为一件都没勾；画成选中，点一下变全不选，与预期相反。
-import { BaseElement, ariaBool, escapeAttr, html, property } from "../../core/index.js";
+import { BaseElement, ariaBool, escapeAttr, html, property, defineElement } from "../../core/index.js";
 import mCheckboxCSS from "./m-checkbox.css?raw";
 
 export class MCheckbox extends BaseElement {
@@ -105,4 +105,4 @@ export class MCheckbox extends BaseElement {
   };
 }
 
-customElements.define("m-checkbox", MCheckbox);
+defineElement("m-checkbox", MCheckbox);

@@ -30,7 +30,7 @@
 //
 // 不依赖 L5 的 `PageRegistryDef`：L2 反过来 import L5 会让本组件只能被「已经接了平台层」
 // 的宿主用，而「我只想要一个侧栏」是最常见的起点（见 REQ-040 的分层判据）。
-import { BaseElement, property, COPY } from "../../core/index.js";
+import { BaseElement, property, COPY, defineElement } from "../../core/index.js";
 import appNavCSS from "./app-nav.css?raw";
 import { NAV_ICONS, initialOf } from "./nav-icons.js";
 
@@ -238,4 +238,4 @@ export class ZAppNav extends BaseElement {
   };
 }
 
-customElements.define("z-app-nav", ZAppNav);
+defineElement("z-app-nav", ZAppNav);

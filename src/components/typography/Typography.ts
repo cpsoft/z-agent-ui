@@ -9,7 +9,7 @@
 // 26px 已经比正文（16px）大一倍多。为了对齐 Ant 而引入 32/38 两个令牌，
 // 会诱导业务页把标题越写越大，而真正的问题「标题层级不统一」一点没解决。
 // 阶梯比例 26 / 20 / 18 / 16 / 13 取自现有令牌，不新增任何定义。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, t, escapeAttr, escapeHtml, defineElement } from "../../core/index.js";
 import typographyCSS from "./typography.css?raw";
 
 // [WHY 属性名叫 scale 而不是 variant] 本来是 `variant="h1|h2|…|secondary"`，
@@ -111,7 +111,7 @@ export class ZTypography extends BaseElement {
       .join(" ");
 
     const copyBtn = this.copyable
-      ? html`<button class="z-typography__copy" part="copy" type="button" aria-label="复制">复制</button>`
+      ? html`<button class="z-typography__copy" part="copy" type="button" aria-label="${escapeAttr(t("copy"))}">${escapeHtml(t("copy"))}</button>`
       : "";
 
     // 标签名来自内部映射表，不是用户输入 —— 这里的插值不会引入注入面。
@@ -130,4 +130,4 @@ export class ZTypography extends BaseElement {
   };
 }
 
-customElements.define("z-typography", ZTypography);
+defineElement("z-typography", ZTypography);

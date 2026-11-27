@@ -295,7 +295,7 @@ it("生成 registry/component-manifest.json", async () => {
   const dirs = scanDirs();
 
   // 1) 抓全部 customElements.define 的 tag
-  const tagRe = /customElements\.define\(\s*"([a-z0-9-]+)"\s*,\s*([A-Za-z0-9_]+)\s*\)/g;
+  const tagRe = /(?:customElements\.define|defineElement)\(\s*"([a-z0-9-]+)"\s*,\s*([A-Za-z0-9_]+)\s*\)/g;
   const entries: Array<{ tag: string; file: string }> = [];
   for (const d of dirs) {
     for (const f of fs.readdirSync(d).filter((x) => x.endsWith(".ts"))) {

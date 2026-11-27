@@ -4,7 +4,7 @@
 // （顺带让其它子项灭掉）；③ 把事件抬成 `z-change { value }` 给宿主。
 // 不参与表单提交 —— 手机上支付方式、配送时间这类选择都是「点完立刻进下一步」，
 // 要走表单请用 `z-radio-group`。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import type { MRadio } from "./MRadio.js";
 import mRadioGroupCSS from "./m-radio-group.css?raw";
 
@@ -67,4 +67,4 @@ export class MRadioGroup extends BaseElement {
   };
 }
 
-customElements.define("m-radio-group", MRadioGroup);
+defineElement("m-radio-group", MRadioGroup);

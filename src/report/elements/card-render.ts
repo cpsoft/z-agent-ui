@@ -1,7 +1,7 @@
 // [WHY] 2026-10-25 系统审计：从 report-card.ts（853 行）按职责拆出
 // 职责：卡壳（头部/状态条/错误态/按钮）与各卡种卡体（指标/文本/图片）的 HTML 生成，纯函数。
 
-import { escapeAttr, escapeHtml, html } from "../../core/index.js";
+import { escapeAttr, escapeHtml, html, t } from "../../core/index.js";
 import type { CardAction } from "../core/report-card.js";
 import { formatKpi, kpiColorMode, kpiDelta, kpiRaw, kpiTone } from "../core/report-kpi.js";
 import { imageFit, imagePlaceholder, isUsableImageUrl } from "../core/report-image.js";
@@ -9,13 +9,13 @@ import { parseRichLines, type TextSpan } from "../core/report-text.js";
 import type { ChartQueryData } from "../core/data-source.js";
 import type { CardKind, ReportChart } from "../core/types.js";
 
-/** 各动作的按钮文案。 */
+/** 各动作的按钮文案（动态读当前语言包）。 */
 export const ACTION_LABEL: Record<CardAction, string> = {
-  export: "导出",
-  expand: "放大",
-  refresh: "刷新",
-  detail: "查看明细",
-  edit: "编辑",
+  get export() { return t("exportAction"); },
+  get expand() { return t("zoomIn"); },
+  get refresh() { return t("refreshAction"); },
+  get detail() { return t("viewDetail"); },
+  get edit() { return t("editAction"); },
 };
 
 function spanHtml(sp: TextSpan): string {

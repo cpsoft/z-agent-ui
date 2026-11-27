@@ -10,7 +10,7 @@
 //   · 单指下滑（未缩放）→ 关闭
 //   · 单击 → 关闭（不做「双击缩放」：它和单击关闭抢同一个手势，只能靠 260ms 延迟区分，
 //     而点了要等一下才关的手感更差；缩放交给双指，桌面用 + / - / 0）
-import { BaseElement, COPY, escapeAttr, html, property } from "../../core/index.js";
+import { BaseElement, COPY, escapeAttr, html, property, defineElement } from "../../core/index.js";
 import { lockScroll, pushOverlay, removeOverlay, unlockScroll } from "../../primitives/index.js";
 import mImagePreviewCSS from "./m-image-preview.css?raw";
 
@@ -37,7 +37,7 @@ export class MImagePreview extends BaseElement {
   @property({ type: Number }) current = 0;
   @property({ type: Boolean }) visible = false;
   /** 无障碍名称（读屏念「<名字>，共 N 张」）。 */
-  @property({ type: String }) label = "查看大图";
+  @property({ type: String }) label = COPY.viewFullImage;
   /** 到头回绕。关掉则第一张不能再往前。 */
   @property({ type: Boolean }) loop = true;
 
@@ -413,4 +413,4 @@ export class MImagePreview extends BaseElement {
   };
 }
 
-customElements.define("m-image-preview", MImagePreview);
+defineElement("m-image-preview", MImagePreview);

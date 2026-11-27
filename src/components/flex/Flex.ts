@@ -11,7 +11,7 @@
 // [为什么对齐只认这几个词] Ant / Tailwind / CSS 各有各的写法（start/flex-start/left），
 // 这里统一成 `start|center|end|between|around|evenly`，由 ALIGN_MAP 翻译成 CSS 关键字。
 // 只认一套词汇的收益：写页面的人不需要在两套命名之间切换。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import flexCSS from "./flex.css?raw";
 
 export type ZFlexDirection = "row" | "column" | "row-reverse" | "column-reverse";
@@ -75,4 +75,4 @@ export class ZFlex extends BaseElement {
   }
 }
 
-customElements.define("z-flex", ZFlex);
+defineElement("z-flex", ZFlex);

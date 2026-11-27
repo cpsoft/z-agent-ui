@@ -1,4 +1,4 @@
-import { COPY, BaseElement, html, property, escapeHtml, escapeAttr, controlHeight, type ControlSize } from "../../core/index.js";
+import { COPY, BaseElement, html, property, escapeHtml, escapeAttr, controlHeight, type ControlSize, defineElement } from "../../core/index.js";
 import inputCSS from "./input.css?raw";
 
 // [WHY] 修复 Gitee IKRAOT：放行四个原生日期时间类型，让 label / hint / error / clearable /
@@ -242,4 +242,4 @@ export class ZInput extends BaseElement {
 
 }
 
-customElements.define("z-input", ZInput);
+defineElement("z-input", ZInput);

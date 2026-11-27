@@ -1,5 +1,5 @@
 // <z-table> 数据表：columns 与 data 驱动，sortKey / sortDir 排序并发 z-sort，loading 与 emptyText 覆盖两种空态。
-import { COPY, BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { COPY, BaseElement, html, property, escapeAttr, defineElement } from "../../core/index.js";
 import { gridIntent, resolveCell, roveByKey, roveTo, sameCell } from "../../primitives/index.js";
 import tableCSS from "./table.css?raw";
 
@@ -243,4 +243,4 @@ export class ZTable extends BaseElement {
   };
 }
 
-customElements.define("z-table", ZTable);
+defineElement("z-table", ZTable);

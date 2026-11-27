@@ -70,7 +70,7 @@ function readSrc(file: string): string {
 
 /** 源码里 每个 tag 的 define 文件（同一 tag 重复 define 会被浏览器拒绝，故取首个即可）。 */
 function definedTags(): Map<string, string> {
-  const re = /customElements\.define\(\s*"([a-z0-9-]+)"/g;
+  const re = /(?:customElements\.define|defineElement)\(\s*"([a-z0-9-]+)"/g;
   const out = new Map<string, string>();
   for (const root of ROOTS) {
     for (const file of walkTs(root)) {

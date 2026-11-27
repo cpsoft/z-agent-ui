@@ -1,7 +1,7 @@
 // <z-flow-handle> 流程节点连接桩：id / type / position 描述方位与方向，connectable 决定能否从这里起线。
 // [WHY] 连接把手：发起连线手势，目标 handle 检测由 flow 在 pointerup 时处理
 // See: wiki/requirements/REQ-013-node-flow-editor.md
-import { BaseElement, property } from "../core/index.js";
+import { BaseElement, property, defineElement } from "../core/index.js";
 import handleCSS from "./handle.css?raw";
 
 export interface FlowConnectStartDetail {
@@ -53,4 +53,4 @@ export class ZFlowHandle extends BaseElement {
   };
 }
 
-customElements.define("z-flow-handle", ZFlowHandle);
+defineElement("z-flow-handle", ZFlowHandle);

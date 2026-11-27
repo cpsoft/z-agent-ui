@@ -9,7 +9,7 @@
 // 四个断点值与 tokens.css 顶部注释里的 `--z-breakpoint-*` 一致（640 / 768 / 1024 / 1280），
 // 但这里只能写死。改断点时要同时改两处 —— 这是 CSS 的现实限制，不是偷懒；
 // 写在注释里是为了让下一个人知道「还有另一处」。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import { ALIGN_MAP } from "../flex/index.js";
 import gridCSS from "./grid.css?raw";
 
@@ -41,4 +41,4 @@ export class ZGrid extends BaseElement {
   }
 }
 
-customElements.define("z-grid", ZGrid);
+defineElement("z-grid", ZGrid);

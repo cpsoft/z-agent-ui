@@ -8,7 +8,7 @@
 //   ③ **读屏不能每秒播报**。`aria-live` 开着的话，屏幕阅读器会把每秒的数字念出来，
 //      用户没法做别的事 —— 所以是 `role="timer"` + `aria-live="off"`，
 //      到点再发 `z-end` 让宿主自己提示。
-import { BaseElement, escapeAttr, html, property } from "../../core/index.js";
+import { BaseElement, escapeAttr, html, property, t as msg, defineElement } from "../../core/index.js";
 import mCountdownCSS from "./m-countdown.css?raw";
 
 function pad(n: number): string {
@@ -118,7 +118,7 @@ export class MCountdown extends BaseElement {
       return { head: "", clock: `${pad(Math.floor(t / 60))}:${pad(s)}` };
     }
     if (this.format === "dhms") {
-      return { head: d > 0 ? `${d} 天` : "", clock: `${pad(h)}:${pad(mi)}:${pad(s)}` };
+      return { head: d > 0 ? msg("daysUnit", { count: d }) : "", clock: `${pad(h)}:${pad(mi)}:${pad(s)}` };
     }
     // hms：总小时数，超过 24 小时照实显示 49:30:00（不折成天，避免宿主自己再拼一次）
     return { head: "", clock: `${pad(Math.floor(t / 3600))}:${pad(mi)}:${pad(s)}` };
@@ -164,4 +164,4 @@ export class MCountdown extends BaseElement {
   };
 }
 
-customElements.define("m-countdown", MCountdown);
+defineElement("m-countdown", MCountdown);

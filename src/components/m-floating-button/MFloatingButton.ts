@@ -2,7 +2,7 @@
 // [WHY] 浮动按钮：fixed 定位脱离文档流，避开被 TabBar 遮挡
 // 通过 :host([position="br|bl"]) 切换左右定位
 // [2026-09-15] night-hawk: 创建移动端交互组件
-import { BaseElement, html, property, escapeHtml, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeHtml, escapeAttr, defineElement } from "../../core/index.js";
 import mFloatingButtonCSS from "./m-floating-button.css?raw";
 
 export class MFloatingButton extends BaseElement {
@@ -41,4 +41,4 @@ export class MFloatingButton extends BaseElement {
   }
 }
 
-customElements.define("m-floating-button", MFloatingButton);
+defineElement("m-floating-button", MFloatingButton);

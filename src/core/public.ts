@@ -45,3 +45,18 @@ export { css } from "./css.js";
 
 // 全局样式注入：10 个浮层组件的统一入口（替代各自 `let styleInjected`）
 export { injectGlobalStyles } from "./styleInjection.js";
+
+// 国际化与格式化：默认中文（zh-CN），支持运行时切换任意语言包
+export {
+  DEFAULT_LOCALE,
+  getLocale,
+  hasMessage,
+  onLocaleChange,
+  registerMessages,
+  setLocale,
+  t,
+  type MessageParams,
+  type Messages,
+} from "./i18n.js";
+export type { MessageKey } from "./locales/zh-CN.js";
+export { fmt, getDateTimeFormat, getNumberFormat } from "./format.js";

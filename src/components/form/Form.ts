@@ -12,7 +12,7 @@
 // [WHY] 组合组件依赖注册：validate() 调用 item.validate() 要求 z-form-item 已定义
 import "../form-item/FormItem.js";
 
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import formCSS from "./form.css?raw";
 import type { ZFormItem } from "../form-item/FormItem.js";
 
@@ -137,4 +137,4 @@ export class ZForm extends BaseElement {
   };
 }
 
-customElements.define("z-form", ZForm);
+defineElement("z-form", ZForm);

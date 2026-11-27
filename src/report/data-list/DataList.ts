@@ -21,7 +21,7 @@ import "../../components/select/index.js";
 import "../../components/option/index.js";
 import "../../components/datepicker/index.js";
 
-import { COPY, BaseElement, bindFieldName, html, property } from "../../core/index.js";
+import { COPY, BaseElement, bindFieldName, html, property, defineElement } from "../../core/index.js";
 import type { FieldNameBinder } from "../../core/index.js";
 import type { ReportColumn, SortEntry, TableConfig, ZReportTable } from "../table/ReportTable.js";
 import type { ZPagination } from "../../components/pagination/index.js";
@@ -489,4 +489,4 @@ export class ZDataList extends BaseElement {
   }
 }
 
-customElements.define("z-data-list", ZDataList);
+defineElement("z-data-list", ZDataList);

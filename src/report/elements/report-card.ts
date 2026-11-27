@@ -23,7 +23,7 @@
 // [为什么卡壳 HTML/取数/导出/挂载各拆一个文件] 纯渲染与状态机混在一个 800+ 行的类里时，
 // 改文案要跨过取数逻辑去读；按职责拆开后每块都能单独读。类只留属性、生命周期与事件分发。
 
-import { COPY, BaseElement, escapeHtml, html, property } from "../../core/index.js";
+import { COPY, BaseElement, escapeHtml, html, property, t, defineElement } from "../../core/index.js";
 import { cardKind, type CardAction } from "../core/report-card.js";
 import { queryChartData, queryKpiPrev, resolveFilters } from "../core/report-query.js";
 import { asQueryError, type ChartQueryData, type ReportDataSource } from "../core/data-source.js";
@@ -62,7 +62,7 @@ export class ZReportCard extends BaseElement {
   @property({ type: Boolean, attribute: "show-title" }) showTitle = true;
   @property({ type: String, attribute: "loading-text" }) loadingText = COPY.loading;
   @property({ type: String, attribute: "empty-text" }) emptyText = COPY.empty;
-  @property({ type: String, attribute: "no-chart-text" }) noChartText = "未绑定图表";
+  @property({ type: String, attribute: "no-chart-text" }) noChartText = COPY.noChart;
 
   // ---- 卡壳 ----
 
@@ -81,13 +81,13 @@ export class ZReportCard extends BaseElement {
   @property({ type: String, attribute: "export-name" }) exportName = "";
 
   // ---- 状态条 / 按钮文案（全部可覆盖，便于宿主统一 i18n） ----
-  @property({ type: String, attribute: "waiting-text" }) waitingText = "等待配置";
-  @property({ type: String, attribute: "updating-text" }) updatingText = "正在更新…";
-  @property({ type: String, attribute: "done-text" }) doneText = "查询完成";
-  @property({ type: String, attribute: "failed-text" }) failedText = "更新失败，以下保留上次结果";
-  @property({ type: String, attribute: "error-text" }) errorText = "更新失败";
-  @property({ type: String, attribute: "retry-text" }) retryText = "重试";
-  @property({ type: String, attribute: "collapse-text" }) collapseText = "收起";
+  @property({ type: String, attribute: "waiting-text" }) waitingText = COPY.waitingConfig;
+  @property({ type: String, attribute: "updating-text" }) updatingText = COPY.updating;
+  @property({ type: String, attribute: "done-text" }) doneText = COPY.queryDone;
+  @property({ type: String, attribute: "failed-text" }) failedText = COPY.updateFailedFallback;
+  @property({ type: String, attribute: "error-text" }) errorText = COPY.updateFailed;
+  @property({ type: String, attribute: "retry-text" }) retryText = COPY.retry;
+  @property({ type: String, attribute: "collapse-text" }) collapseText = COPY.collapsePanel;
 
   // ---- 内部状态（不反射到 attribute） ----
   private _loading = false;
@@ -364,7 +364,7 @@ export class ZReportCard extends BaseElement {
       if (seq !== this._seq || key !== this._loadKey) return;
       const err = asQueryError(e);
       this._loading = false;
-      this._error = err.message || "查询失败";
+      this._error = err.message || t("queryFailed");
       this.requestUpdate();
       this.emit("z-card-error", { chartId: chart.id, error: err });
     }
@@ -423,4 +423,4 @@ export class ZReportCard extends BaseElement {
 // 同一模块经 ESM 只执行一次，重复调用不会发生。真正会重复的场景是「宿主同时引了
 // 两份不同产物（dist + src）」，那是两份不同类，guard 也救不了（instanceof 已不同）。
 // 全库统一比给单个组件加伪防护更重要。
-customElements.define("z-report-card", ZReportCard);
+defineElement("z-report-card", ZReportCard);

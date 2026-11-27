@@ -1,5 +1,5 @@
 // <z-chart> 图表：type 定图形、values 给数据，tooltip / legend / markline 按需开关，交互各发事件。
-import { BaseElement, COPY, property, html, escapeAttr } from "../../core/index.js";
+import { BaseElement, COPY, property, html, escapeAttr, t, defineElement } from "../../core/index.js";
 import { PointerDragSession, type PointerDragDelta } from "../../primitives/index.js";
 
 import chartCSS from "./chart.css?raw";
@@ -1054,7 +1054,7 @@ export class ZChart extends BaseElement {
     });
     // 屏幕阅读器读不到那圈半透明框，所以把结果播报出来（复用键盘提示那个 live 区）
     const live = this.shadowRoot?.querySelector<HTMLElement>('[role="status"]');
-    if (live) live.textContent = points.length ? `已选 ${points.length} 个数据点` : "未选到数据点";
+    if (live) live.textContent = points.length ? t("chartPointsSelected", { count: points.length }) : t("chartNoPointsSelected");
   }
 
   private clearBrush(): void {
@@ -1117,7 +1117,7 @@ export class ZChart extends BaseElement {
     const endLabel = hits[hits.length - 1]?.label ?? "";
     const live = this.shadowRoot?.querySelector<HTMLElement>('[role="status"]');
     if (live) {
-      live.textContent = `键盘框选 ${hits.length} 个数据点（到「${endLabel}」），Enter 提交，Esc 取消`;
+      live.textContent = t("chartKeyboardBrush", { count: hits.length, label: endLabel });
     }
   }
 
@@ -1388,4 +1388,4 @@ export class ZChart extends BaseElement {
   }
 }
 
-customElements.define("z-chart", ZChart);
+defineElement("z-chart", ZChart);

@@ -4,6 +4,7 @@
 // 算成 -50%（其实是改善）、阈值方向反了会把达标染成红色。埋进 JSX 里只能靠肉眼查，
 // 拆成纯函数才能用硬编码字面量把每种边界钉死。
 
+import { fmt as localeFmt } from "../../core/index.js";
 import type {
   AggregateResult,
   KpiFormat,
@@ -45,7 +46,7 @@ export function formatKpi(v: number | null, fmt?: KpiFormat): string {
   const decimals = fmt?.decimals ?? 0;
   const thousands = fmt?.thousands ?? true;
   const body = thousands
-    ? v.toLocaleString("zh-CN", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+    ? localeFmt.number(v, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
     : v.toFixed(decimals);
   return fmt?.unit ? `${body}${fmt.unit}` : body;
 }

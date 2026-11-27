@@ -5,7 +5,7 @@
 // 读屏只会念「菜单」，用户按 ↓ 毫无反应。本组件把那 103 行收回来，走 FloatingPanelController，
 // 选项模型与键盘导航复用 `menu-panel.ts`（与 z-menu 同一份实现）。
 // See: wiki/reference/component-implementation-standard.md
-import { BaseElement, property, injectGlobalStyles } from "../../core/index.js";
+import { BaseElement, property, injectGlobalStyles, defineElement } from "../../core/index.js";
 import { FloatingPanelController, type Placement, FocusTrap } from "../../primitives/index.js";
 import { MENU_PANEL_STYLES, MenuNav, readMenuEntries, renderMenuEntries, type MenuEntry } from "../menu/menu-panel.js";
 import contextMenuCSS from "./context-menu.css?raw";
@@ -206,4 +206,4 @@ export class ZContextMenu extends BaseElement {
   }
 }
 
-customElements.define("z-context-menu", ZContextMenu);
+defineElement("z-context-menu", ZContextMenu);

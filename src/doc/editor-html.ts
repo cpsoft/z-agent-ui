@@ -2,7 +2,7 @@
 // 职责：编辑器外壳 / 单个块 / 右侧面板（属性·占位符·排版·表格配置）的 HTML 生成 —— 纯函数,
 // 组件状态经 EditorTexts（i18n 文案）与 EditorView（视图状态）显式传入, 不引用组件实例。
 
-import { html } from "../core/index.js";
+import { html, t as msg } from "../core/index.js";
 import {
   type DocBlock,
   type DocFormatConfig,
@@ -386,19 +386,19 @@ function typographyHtml(t: EditorTexts, v: EditorView): string {
         <label class="z-dte__field">
           <span>${esc(t.pageMarginText)}</span>
           <span class="z-dte__margin-row">
-            <input type="number" min="0" max="60" step="1" data-cfg="marginTop" value="${cfg.marginTop ?? 20}" title="上" />
-            <input type="number" min="0" max="60" step="1" data-cfg="marginBottom" value="${cfg.marginBottom ?? 20}" title="下" />
-            <input type="number" min="0" max="60" step="1" data-cfg="marginLeft" value="${cfg.marginLeft ?? 18}" title="左" />
-            <input type="number" min="0" max="60" step="1" data-cfg="marginRight" value="${cfg.marginRight ?? 18}" title="右" />
+            <input type="number" min="0" max="60" step="1" data-cfg="marginTop" value="${cfg.marginTop ?? 20}" title="${esc(msg("marginTopShort"))}" />
+            <input type="number" min="0" max="60" step="1" data-cfg="marginBottom" value="${cfg.marginBottom ?? 20}" title="${esc(msg("marginBottomShort"))}" />
+            <input type="number" min="0" max="60" step="1" data-cfg="marginLeft" value="${cfg.marginLeft ?? 18}" title="${esc(msg("alignLeftShort"))}" />
+            <input type="number" min="0" max="60" step="1" data-cfg="marginRight" value="${cfg.marginRight ?? 18}" title="${esc(msg("alignRightShort"))}" />
           </span>
         </label>
         <label class="z-dte__field">
           <span>${esc(t.headerTextText)}</span>
-          <input type="text" data-cfg="headerText" value="${esc(cfg.headerText ?? "")}" placeholder="每页顶部, 留空不显示" />
+          <input type="text" data-cfg="headerText" value="${esc(cfg.headerText ?? "")}" placeholder="${esc(msg("headerPlaceholder"))}" />
         </label>
         <label class="z-dte__field">
           <span>${esc(t.footerTextText)}</span>
-          <input type="text" data-cfg="footerText" value="${esc(cfg.footerText ?? "")}" placeholder="每页底部, 留空不显示" />
+          <input type="text" data-cfg="footerText" value="${esc(cfg.footerText ?? "")}" placeholder="${esc(msg("footerPlaceholder"))}" />
         </label>
       </div>`;
 }

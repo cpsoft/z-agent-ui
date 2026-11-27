@@ -1,5 +1,5 @@
 // <z-property-panel> 属性面板容器：columns 定列数，disabled / readonly 整体禁用或只读。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import propertyPanelCSS from "./property-panel.css?raw";
 
 // [WHY] JS 级联而非 CSS：::slotted() 无法写属性，z-* 组件只有自身
@@ -135,4 +135,4 @@ export class ZPropertyPanel extends BaseElement {
   }
 }
 
-customElements.define("z-property-panel", ZPropertyPanel);
+defineElement("z-property-panel", ZPropertyPanel);

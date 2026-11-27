@@ -5,7 +5,7 @@ import {
   property,
   observeLegacyAttribute,
   syncAlias,
-} from "../../core/index.js";
+ defineElement } from "../../core/index.js";
 import skeletonCSS from "./skeleton.css?raw";
 
 /** 形状（组件局部维度：行 / 圆 / 块，与语义色无关）。 */
@@ -66,4 +66,4 @@ export class ZSkeleton extends BaseElement {
 
 observeLegacyAttribute(ZSkeleton, "variant");
 
-customElements.define("z-skeleton", ZSkeleton);
+defineElement("z-skeleton", ZSkeleton);

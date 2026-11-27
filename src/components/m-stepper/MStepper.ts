@@ -6,7 +6,7 @@
 //   ① 到边界要把按钮置灰（不然用户会一直点，以为没生效）；
 //   ② 步长是小数时不能出现 0.30000000000000004（浮点噪声在数量字段上是资损口径）；
 //   ③ 值改变要上报，但不自己写 `value` 属性的外部副本 —— 受控组件由宿主回写。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, t, escapeAttr, defineElement } from "../../core/index.js";
 import mStepperCSS from "./m-stepper.css?raw";
 
 export class MStepper extends BaseElement {
@@ -73,7 +73,7 @@ export class MStepper extends BaseElement {
           part="minus"
           type="button"
           data-act="minus"
-          aria-label="减少"
+          aria-label="${escapeAttr(t("decrement"))}"
           ${minusDisabled ? "disabled" : ""}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -86,7 +86,7 @@ export class MStepper extends BaseElement {
           part="plus"
           type="button"
           data-act="plus"
-          aria-label="增加"
+          aria-label="${escapeAttr(t("increment"))}"
           ${plusDisabled ? "disabled" : ""}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -98,4 +98,4 @@ export class MStepper extends BaseElement {
   }
 }
 
-customElements.define("m-stepper", MStepper);
+defineElement("m-stepper", MStepper);

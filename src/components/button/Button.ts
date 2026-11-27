@@ -6,7 +6,7 @@ import {
   observeLegacyAttribute,
   syncAlias,
   ariaBool,
-} from "../../core/index.js";
+ defineElement } from "../../core/index.js";
 import type { Appearance, Tone } from "../../core/index.js";
 
 import buttonCSS from "./button.css?raw";
@@ -124,4 +124,4 @@ export class ZButton extends BaseElement {
 
 observeLegacyAttribute(ZButton, "variant");
 
-customElements.define("z-button", ZButton);
+defineElement("z-button", ZButton);

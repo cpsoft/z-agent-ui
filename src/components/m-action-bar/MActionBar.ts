@@ -7,7 +7,7 @@
 // [为什么不提供「关闭安全区」的开关] 安全区在 PC 上是 `env(safe-area-inset-bottom)` = 0px，
 // 所以「始终避让」在两端都是对的。加一个开关只是多一个可以配错的东西。
 // （令牌 `--z-safe-bottom` 已经封装了 env() 与 0px 兜底，这里不再直接写 env()。）
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import barCSS from "./action-bar.css?raw";
 
 export type ZMActionBarAlign = "start" | "center" | "end" | "between";
@@ -62,4 +62,4 @@ export class ZMActionBar extends BaseElement {
   }
 }
 
-customElements.define("m-action-bar", ZMActionBar);
+defineElement("m-action-bar", ZMActionBar);

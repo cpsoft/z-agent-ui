@@ -1,8 +1,43 @@
 import { applyPropertyMeta, convertFromAttribute, metaAliases } from "./decorators.js";
+import { localeVersion, onLocaleChange, t } from "./i18n.js";
+import { morphChildren } from "./morph.js";
+import type { MessageKey } from "./locales/zh-CN.js";
+
+/** 按组件类缓存 Constructable Stylesheet，避免每次 performUpdate 重复解析整份 CSS。 */
+const sheetCache = new WeakMap<Function, CSSStyleSheet | null>();
+
+function getAdoptedSheet(ctor: typeof BaseElement, shadow: ShadowRoot): CSSStyleSheet | null {
+  const declared = ctor.styles;
+  if (!declared) return null;
+  if (
+    typeof CSSStyleSheet === "undefined" ||
+    typeof CSSStyleSheet.prototype.replaceSync !== "function" ||
+    !("adoptedStyleSheets" in shadow)
+  ) {
+    return null;
+  }
+  if (sheetCache.has(ctor)) return sheetCache.get(ctor) ?? null;
+  const cssText = typeof declared === "string" ? declared : declared.join("\n");
+  if (!cssText) {
+    sheetCache.set(ctor, null);
+    return null;
+  }
+  try {
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(cssText);
+    sheetCache.set(ctor, sheet);
+    return sheet;
+  } catch {
+    sheetCache.set(ctor, null);
+    return null;
+  }
+}
 
 export interface UpdateContext {
   /** True on the very first render. */
   isFirst: boolean;
+  /** 本帧内发生变化的响应式属性 → 变更前的旧值。 */
+  changed: ReadonlyMap<string, unknown>;
 }
 
 /**
@@ -50,10 +85,22 @@ export abstract class BaseElement extends HTMLElement {
    */
   static styles?: string | readonly string[];
 
+  /**
+   * 设为 `true` 时，首帧之后的渲染改用 `morphChildren` 原地差量更新而非整块 `innerHTML` 重建，
+   * 可保留输入框焦点、滚动位置与 keyed 子节点实例。
+   */
+  static morph?: boolean;
+
   private __updatePending = false;
   private __hasRendered = false;
+  private __sheetAdopted = false;
   /** 输入法组合态：组合期间不重建（见 performUpdate 的说明）。 */
   private __composing = false;
+  private __unsubLocale: (() => void) | null = null;
+  private __localeVer = -1;
+  private __abortController: AbortController | null = null;
+  /** 本微任务批次内发生变化的属性 → 变更前旧值（供 decorators.ts 写入）。 */
+  private __zui_changedProps = new Map<string, unknown>();
 
   constructor() {
     super();
@@ -64,11 +111,72 @@ export abstract class BaseElement extends HTMLElement {
     applyPropertyMeta(this, this.constructor as Function);
     // 重新挂载时重置：组合态可能在元素移除期间没收到 compositionend
     this.__composing = false;
+    const ver = localeVersion();
+    if (this.__localeVer !== -1 && this.__localeVer !== ver) {
+      this.__syncI18nDefaults();
+    }
+    this.__localeVer = ver;
+    if (!this.__unsubLocale) {
+      this.__unsubLocale = onLocaleChange(() => this.__onLocaleChange());
+    }
     this.requestUpdate();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  disconnectedCallback(): void {}
+  disconnectedCallback(): void {
+    if (this.__unsubLocale) {
+      this.__unsubLocale();
+      this.__unsubLocale = null;
+    }
+    if (this.__abortController) {
+      this.__abortController.abort();
+      this.__abortController = null;
+    }
+  }
+
+  /**
+   * 绑定随组件生命周期自动清理的事件监听（disconnectedCallback 时统一 abort）。
+   * 适合挂在 document / window / shadowRoot 上的监听，避免遗漏 removeEventListener。
+   */
+  protected listen(
+    target: EventTarget,
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: AddEventListenerOptions | boolean,
+  ): void {
+    const ac = (this.__abortController ??= new AbortController());
+    const opts: AddEventListenerOptions =
+      typeof options === "boolean"
+        ? { capture: options, signal: ac.signal }
+        : { ...options, signal: ac.signal };
+    target.addEventListener(type, listener, opts);
+  }
+
+  /** 刷新仍处于词表默认值的属性（宿主显式设置过的属性不在 __zui_i18nDefaults 中）。 */
+  private __syncI18nDefaults(): void {
+    const defaults = (this as any).__zui_i18nDefaults as Map<string, MessageKey> | undefined;
+    if (!defaults || defaults.size === 0) return;
+    for (const [propKey, msgKey] of defaults) {
+      const next = t(msgKey);
+      const prev = (this as any)[`__zui_prop_${propKey}`];
+      if (prev !== next) {
+        if (!this.__zui_changedProps.has(propKey)) this.__zui_changedProps.set(propKey, prev);
+        (this as any)[`__zui_prop_${propKey}`] = next;
+      }
+    }
+  }
+
+  private __onLocaleChange(): void {
+    if (!this.isConnected) {
+      if (this.__unsubLocale) {
+        this.__unsubLocale();
+        this.__unsubLocale = null;
+      }
+      return;
+    }
+    this.__localeVer = localeVersion();
+    this.__syncI18nDefaults();
+    this.requestUpdate();
+  }
 
   attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
     const metaList = (this.constructor as any).__zui_propertyMeta as
@@ -88,6 +196,12 @@ export abstract class BaseElement extends HTMLElement {
       // decorators 里那份会 JSON.parse 的实现，所以「写在标记里正常、运行时改就坏」
       // —— 同一个转换写两遍必然分叉。现在两处共用一份。
       const converted = convertFromAttribute(value, meta.type as never);
+      const defaults = (this as any).__zui_i18nDefaults as Map<string, MessageKey> | undefined;
+      if (defaults) defaults.delete(meta.key);
+      const prev = (this as any)[`__zui_prop_${meta.key}`];
+      if (prev !== converted && !this.__zui_changedProps.has(meta.key)) {
+        this.__zui_changedProps.set(meta.key, prev);
+      }
       // [WHY] 私有键必须与 decorators.ts 的 __zui_prop_ 前缀一致，否则 attribute→property 同步失效
       (this as any)[`__zui_prop_${meta.key}`] = converted;
       this.requestUpdate();
@@ -111,17 +225,33 @@ export abstract class BaseElement extends HTMLElement {
     // 组合结束时 `compositionend` 会重新 requestUpdate，不丢更新。
     if (this.__composing) return;
 
-    const ctx: UpdateContext = { isFirst: !this.__hasRendered };
+    const changed = new Map(this.__zui_changedProps);
+    this.__zui_changedProps.clear();
+    const ctx: UpdateContext = { isFirst: !this.__hasRendered, changed };
     (this as any).willUpdate?.(ctx);
 
     const rendered = this.render();
     const shadow = this.shadowRoot!;
     if (typeof rendered === "string") {
-      const declared = (this.constructor as typeof BaseElement).styles;
-      const styles = Array.isArray(declared) ? declared.join("\n") : declared;
-      const styleTag = styles ? `<style>${styles}</style>` : "";
+      const ctor = this.constructor as typeof BaseElement;
+      const sheet = getAdoptedSheet(ctor, shadow);
       const memo = this.__memoFocus();
-      shadow.innerHTML = styleTag + rendered;
+      if (sheet) {
+        if (!this.__sheetAdopted) {
+          shadow.adoptedStyleSheets = [sheet];
+          this.__sheetAdopted = true;
+        }
+        if (ctor.morph && this.__hasRendered) {
+          morphChildren(shadow, rendered);
+        } else {
+          shadow.innerHTML = rendered;
+        }
+      } else {
+        const declared = ctor.styles;
+        const styles = typeof declared === "string" ? declared : declared?.join("\n");
+        const styleTag = styles ? `<style>${styles}</style>` : "";
+        shadow.innerHTML = styleTag + rendered;
+      }
       this.__restoreFocus(memo);
     }
 
@@ -130,10 +260,8 @@ export abstract class BaseElement extends HTMLElement {
       this.__watchComposition();
       (this as any).firstUpdated?.();
     }
-    // [CONTRACT] 子类 updated 钩子**不传参**（无 lit 式 changed Map——本基类不追踪旧值）。
-    // 需要响应属性变化时在子类内自行比对旧值（见 DocTemplateManager._dataSourcePrimed）。
-    // lit 风格 `updated(changed: Map)` 签名会在运行时 TypeError。
-    (this as any).updated?.();
+    // 传入本帧变更的属性映射（prop → oldValue）；0 参旧子类不受影响。
+    (this as any).updated?.(changed);
     (this as any).updateComplete?.();
   }
 

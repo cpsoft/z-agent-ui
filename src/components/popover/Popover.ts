@@ -1,7 +1,7 @@
 // [WHY] 2026-10-25 系统审计：浮层面板生命周期改由 FloatingPanelController 统一承载
 // （原手写 body.appendChild + FloatingPosition + 文档 mousedown + animationend 清理）。
 // See: wiki/reference/component-implementation-standard.md
-import { BaseElement, html, property, injectGlobalStyles, bindTriggerAria } from "../../core/index.js";
+import { BaseElement, html, property, injectGlobalStyles, bindTriggerAria, defineElement } from "../../core/index.js";
 import { FloatingPanelController, type Placement } from "../../primitives/index.js";
 import popoverCSS from "./popover.css?raw";
 
@@ -215,4 +215,4 @@ export class ZPopover extends BaseElement {
   }
 }
 
-customElements.define("z-popover", ZPopover);
+defineElement("z-popover", ZPopover);

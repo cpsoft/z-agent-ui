@@ -3,7 +3,7 @@
 // canvas 生成 dataURL 平铺 host 背景（pointer-events:none）+ MutationObserver
 // 防篡改重涂。happy-dom 无 canvas 2D → 守卫跳过（测试 mock getContext）。
 // 注意：v1 为视觉水印，无防截图/防打印手段（浏览器不可靠）。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import watermarkCSS from "./watermark.css?raw";
 
 export class ZWatermark extends BaseElement {
@@ -86,4 +86,4 @@ export class ZWatermark extends BaseElement {
   }
 }
 
-customElements.define("z-watermark", ZWatermark);
+defineElement("z-watermark", ZWatermark);

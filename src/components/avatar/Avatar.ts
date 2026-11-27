@@ -1,5 +1,5 @@
 // <z-avatar> 头像：有图走 src，无图或加载失败退 initials 文字，size / shape 定尺寸与圆形或方形。
-import { BaseElement, html, property, escapeHtml, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeHtml, escapeAttr, defineElement } from "../../core/index.js";
 import avatarCSS from "./avatar.css?raw";
 
 export type AvatarSize = "xs" | "sm" | "md" | "lg" | "xl";
@@ -60,4 +60,4 @@ export class ZAvatar extends BaseElement {
   };
 }
 
-customElements.define("z-avatar", ZAvatar);
+defineElement("z-avatar", ZAvatar);

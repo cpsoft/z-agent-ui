@@ -8,7 +8,7 @@
 // attribute 的反射时机取决于装饰器实现；而 CSS 属性选择器 `[align="center"]` 只认 attribute。
 // 两者一旦不同步，症状是「用 JS 赋值不生效、写 HTML 属性却生效」—— 极难归因。
 // 走 `willUpdate` 里同步写 `--_*` 就只有一个入口。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 // 词汇映射表从 flex 取，而不是各写一份 —— `align="end"` 在两个组件里必须是同一个 CSS 关键字，
 // 两份表迟早会漂，而漂了不会报错，只会让两个容器的「end」表现不同。
 import { ALIGN_MAP, JUSTIFY_MAP } from "../flex/index.js";
@@ -75,4 +75,4 @@ export class ZSpace extends BaseElement {
   }
 }
 
-customElements.define("z-space", ZSpace);
+defineElement("z-space", ZSpace);

@@ -12,7 +12,7 @@
 //   · 只给 `groups`（`颜色:米白,岩灰|尺码:250ml,500ml`）+ `stock`：适合无 SKU 矩阵的简单商品；
 //   · 给 `skus`（属性传数组）：每行一组规格 + 自己的价格与库存，①②③ 全部按矩阵算。
 // `skus` 在时优先用它；`groups` 省略则从 `skus` 的规格键里反推。
-import { BaseElement, COPY, escapeAttr, html, property } from "../../core/index.js";
+import { BaseElement, COPY, escapeAttr, escapeHtml, html, property, t, defineElement } from "../../core/index.js";
 import "../m-price/MPrice.js";
 import "../m-stepper/MStepper.js";
 import mSkuPickerCSS from "./m-sku-picker.css?raw";
@@ -83,7 +83,7 @@ export class MSkuPicker extends BaseElement {
   static styles = mSkuPickerCSS;
 
   @property({ type: Boolean }) visible = false;
-  @property({ type: String }) title = "选择规格";
+  @property({ type: String }) title = COPY.selectSpecs;
   @property({ type: String }) image = "";
   /** 兜底价（无 `skus` 时用；有 `skus` 且选全了就按那一行）。 */
   @property({ type: String }) price: string | number = "";
@@ -99,7 +99,7 @@ export class MSkuPicker extends BaseElement {
   @property({ type: String, attribute: "selected", reflect: false }) selected: string | Record<string, string> = "";
   @property({ type: Number }) qty = 1;
   /** 主按钮文案。 */
-  @property({ type: String }) confirmText = "加入购物车";
+  @property({ type: String }) confirmText = COPY.addToCart;
   /** 不显示数量行（如只选规格的场景）。 */
   @property({ type: Boolean }) hideQty = false;
 
@@ -177,7 +177,7 @@ export class MSkuPicker extends BaseElement {
     const complete = this._complete;
     const picked = complete
       ? groups.map((g) => map[g.key]).join(" · ")
-      : `请选择 ${groups.filter((g) => !(map[g.key] ?? "").trim()).map((g) => g.label ?? g.key).join(" / ")}`;
+      : t("pleaseSelect", { fields: groups.filter((g) => !(map[g.key] ?? "").trim()).map((g) => g.label ?? g.key).join(" / ") });
     const img = this._currentSku?.image || this.image;
     const blocked = !complete || stock === 0;
 
@@ -217,8 +217,8 @@ export class MSkuPicker extends BaseElement {
               ${this.origin !== ""
                 ? `<m-price value="${escapeAttr(String(this.origin))}" size="sm" strike></m-price>`
                 : ""}
-              <p class="m-sku__picked" part="picked">${complete ? `已选：${escapeAttr(picked)}` : escapeAttr(picked)}</p>
-              ${stock >= 0 ? `<p class="m-sku__stock">库存 ${stock} 件</p>` : ""}
+              <p class="m-sku__picked" part="picked">${complete ? escapeHtml(t("selectedValue", { value: picked })) : escapeAttr(picked)}</p>
+              ${stock >= 0 ? `<p class="m-sku__stock">${escapeHtml(t("stockCount", { count: stock }))}</p>` : ""}
             </div>
             <button type="button" class="m-sku__close" part="close" aria-label="${COPY.close}">
               <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
@@ -231,11 +231,11 @@ export class MSkuPicker extends BaseElement {
             ${this.hideQty
               ? ""
               : `<div class="m-sku__qty">
-                   <span class="m-sku__qty-label">数量</span>
+                   <span class="m-sku__qty-label">${escapeHtml(t("quantity"))}</span>
                    <m-stepper value="${qty}" min="1" ${max !== undefined ? `max="${max}"` : ""}></m-stepper>
                  </div>`}
             <button type="button" class="m-sku__confirm" part="confirm" ${blocked ? "disabled" : ""}>
-              ${escapeAttr(complete ? this.confirmText : "请选择规格")}
+              ${escapeAttr(complete ? this.confirmText : t("selectSpecsPrompt"))}
             </button>
           </footer>
         </div>
@@ -362,4 +362,4 @@ export class MSkuPicker extends BaseElement {
   };
 }
 
-customElements.define("m-sku-picker", MSkuPicker);
+defineElement("m-sku-picker", MSkuPicker);

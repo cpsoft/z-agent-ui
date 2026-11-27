@@ -7,7 +7,7 @@
 //
 // [WHY 点击分两条通道] 整卡点击 = 进详情；右下角加购按钮 = 直接进购物车。
 // 加购若冒泡成整卡点击，用户点「+」会跳走，是商城最招骂的交互之一，所以显式 stopPropagation。
-import { BaseElement, escapeAttr, html, priceParts, property } from "../../core/index.js";
+import { BaseElement, escapeAttr, escapeHtml, html, priceParts, property, t, defineElement } from "../../core/index.js";
 import mGoodsCardCSS from "./m-goods-card.css?raw";
 
 /** `tags` 的字符串形态：`包邮|新品`（逗号或竖线都可，两种都常见）。 */
@@ -62,7 +62,7 @@ export class MGoodsCard extends BaseElement {
       >
         <div class="m-goods-card__media" part="media">
           ${img}
-          ${this.soldOut ? '<span class="m-goods-card__mask">已售罄</span>' : ""}
+          ${this.soldOut ? `<span class="m-goods-card__mask">${escapeHtml(t("soldOut"))}</span>` : ""}
         </div>
         <div class="m-goods-card__body" part="body">
           <p class="m-goods-card__title" part="title">${escapeAttr(this.title)}</p>
@@ -76,7 +76,7 @@ export class MGoodsCard extends BaseElement {
             ${this.sales ? `<span class="m-goods-card__sales">${escapeAttr(this.sales)}</span>` : ""}
             ${this.noAdd || this.soldOut
               ? ""
-              : `<button class="m-goods-card__add" type="button" aria-label="加入购物车" part="add" data-own-act="add">
+              : `<button class="m-goods-card__add" type="button" aria-label="${escapeAttr(t("addToCart"))}" part="add" data-own-act="add">
                    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
                  </button>`}
           </div>
@@ -113,4 +113,4 @@ export class MGoodsCard extends BaseElement {
   };
 }
 
-customElements.define("m-goods-card", MGoodsCard);
+defineElement("m-goods-card", MGoodsCard);

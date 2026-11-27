@@ -1,5 +1,5 @@
 // <z-property-row> 属性面板的一行：label 列加默认槽内容，span 控制占几列。
-import { BaseElement, html, property, escapeAttr, bindFieldName, slottedControl, type FieldNameBinder } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, bindFieldName, slottedControl, type FieldNameBinder, defineElement } from "../../core/index.js";
 import propertyRowCSS from "./property-row.css?raw";
 
 // [WHY] label 与控件分列（label 槽位 + 默认槽位），见 REQ-008
@@ -68,4 +68,4 @@ export class ZPropertyRow extends BaseElement {
 
 }
 
-customElements.define("z-property-row", ZPropertyRow);
+defineElement("z-property-row", ZPropertyRow);

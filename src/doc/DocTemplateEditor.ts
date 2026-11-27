@@ -1,3 +1,4 @@
+import { defineElement, t } from "../core/index.js";
 // <z-doc-template-editor> 文档模板编辑器：编辑正文并插入占位符，块选择与属性面板联动，变更发 z-change。
 // [WHY] 2026-10-25 系统审计：从 DocTemplateEditor.ts（1264 行）按职责拆出
 // 职责：z-doc-template-editor 的事件绑定与交互、编辑型公开 API（增删块 / 表格结构 / 载入模板）；
@@ -303,13 +304,13 @@ export class ZDocTemplateEditor extends DocTemplateEditorBase {
       block.ordered = false;
     } else if (type === "table") {
       block.columns = [
-        { key: "col1", label: "列1", width: 60 },
-        { key: "col2", label: "列2", width: 60 },
+        { key: "col1", label: t("columnN", { n: 1 }), width: 60 },
+        { key: "col2", label: t("columnN", { n: 2 }), width: 60 },
       ];
       block.rows = [["", ""]];
     } else if (type === "signature") {
-      block.left = "甲方（签章）：";
-      block.right = "乙方（签章）：";
+      block.left = t("partyASignature");
+      block.right = t("partyBSignature");
     }
     this._blocks.push(block);
     this._selectedId = block.id;
@@ -327,7 +328,7 @@ export class ZDocTemplateEditor extends DocTemplateEditorBase {
     if (!block) return;
     block.columns = block.columns ?? [];
     const n = block.columns.length + 1;
-    block.columns.push({ key: `col${n}`, label: `列${n}`, width: 60 });
+    block.columns.push({ key: `col${n}`, label: t("columnN", { n }), width: 60 });
     // [WHY] 静态行同步补齐单元格, 避免 rows 参差（保存后宿主看到的数据结构不规整）
     for (const row of block.rows ?? []) while (row.length < block.columns.length) row.push("");
     this._afterTableMutate(block);
@@ -410,4 +411,4 @@ export class ZDocTemplateEditor extends DocTemplateEditorBase {
   }
 }
 
-customElements.define("z-doc-template-editor", ZDocTemplateEditor);
+defineElement("z-doc-template-editor", ZDocTemplateEditor);

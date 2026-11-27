@@ -1,7 +1,7 @@
 // [WHY] 槽位式节点：拖拽自持（pointer 事件 + zoom 换算），
 // move 期直接 style 突变，pointerup 一次性提交 position（commit-on-end，REQ-013）
 // See: wiki/requirements/REQ-013-node-flow-editor.md
-import { BaseElement, html, property } from "../core/index.js";
+import { BaseElement, html, property, defineElement } from "../core/index.js";
 import { formatPosition, parsePosition, type ZPosition } from "./shared.js";
 import { ZFlowHandle } from "./FlowHandle.js";
 import nodeCSS from "./node.css?raw";
@@ -168,4 +168,4 @@ export class ZFlowNode extends BaseElement {
   }
 }
 
-customElements.define("z-flow-node", ZFlowNode);
+defineElement("z-flow-node", ZFlowNode);

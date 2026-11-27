@@ -3,7 +3,7 @@
 // [WHY] 2026-11-23 选项模型 / 面板渲染 / 一维键盘导航抽到 menu-panel.ts，与 z-context-menu 共用：
 // 两份菜单此前各写一套激活项算法，写法一漂移就是「一个菜单能用键盘、另一个不能」。
 // See: wiki/reference/component-implementation-standard.md
-import { BaseElement, html, property, injectGlobalStyles, bindTriggerAria } from "../../core/index.js";
+import { BaseElement, html, property, injectGlobalStyles, bindTriggerAria, defineElement } from "../../core/index.js";
 import { FloatingPanelController, type Placement, FocusTrap } from "../../primitives/index.js";
 import { MENU_PANEL_STYLES, MenuNav, readMenuEntries, renderMenuEntries } from "./menu-panel.js";
 
@@ -176,4 +176,4 @@ export class ZMenu extends BaseElement {
 
 }
 
-customElements.define("z-menu", ZMenu);
+defineElement("z-menu", ZMenu);

@@ -11,7 +11,7 @@
 //   ② 快照而非实时：展开 shadow、收齐组件样式、固化浅色令牌（纸永远是白的，与当前主题无关）
 //   ③ 通用纸面规则按**标签**生效（thead / tfoot / tr），不认组件内部类名 ——
 //      z-print 不该知道 `z-rpt__pager` 这种名字
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import printCSS from "./print.css?raw";
 import { buildSnapshot } from "./snapshot.js";
 
@@ -195,4 +195,4 @@ export class ZPrint extends BaseElement {
   }
 }
 
-customElements.define("z-print", ZPrint);
+defineElement("z-print", ZPrint);

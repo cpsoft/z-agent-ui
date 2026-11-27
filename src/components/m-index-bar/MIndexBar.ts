@@ -10,7 +10,7 @@
 //
 // 滚动方向与高亮是**双向**的：点索引条滚动内容，滚动内容也反过来更新索引条高亮。
 // 只做单向的话，用户手动滚到 C 分组，索引条还停在 A 上。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, COPY, html, property, defineElement } from "../../core/index.js";
 import indexCSS from "./m-index-bar.css?raw";
 
 /** 点在索引条上时，y 坐标落在第几个字母。`rect` 是索引条自身的矩形。 */
@@ -44,7 +44,7 @@ export class ZMIndexBar extends BaseElement {
    * [WHY 做成属性而不是写死常量] 它进的是读屏的「地标列表」：英文站里出现「快速定位」
    * 与整页其它文案语言不一致。同 `z-select` 的 `searchPlaceholder` 一类，文案归宿主。
    */
-  @property({ type: String }) railLabel = "快速定位";
+  @property({ type: String }) railLabel = COPY.quickJump;
 
   private _scrollTarget: HTMLElement | Window | null = null;
 
@@ -300,4 +300,4 @@ export class ZMIndexBar extends BaseElement {
   }
 }
 
-customElements.define("m-index-bar", ZMIndexBar);
+defineElement("m-index-bar", ZMIndexBar);

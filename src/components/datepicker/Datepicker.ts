@@ -2,7 +2,7 @@
 import {
   BaseElement,
   html,
-  property,
+  property, t,
   injectGlobalStyles,
   escapeAttr,
   escapeHtml,
@@ -25,7 +25,7 @@ import {
   ariaBool,
   bindTriggerAria,
   isEditableElement,
-} from "../../core/index.js";
+ defineElement } from "../../core/index.js";
 import { FloatingPanelController } from "../../primitives/index.js";
 import datepickerCSS from "./datepicker.css?raw";
 import { DATEPICKER_PANEL_CSS } from "./panel-styles.js";
@@ -429,7 +429,7 @@ export class ZDatepicker extends BaseElement {
         return (
           `<button type="button" class="z-datepicker__preset${active ? " is-active" : ""}"` +
           ` data-preset="${escapeAttr(name)}" aria-pressed="${active ? "true" : "false"}"` +
-          (usable ? "" : ` disabled aria-disabled="true" title="超出可选日期范围"`) +
+          (usable ? "" : ` disabled aria-disabled="true" title="${escapeAttr(t("dateOutOfRange"))}"`) +
           `>${escapeHtml(name)}</button>`
         );
       })
@@ -437,7 +437,7 @@ export class ZDatepicker extends BaseElement {
       .join("");
     if (!items) return "";
     return (
-      `<div class="z-datepicker__presets" part="presets" role="group" aria-label="快捷区间">` +
+      `<div class="z-datepicker__presets" part="presets" role="group" aria-label="${escapeAttr(t("quickRanges"))}">` +
       `${items}</div>`
     );
   }
@@ -820,4 +820,4 @@ export class ZDatepicker extends BaseElement {
   }
 }
 
-customElements.define("z-datepicker", ZDatepicker);
+defineElement("z-datepicker", ZDatepicker);

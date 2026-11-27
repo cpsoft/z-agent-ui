@@ -6,7 +6,7 @@
 // 页面换端就得改写法。这里补 `type` 与 `title` 对齐语义；`image` 保留且**优先**，
 // 老写法（`<z-empty image="search">`）行为不变。
 // See: architecture/component-gap-audit.html §03（空/错/无权限 4 处各写一遍）
-import { BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, defineElement } from "../../core/index.js";
 import emptyCSS from "./empty.css?raw";
 
 
@@ -70,4 +70,4 @@ export class ZEmpty extends BaseElement {
   }
 }
 
-customElements.define("z-empty", ZEmpty);
+defineElement("z-empty", ZEmpty);

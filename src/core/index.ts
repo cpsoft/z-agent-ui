@@ -59,6 +59,12 @@ export { resolveTone } from "./vocabulary.js";
 export { COPY, COPY_EXEMPT } from "./copy.js";
 export type { CopyKey } from "./copy.js";
 
+// 幂等自定义元素注册（防止微前端 / 重复打包 / HMR 下的重复 define 崩溃）
+export { defineElement } from "./define.js";
+
+// 轻量零依赖 DOM 差量更新
+export { morphChildren } from "./morph.js";
+
 // 表单字段的名称 / 错误态桥接（2026-11-15，a11y 收口）
 // [WHY 只给内部] 它是给**本库的表单容器与控件**用的：`z-form-item` 靠它把 label
 // 送进控件内部可聚焦件。宿主不需要知道 `part="field"` 这套内部约定 ——

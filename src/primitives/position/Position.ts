@@ -1,6 +1,6 @@
 // <z-position> 浮层定位：anchor 指定锚点、placement 定方位，空间不足时按 flip 翻转。
 // [WHY 引 core/index 而非包门面] 门面是给外界的；L0 内部经由它取符号会导致「门面改一行、L0 跟着抖」，且 core 单独打包时这行指向包外。
-import { BaseElement, property } from "../../core/index.js";
+import { BaseElement, property, defineElement } from "../../core/index.js";
 import { resolveDomRef } from "../domRef.js";
 import { FloatingPosition, type Placement } from "./FloatingPosition.js";
 
@@ -79,4 +79,4 @@ export class ZPosition extends BaseElement {
   }
 }
 
-customElements.define("z-position", ZPosition);
+defineElement("z-position", ZPosition);

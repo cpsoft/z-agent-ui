@@ -1,4 +1,4 @@
-import { BaseElement, html, property, sanitizeHtml, escapeAttr, COPY } from "../../core/index.js";
+import { BaseElement, html, property, sanitizeHtml, escapeAttr, COPY, defineElement } from "../../core/index.js";
 import { marked, type Renderer, type Tokens } from "marked";
 import markdownCSS from "./markdown.css?raw";
 
@@ -92,4 +92,4 @@ export class ZMarkdown extends BaseElement {
   }
 }
 
-customElements.define("z-markdown", ZMarkdown);
+defineElement("z-markdown", ZMarkdown);

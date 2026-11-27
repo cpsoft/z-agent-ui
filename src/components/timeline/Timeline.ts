@@ -1,6 +1,6 @@
 // [WHY] 时间线 [[2026-08-11-W17-data]] [2026-08-11] night-hawk:
 // array-prop 驱动（breadcrumb 先例），CSS ::before 竖线，reverse 倒序 + pending 尾巴。
-import { BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, defineElement } from "../../core/index.js";
 import timelineCSS from "./timeline.css?raw";
 
 export interface TimelineItem {
@@ -55,4 +55,4 @@ export class ZTimeline extends BaseElement {
   }
 }
 
-customElements.define("z-timeline", ZTimeline);
+defineElement("z-timeline", ZTimeline);

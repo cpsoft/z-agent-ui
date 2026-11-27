@@ -3,7 +3,7 @@
 // X5 等老内核无 IO 时降级为 scroll 事件 + 防抖 200ms（任务要求）
 // 参考 BaseElement 生命周期：connectedCallback 绑定 / disconnectedCallback 解绑
 // [2026-09-15] night-hawk: 创建移动端交互组件
-import { BaseElement, html, property, escapeHtml } from "../../core/index.js";
+import { BaseElement, html, property, t, escapeHtml, defineElement } from "../../core/index.js";
 import mListCSS from "./m-list.css?raw";
 
 export class MList extends BaseElement {
@@ -127,20 +127,20 @@ export class MList extends BaseElement {
       footer = html`
         <div class="m-list__footer m-list__footer--error" part="footer">
           <span class="m-list__text">${escapeHtml(this.error)}</span>
-          <button type="button" class="m-list__retry" part="retry">点击重试</button>
+          <button type="button" class="m-list__retry" part="retry">${escapeHtml(t("retryLoad"))}</button>
         </div>
       `;
     } else if (this.loading) {
       footer = html`
         <div class="m-list__footer" part="footer">
           <span class="m-list__spinner" aria-hidden="true"></span>
-          <span class="m-list__text">加载中...</span>
+          <span class="m-list__text">${escapeHtml(t("loadingDots"))}</span>
         </div>
       `;
     } else if (this.finished) {
       footer = html`
         <div class="m-list__footer" part="footer">
-          <span class="m-list__text">没有更多了</span>
+          <span class="m-list__text">${escapeHtml(t("noMore"))}</span>
         </div>
       `;
     }
@@ -155,4 +155,4 @@ export class MList extends BaseElement {
   }
 }
 
-customElements.define("m-list", MList);
+defineElement("m-list", MList);

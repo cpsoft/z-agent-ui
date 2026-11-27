@@ -6,6 +6,7 @@
 // 元素版把 `d` / `city_name` 原样印成表头，而 React 版是「日期 / 城市」。
 //
 // 口径（与 [[plan-20261023]] §6.3 一致）：别名 > 源表注释 > 物理名；datefmt 维度额外带粒度。
+import { fmt as localeFmt } from "../../core/index.js";
 import { columnLabel } from "./column-label.js";
 import { parseDateDim } from "./report-date.js";
 import type {
@@ -105,9 +106,9 @@ export function formatCellValue(value: unknown, fmt?: ReportColFormat): string {
   }
   // 百分数（Excel 语义）：存储值视为比率，Intl 自动 ×100 并加 %（0.93628 → 93.63%）
   if (fmt?.formatType === "percent") {
-    return new Intl.NumberFormat("zh-CN", { ...opts, style: "percent" }).format(num);
+    return localeFmt.percent(num, opts);
   }
-  return new Intl.NumberFormat("zh-CN", opts).format(num);
+  return localeFmt.number(num, opts);
 }
 
 /** 列标题：colFormats 里的别名优先，否则用传入的默认名。 */

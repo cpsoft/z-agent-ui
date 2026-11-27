@@ -3,7 +3,7 @@
 // 关闭流程：visible=false 先 _closing 滑出，animationend 后 display:none
 // 参考 Modal 的 _closing 状态机模式
 // [2026-09-15] night-hawk: 创建移动端交互组件
-import { BaseElement, html, property, escapeHtml } from "../../core/index.js";
+import { BaseElement, html, property, t, escapeHtml, defineElement } from "../../core/index.js";
 import mActionSheetCSS from "./m-action-sheet.css?raw";
 
 export interface MActionSheetAction {
@@ -52,7 +52,7 @@ export class MActionSheet extends BaseElement {
         <div class="m-action-sheet__panel${panelClosing}" part="panel" role="dialog" aria-modal="true">
           ${this.title ? html`<div class="m-action-sheet__title" part="title">${escapeHtml(this.title)}</div>` : ""}
           <div class="m-action-sheet__list" part="list">${items}</div>
-          <button type="button" class="m-action-sheet__cancel" part="cancel">取消</button>
+          <button type="button" class="m-action-sheet__cancel" part="cancel">${escapeHtml(t("cancel"))}</button>
         </div>
       </div>
     `;
@@ -128,4 +128,4 @@ export class MActionSheet extends BaseElement {
 
 }
 
-customElements.define("m-action-sheet", MActionSheet);
+defineElement("m-action-sheet", MActionSheet);

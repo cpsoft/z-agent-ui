@@ -1,5 +1,5 @@
 // 只读键值展示的单元：一个 label + 一段内容。
-import { BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, defineElement } from "../../core/index.js";
 import itemCSS from "./descriptions-item.css?raw";
 
 export class ZDescriptionsItem extends BaseElement {
@@ -31,4 +31,4 @@ export class ZDescriptionsItem extends BaseElement {
   }
 }
 
-customElements.define("z-descriptions-item", ZDescriptionsItem);
+defineElement("z-descriptions-item", ZDescriptionsItem);

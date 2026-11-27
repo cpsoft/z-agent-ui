@@ -5,14 +5,14 @@
 // [WHY 不清空 this.value] 赋值会触发 requestUpdate → shadow 重建 → input 丢焦点与输入法
 // 组合态，用户打字时输入法会被打断（中文尤其明显，一个词没组完就没了）。
 // 所以输入期间只在 DOM 上同步「清空按钮」的显隐，属性值只在清空/外部赋值时变。
-import { BaseElement, escapeHtml, html, property } from "../../core/index.js";
+import { BaseElement, COPY, escapeAttr, escapeHtml, html, property, t, defineElement } from "../../core/index.js";
 import mSearchCSS from "./m-search.css?raw";
 
 export class MSearch extends BaseElement {
   static styles = mSearchCSS;
 
   @property({ type: String }) value = "";
-  @property({ type: String }) placeholder = "搜索";
+  @property({ type: String }) placeholder = COPY.search;
   /** 防抖时长（ms）。0 = 不防抖（逐键上报，仅在本地筛选时用） */
   @property({ type: Number }) debounce = 200;
   /** 右侧「取消」入口 */
@@ -152,19 +152,19 @@ export class MSearch extends BaseElement {
             aria-label="${escapeHtml(this.placeholder)}"
           />
           ${this.action
-            ? html`<button class="m-search__submit" part="submit" type="button" data-act="search" aria-label="搜索" ${this.disabled ? "disabled" : ""}>搜索</button>`
+            ? html`<button class="m-search__submit" part="submit" type="button" data-act="search" aria-label="${escapeAttr(t("search"))}" ${this.disabled ? "disabled" : ""}>${escapeHtml(t("search"))}</button>`
             : ""}
-          <button class="m-search__clear" part="clear" type="button" data-act="clear" aria-label="清空" hidden>
+          <button class="m-search__clear" part="clear" type="button" data-act="clear" aria-label="${escapeAttr(t("clearAll"))}" hidden>
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <circle cx="7" cy="7" r="6" fill="currentColor" />
               <path d="M4.8 4.8L9.2 9.2M9.2 4.8L4.8 9.2" stroke="var(--z-color-surface)" stroke-width="1.4" stroke-linecap="round" />
             </svg>
           </button>
         </div>
-        ${this.cancel ? html`<button class="m-search__cancel" part="cancel" type="button" data-act="cancel">取消</button>` : ""}
+        ${this.cancel ? html`<button class="m-search__cancel" part="cancel" type="button" data-act="cancel">${escapeHtml(t("cancel"))}</button>` : ""}
       </div>
     `;
   }
 }
 
-customElements.define("m-search", MSearch);
+defineElement("m-search", MSearch);

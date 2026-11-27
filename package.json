@@ -95,6 +95,18 @@
       "types": "./dist/types/core/*.d.ts",
       "import": "./dist/core/*.js"
     },
+    "./locales/zh-CN": {
+      "types": "./dist/types/core/locales/zh-CN.d.ts",
+      "import": "./dist/core/locales/zh-CN.js"
+    },
+    "./locales/en-US": {
+      "types": "./dist/types/core/locales/en-US.d.ts",
+      "import": "./dist/core/locales/en-US.js"
+    },
+    "./locales/*": {
+      "types": "./dist/types/core/locales/*.d.ts",
+      "import": "./dist/core/locales/*.js"
+    },
     "./z-agent-ui.css": "./dist/z-agent-ui.css",
     "./app": {
       "types": "./dist/types/app/index.d.ts",
@@ -169,7 +181,8 @@
     "motion:check": "node bin/motion-check.mjs",
     "layer:check": "node bin/layer-guard.mjs",
     "lines:check": "node bin/lines-guard.mjs",
-    "check": "npm run exports:check && npm run manifest:check && npm run motion:check && npm run layer:check && npm run lines:check",
+    "text:check": "node bin/text-guard.mjs",
+    "check": "npm run exports:check && npm run manifest:check && npm run motion:check && npm run layer:check && npm run lines:check && npm run text:check",
     "check:guards": "node bin/check-guards.mjs",
     "hooks:install": "node bin/install-hooks.mjs",
     "prepare": "node bin/install-hooks.mjs",

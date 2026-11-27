@@ -9,7 +9,7 @@
 // [已知边界] clickable 与「卡内再放交互件」互斥：整卡是按钮、里面又有收藏按钮/行内操作时，
 // 键盘要跳两层、读屏念「按钮里的按钮」。这里做了兜底（点到卡内可交互元素时不发 z-click），
 // 但结构上仍建议：整卡可点的卡里不要放按钮，或把按钮移到卡外。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import cardCSS from "./card.css?raw";
 
 /** 卡内这些元素自己就是可点件：点到它们时不该再冒一次「整卡被点」。 */
@@ -98,4 +98,4 @@ export class ZCard extends BaseElement {
   }
 }
 
-customElements.define("z-card", ZCard);
+defineElement("z-card", ZCard);

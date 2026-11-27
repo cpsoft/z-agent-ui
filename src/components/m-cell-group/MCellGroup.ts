@@ -2,7 +2,7 @@
 // [WHY] 单元格分组：把「一组相关的行」画成一张圆角卡片，并用**自动分隔线**代替每行手写
 // `divider`。手写的问题不是麻烦，而是会漏：漏一行，那一组的两个条目就挤成一个，
 // 看不出是两条。分隔线由容器统一加，行自己不需要知道旁边有没有人。
-import { BaseElement, escapeHtml, html, property } from "../../core/index.js";
+import { BaseElement, escapeHtml, html, property, defineElement } from "../../core/index.js";
 import mCellGroupCSS from "./m-cell-group.css?raw";
 
 export class MCellGroup extends BaseElement {
@@ -39,4 +39,4 @@ export class MCellGroup extends BaseElement {
   }
 }
 
-customElements.define("m-cell-group", MCellGroup);
+defineElement("m-cell-group", MCellGroup);

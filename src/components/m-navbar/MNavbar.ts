@@ -1,7 +1,7 @@
 // <m-navbar> 导航栏：左返回 / 中标题 / 右侧插槽；点返回发 z-back。
 // [WHY] 移动端导航栏：左返回 / 中标题 / 右插槽。
 // 标题与返回按钮无障碍名都可能来自配置，插值必须转义（html`` 不做自动转义）。
-import { BaseElement, html, property, escapeHtml, escapeAttr } from "../../core/index.js";
+import { BaseElement, COPY, html, property, escapeHtml, escapeAttr, defineElement } from "../../core/index.js";
 import mNavbarCSS from "./m-navbar.css?raw";
 
 const BACK_SVG = `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>`;
@@ -19,7 +19,7 @@ export class MNavbar extends BaseElement {
    */
   @property({ type: Boolean }) showBack: boolean = false;
   /** 返回按钮的无障碍名。默认中文 —— 硬编码 "Back" 会让中文页面的读屏播报夹英文。 */
-  @property({ type: String }) backLabel: string = "返回";
+  @property({ type: String }) backLabel: string = COPY.back;
 
   connectedCallback(): void {
     super.connectedCallback();
@@ -53,4 +53,4 @@ export class MNavbar extends BaseElement {
   }
 }
 
-customElements.define("m-navbar", MNavbar);
+defineElement("m-navbar", MNavbar);

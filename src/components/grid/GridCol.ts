@@ -4,7 +4,7 @@
 //   · `"6"`                       —— 固定跨 6 列
 //   · `"xs:12 sm:6 md:4 lg:3"`    —— 小屏整行、sm 起半行、md 起三分之一、lg 起四分之一
 // 断点：xs <640 / sm ≥640 / md ≥768 / lg ≥1024 / xl ≥1280（与 grid.css 的字面量一致）。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import colCSS from "./grid-col.css?raw";
 
 const BREAKPOINTS = ["sm", "md", "lg", "xl"] as const;
@@ -49,4 +49,4 @@ export class ZGridCol extends BaseElement {
   }
 }
 
-customElements.define("z-grid-col", ZGridCol);
+defineElement("z-grid-col", ZGridCol);

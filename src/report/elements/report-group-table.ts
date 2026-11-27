@@ -22,7 +22,7 @@
 // [为什么状态全在内部] 折叠是纯 UI 态（不写回配置）：用户折了一个组再刷新，不该
 // 变成「这个组以后都折叠」。配置里有 showSubtotal / showGrandTotal，那是另一回事。
 
-import { COPY, BaseElement, escapeAttr, escapeHtml, html, property } from "../../core/index.js";
+import { COPY, BaseElement, escapeAttr, escapeHtml, html, property, t, defineElement } from "../../core/index.js";
 import { buildGroupRows, type GroupRenderRow } from "../core/report-group.js";
 import type { ReportTableColumn } from "../core/report-table-columns.js";
 import type { ReportChart } from "../core/types.js";
@@ -150,7 +150,7 @@ export class ZReportGroupTable extends BaseElement {
       ownCol && this._isTree() && r.hasChildren
         ? `<button type="button" class="tg" data-toggle="${escapeAttr(r.groupKey)}" aria-expanded="${
             this._collapsed.has(r.groupKey) ? "false" : "true"
-          }" title="${this._collapsed.has(r.groupKey) ? "展开" : "折叠"}">${
+          }" title="${escapeAttr(this._collapsed.has(r.groupKey) ? t("expand") : t("collapse"))}">${
             this._collapsed.has(r.groupKey) ? "▸" : "▾"
           }</button>`
         : "";
@@ -175,7 +175,7 @@ export class ZReportGroupTable extends BaseElement {
 
 // 与全库一致：直接 define（同模块经 ESM 只执行一次；「引了两份产物」是宿主侧问题，
 // guard 也救不了 —— 两份产物是两个不同的类，instanceof 早就不同了）。
-customElements.define("z-report-group-table", ZReportGroupTable);
+defineElement("z-report-group-table", ZReportGroupTable);
 
 declare global {
   interface HTMLElementTagNameMap {

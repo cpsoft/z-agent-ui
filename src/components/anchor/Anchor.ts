@@ -2,7 +2,7 @@
 // [WHY] 锚点导航 [[2026-08-11-W16-nav]] [2026-08-11] night-hawk:
 // items 驱动 + IntersectionObserver scrollspy（viewer 滚动高亮当前锚点）+
 // 点击平滑滚动。happy-dom 无 IO → 运行守卫（无 IO 时退化为纯点击模式）。
-import { BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, defineElement } from "../../core/index.js";
 import anchorCSS from "./anchor.css?raw";
 
 export interface AnchorItem {
@@ -146,4 +146,4 @@ export class ZAnchor extends BaseElement {
   }
 }
 
-customElements.define("z-anchor", ZAnchor);
+defineElement("z-anchor", ZAnchor);

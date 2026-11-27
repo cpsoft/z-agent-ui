@@ -31,21 +31,40 @@ import { describe, expect, it } from "vitest";
 const PROMISED = [
   "APPEARANCES",
   "BaseElement",
+  "DEFAULT_LOCALE",
   "SIZES",
   "TONES",
   "TONE_ALIASES",
   "css",
   "escapeAttr",
   "escapeHtml",
+  "fmt",
+  "getDateTimeFormat",
+  "getLocale",
+  "getNumberFormat",
   "governedDimension",
+  "hasMessage",
   "html",
   "injectGlobalStyles",
+  "onLocaleChange",
   "property",
+  "registerMessages",
   "sanitizeHtml",
+  "setLocale",
+  "t",
 ] as const;
 
 /** 只在类型空间存在，运行时不可见。列在这里是为了让「承诺了什么」一眼看全。 */
-const PROMISED_TYPES = ["UpdateContext", "SanitizeOptions", "Tone", "Appearance", "Size"] as const;
+const PROMISED_TYPES = [
+  "UpdateContext",
+  "SanitizeOptions",
+  "Tone",
+  "Appearance",
+  "Size",
+  "MessageKey",
+  "MessageParams",
+  "Messages",
+] as const;
 
 describe("L0 对外面：导出集合", () => {
   it("src/index.ts 的运行时导出与承诺清单逐字一致", async () => {

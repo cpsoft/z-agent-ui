@@ -1,5 +1,5 @@
 // <z-radio> 单选框：checked / value / name，变更发 z-change；成组使用请套 z-radio-group。
-import { BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, defineElement } from "../../core/index.js";
 import radioCSS from "./radio.css?raw";
 
 export class ZRadio extends BaseElement {
@@ -86,4 +86,4 @@ export class ZRadio extends BaseElement {
   };
 }
 
-customElements.define("z-radio", ZRadio);
+defineElement("z-radio", ZRadio);

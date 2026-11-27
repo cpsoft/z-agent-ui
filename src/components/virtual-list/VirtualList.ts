@@ -3,7 +3,7 @@
 // 固定高度 windowing（spacer + translateY 切片 + overscan）; 滚动时直写 slice
 // innerHTML 不走 requestUpdate（[[web-components-render-pitfalls]] 陷阱 2 规避:
 // 重渲染会整体替换滚动容器,破坏 scrollTop）。变高项 v1 不支持。
-import { COPY, BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { COPY, BaseElement, html, property, escapeAttr, defineElement } from "../../core/index.js";
 import virtualListCSS from "./virtual-list.css?raw";
 
 
@@ -101,4 +101,4 @@ export class ZVirtualList extends BaseElement {
   }
 }
 
-customElements.define("z-virtual-list", ZVirtualList);
+defineElement("z-virtual-list", ZVirtualList);

@@ -7,7 +7,7 @@
 // （`items='[{"label":"门店","value":"A-1024"}]'`），一是难读，二是 value 里出现引号就要转义地狱，
 // 三是没法在 value 里放组件（一个状态角标、一个链接）。子件两样都能。
 // See: D-L1-3 的原则 —— 事实层求机械可验证，结构层求人能读懂。
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import descriptionsCSS from "./descriptions.css?raw";
 
 export class ZDescriptions extends BaseElement {
@@ -43,4 +43,4 @@ export class ZDescriptions extends BaseElement {
   }
 }
 
-customElements.define("z-descriptions", ZDescriptions);
+defineElement("z-descriptions", ZDescriptions);

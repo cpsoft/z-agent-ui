@@ -3,7 +3,7 @@
 // 关键约束：scrollTop=0 且 deltaY>0 才允许下拉；释放后回弹用 CSS transition
 // 事件绑在 shadow root 的 scroller 元素上（updated 重建 DOM 需重绑）
 // [2026-09-15] night-hawk: 创建移动端交互组件
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, escapeHtml, html, property, t, defineElement } from "../../core/index.js";
 import mPullRefreshCSS from "./m-pull-refresh.css?raw";
 
 export class MPullRefresh extends BaseElement {
@@ -82,12 +82,12 @@ export class MPullRefresh extends BaseElement {
       if (refreshing) {
         if (arrow) arrow.style.display = "none";
         if (spinner) spinner.style.display = "inline-block";
-        if (text) text.textContent = "刷新中...";
+        if (text) text.textContent = t("refreshing");
       } else {
         if (arrow) arrow.style.display = "inline-block";
         if (spinner) spinner.style.display = "none";
         if (text) {
-          text.textContent = y >= this.threshold && this._pulling ? "释放刷新" : "下拉刷新";
+          text.textContent = y >= this.threshold && this._pulling ? t("releaseToRefresh") : t("pullToRefresh");
         }
         if (arrow) {
           const rotate = Math.min((y / this.threshold) * 180, 180);
@@ -173,7 +173,7 @@ export class MPullRefresh extends BaseElement {
           <svg class="m-pull-refresh__arrow" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M8 3v10M4 7l4-4 4 4"/>
           </svg>
-          <span class="m-pull-refresh__text">下拉刷新</span>
+          <span class="m-pull-refresh__text">${escapeHtml(t("pullToRefresh"))}</span>
         </div>
         <div class="m-pull-refresh__scroller" part="scroller">
           <slot></slot>
@@ -183,4 +183,4 @@ export class MPullRefresh extends BaseElement {
   }
 }
 
-customElements.define("m-pull-refresh", MPullRefresh);
+defineElement("m-pull-refresh", MPullRefresh);

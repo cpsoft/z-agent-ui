@@ -1,6 +1,6 @@
 // <z-menu-item> 菜单项：value 标识自己、disabled 置灰，点击交给所属的 z-menu 处理。
 // danger 供右键菜单的破坏性动作（删除/移除）使用，颜色语义只在这里定义一次。
-import { BaseElement, html, property, ariaBool } from "../../core/index.js";
+import { BaseElement, html, property, ariaBool, defineElement } from "../../core/index.js";
 import menuItemCSS from "./menu-item.css?raw";
 
 export class ZMenuItem extends BaseElement {
@@ -25,4 +25,4 @@ export class ZMenuItem extends BaseElement {
   }
 }
 
-customElements.define("z-menu-item", ZMenuItem);
+defineElement("z-menu-item", ZMenuItem);

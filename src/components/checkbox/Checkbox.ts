@@ -1,5 +1,5 @@
 // <z-checkbox> 复选框：checked 与 indeterminate 三态，value / name 随表单提交，变更发 z-change。
-import { BaseElement, html, property, escapeAttr, ariaBool } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, ariaBool, defineElement } from "../../core/index.js";
 import checkboxCSS from "./checkbox.css?raw";
 
 export class ZCheckbox extends BaseElement {
@@ -97,4 +97,4 @@ export class ZCheckbox extends BaseElement {
   };
 }
 
-customElements.define("z-checkbox", ZCheckbox);
+defineElement("z-checkbox", ZCheckbox);

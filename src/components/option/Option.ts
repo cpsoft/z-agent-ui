@@ -1,5 +1,5 @@
 // <z-option> 下拉选项：value / disabled / selected，只在下拉类容器里使用，不单独渲染。
-import { BaseElement, property } from "../../core/index.js";
+import { BaseElement, property, defineElement } from "../../core/index.js";
 
 export class ZOption extends BaseElement {
   @property({ type: String }) value = "";
@@ -15,4 +15,4 @@ export class ZOption extends BaseElement {
   }
 }
 
-customElements.define("z-option", ZOption);
+defineElement("z-option", ZOption);

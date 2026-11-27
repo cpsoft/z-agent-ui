@@ -6,7 +6,7 @@
 // 拆分数值的规则只有一份（`core/price.ts`），这里只管排版。
 //
 // 触控：它是纯展示件，不给 44px 命中区 —— 可点的外层是商品卡或行（那边负责触控）。
-import { BaseElement, escapeAttr, html, priceParts, priceText, property } from "../../core/index.js";
+import { BaseElement, escapeAttr, html, priceParts, priceText, property, defineElement } from "../../core/index.js";
 import mPriceCSS from "./m-price.css?raw";
 
 export class MPrice extends BaseElement {
@@ -59,4 +59,4 @@ export class MPrice extends BaseElement {
   }
 }
 
-customElements.define("m-price", MPrice);
+defineElement("m-price", MPrice);

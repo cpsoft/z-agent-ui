@@ -4,7 +4,7 @@
 // 是逐字近似两份，且都漏了「校验 transitionend 的 target」—— 子树里任何一层过渡结束
 // 都会把 maxHeight 提前清成 ""，正在跑的动画当场跳变。
 // [2026-09-15] night-hawk: 创建移动端交互组件
-import { BaseElement, html, property, escapeHtml, setContentCollapsed } from "../../core/index.js";
+import { BaseElement, html, property, escapeHtml, setContentCollapsed, defineElement } from "../../core/index.js";
 import { CollapseTween } from "../../primitives/index.js";
 import mCollapseCSS from "./m-collapse.css?raw";
 
@@ -82,4 +82,4 @@ export class MCollapse extends BaseElement {
 
 }
 
-customElements.define("m-collapse", MCollapse);
+defineElement("m-collapse", MCollapse);

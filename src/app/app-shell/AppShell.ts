@@ -2,7 +2,7 @@
 // [WHY] [[REQ-012]] 后台布局骨架组件族：全视口布局容器（header/sidebar/main/footer 命名槽 + 折叠）
 // See: wiki/requirements/REQ-012-admin-layout.md
 // [2026-08-11] AI: 初始实现
-import { BaseElement, html, property } from "../../core/index.js";
+import { BaseElement, html, property, defineElement } from "../../core/index.js";
 import appShellCSS from "./app-shell.css?raw";
 
 export class ZAppShell extends BaseElement {
@@ -84,4 +84,4 @@ export class ZAppShell extends BaseElement {
   }
 }
 
-customElements.define("z-app-shell", ZAppShell);
+defineElement("z-app-shell", ZAppShell);

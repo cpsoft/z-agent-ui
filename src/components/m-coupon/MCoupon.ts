@@ -7,7 +7,7 @@
 // 缺口颜色取 `--m-coupon-cut`（缺省 `var(--z-color-bg)`）。缺口是**挖掉**的视觉，
 // 但 CSS 无法真的挖洞（`mask-composite` 在旧内核上不可靠），只能用「与背景同色的圆」
 // 盖在券的边缘。放在非 `--z-color-bg` 的底色上（如灰色分组背景）时，宿主覆盖这个钩子。
-import { BaseElement, escapeAttr, html, priceParts, property } from "../../core/index.js";
+import { BaseElement, escapeAttr, escapeHtml, html, priceParts, property, t as msg, defineElement } from "../../core/index.js";
 import mCouponCSS from "./m-coupon.css?raw";
 
 export type CouponKind = "amount" | "discount" | "freight";
@@ -53,7 +53,7 @@ export class MCoupon extends BaseElement {
   }
 
   private get _stamp(): string {
-    return this.status === "used" ? "已使用" : this.status === "expired" ? "已过期" : "";
+    return this.status === "used" ? msg("couponUsed") : this.status === "expired" ? msg("couponExpired") : "";
   }
 
   /**
@@ -64,20 +64,20 @@ export class MCoupon extends BaseElement {
    */
   private _face(): string {
     if (this.kind === "freight") {
-      return `<div class="m-coupon__amount"><span class="m-coupon__word">免运费</span></div>`;
+      return `<div class="m-coupon__amount"><span class="m-coupon__word">${escapeHtml(msg("freeShipping"))}</span></div>`;
     }
     const n = escapeAttr(faceText(this.value, this.kind === "amount"));
     const unit =
       this.kind === "discount"
-        ? `<span class="m-coupon__num">${n}</span><span class="m-coupon__unit">折</span>`
+        ? `<span class="m-coupon__num">${n}</span><span class="m-coupon__unit">${escapeHtml(msg("discountUnit"))}</span>`
         : `<span class="m-coupon__sym">¥</span><span class="m-coupon__num">${n}</span>`;
     return `<div class="m-coupon__amount">${unit}</div>`;
   }
 
   private _cond(): string {
     const t = Number(this.threshold);
-    if (!Number.isFinite(t) || t <= 0) return "无门槛";
-    return `满 ${faceText(t, true)} 可用`;
+    if (!Number.isFinite(t) || t <= 0) return msg("noThreshold");
+    return msg("couponCondition", { amount: faceText(t, true) });
   }
 
   render(): string {
@@ -90,9 +90,13 @@ export class MCoupon extends BaseElement {
       .filter(Boolean)
       .join(" ");
     const label = [
-      "优惠券",
+      msg("couponLabel"),
       this.title,
-      this.kind === "freight" ? "免运费" : this.kind === "discount" ? `${faceText(this.value, false)} 折` : `满 ${faceText(this.threshold, true)} 减 ${faceText(this.value, true)}`,
+      this.kind === "freight"
+        ? msg("freeShipping")
+        : this.kind === "discount"
+          ? msg("couponDiscountText", { value: faceText(this.value, false) })
+          : msg("couponAmountText", { threshold: faceText(this.threshold, true), value: faceText(this.value, true) }),
       this._usable ? "" : this._stamp,
     ]
       .filter(Boolean)
@@ -151,4 +155,4 @@ export class MCoupon extends BaseElement {
   };
 }
 
-customElements.define("m-coupon", MCoupon);
+defineElement("m-coupon", MCoupon);

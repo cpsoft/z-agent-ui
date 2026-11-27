@@ -20,7 +20,7 @@ import {
   type ISOString,
   COPY,
   ariaBool,
-} from "../../core/index.js";
+ defineElement } from "../../core/index.js";
 import calendarCSS from "./calendar.css?raw";
 // 只有「文案与表格标记」还留在 L1；纯算术已下沉 core/date（2026-11-15）
 import { getMonthLabel, renderGridTable } from "../datepicker/calendar.js";
@@ -298,4 +298,4 @@ export class ZCalendar extends BaseElement {
   }
 }
 
-customElements.define("z-calendar", ZCalendar);
+defineElement("z-calendar", ZCalendar);

@@ -2,7 +2,7 @@
 // transitionend 清理」，与 Select/Datepicker 的 FloatingPanelController 重复。
 // 统一改为消费控制器；hover 型浮层不注册外部 mousedown 关闭（由 mouseleave 负责）。
 // See: wiki/reference/component-implementation-standard.md
-import { BaseElement, html, property, injectGlobalStyles } from "../../core/index.js";
+import { BaseElement, html, property, injectGlobalStyles, defineElement } from "../../core/index.js";
 import { FloatingPanelController, type Placement } from "../../primitives/index.js";
 import tooltipCSS from "./tooltip.css?raw";
 
@@ -137,4 +137,4 @@ export class ZTooltip extends BaseElement {
   }
 }
 
-customElements.define("z-tooltip", ZTooltip);
+defineElement("z-tooltip", ZTooltip);

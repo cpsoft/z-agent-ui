@@ -74,11 +74,19 @@ describe("z-sidebar", () => {
     document.body.removeChild(el);
   });
 
+  const readCss = (el: HTMLElement): string => {
+    const sr = el.shadowRoot!;
+    const inline = sr.querySelector("style")?.textContent;
+    if (inline) return inline;
+    const sheets = (sr as unknown as { adoptedStyleSheets?: CSSStyleSheet[] }).adoptedStyleSheets ?? [];
+    return sheets.map((s) => Array.from(s.cssRules).map((r) => r.cssText).join("\n")).join("\n");
+  };
+
   it("uses collapsed width token variables in stylesheet", async () => {
     const el = create();
     await flush();
 
-    const css = el.shadowRoot!.querySelector("style")!.textContent!;
+    const css = readCss(el);
     expect(css).toContain("--z-app-shell-sidebar-width");
     expect(css).toContain("--z-app-shell-sidebar-collapsed-width");
     document.body.removeChild(el);
@@ -88,7 +96,7 @@ describe("z-sidebar", () => {
     const el = create("<nav>Menu</nav>");
     await flush();
 
-    const css = el.shadowRoot!.querySelector("style")!.textContent!;
+    const css = readCss(el);
     expect(css).toContain("overflow-y: auto");
     expect(css).toContain("white-space: nowrap");
     document.body.removeChild(el);

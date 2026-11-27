@@ -7,7 +7,7 @@
 // 这一条只要导航条，`active` 用 key（订单状态码）而不是下标 —— 下标会随角标显隐变化。
 //
 // 触控：按钮高 44px。单据类页面的页签是高频点击目标，36px 时容易点到隔壁。
-import { BaseElement, ariaBool, escapeAttr, html, property } from "../../core/index.js";
+import { BaseElement, ariaBool, escapeAttr, html, property, defineElement } from "../../core/index.js";
 import mTabsCSS from "./m-tabs.css?raw";
 
 export interface MTabItem {
@@ -129,4 +129,4 @@ export class MTabs extends BaseElement {
   };
 }
 
-customElements.define("m-tabs", MTabs);
+defineElement("m-tabs", MTabs);

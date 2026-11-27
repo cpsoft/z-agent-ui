@@ -5,7 +5,7 @@
 //
 // [WHY 草稿值] 选中即生效会让「滑了一下又取消」变成一次真实的写入。这里把草稿留在
 // `_draft`，只有确认才上报 z-confirm；取消/点遮罩一律丢弃。
-import { COPY, BaseElement, escapeHtml, html, property } from "../../core/index.js";
+import { COPY, BaseElement, escapeHtml, html, property, defineElement } from "../../core/index.js";
 import mPickerCSS from "./m-picker.css?raw";
 
 export interface MPickerOption {
@@ -151,4 +151,4 @@ export class MPicker extends BaseElement {
   }
 }
 
-customElements.define("m-picker", MPicker);
+defineElement("m-picker", MPicker);

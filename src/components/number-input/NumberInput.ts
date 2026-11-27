@@ -1,7 +1,7 @@
 // [WHY] z-number-input [[2026-08-11-W13-form-basics]]:
 // 步进按钮 + 键盘上下 + min/max 钳制 + precision 小数。
 // z-input 语义: 输入中 z-input 给原始字符串(不钳制),change 时 z-change 给钳制后数字。
-import { COPY, BaseElement, html, property, escapeAttr, controlHeight, type ControlSize } from "../../core/index.js";
+import { COPY, BaseElement, html, property, escapeAttr, controlHeight, type ControlSize, defineElement } from "../../core/index.js";
 import numberInputCSS from "./number-input.css?raw";
 
 export class ZNumberInput extends BaseElement {
@@ -197,4 +197,4 @@ export class ZNumberInput extends BaseElement {
 
 }
 
-customElements.define("z-number-input", ZNumberInput);
+defineElement("z-number-input", ZNumberInput);

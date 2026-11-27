@@ -1,6 +1,6 @@
 // <z-portal> 把子节点投递到 target（默认 body）—— L0 原语，不直接面向业务。
 // [WHY 引 core/index 而非包门面] 门面是给外界的；L0 内部经由它取符号会导致「门面改一行、L0 跟着抖」，且 core 单独打包时这行指向包外。
-import { BaseElement, property } from "../../core/index.js";
+import { BaseElement, property, defineElement } from "../../core/index.js";
 import { resolveDomRef } from "../domRef.js";
 
 /**
@@ -67,4 +67,4 @@ export class ZPortal extends BaseElement {
   }
 }
 
-customElements.define("z-portal", ZPortal);
+defineElement("z-portal", ZPortal);

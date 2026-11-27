@@ -5,7 +5,7 @@ import {
   property,
   observeLegacyAttribute,
   syncAlias,
-} from "../../core/index.js";
+ defineElement } from "../../core/index.js";
 import spinnerCSS from "./spinner.css?raw";
 
 export type SpinnerSize = "sm" | "md" | "lg";
@@ -66,4 +66,4 @@ export class ZSpinner extends BaseElement {
 
 observeLegacyAttribute(ZSpinner, "variant");
 
-customElements.define("z-spinner", ZSpinner);
+defineElement("z-spinner", ZSpinner);

@@ -5,7 +5,7 @@
 // [WHY] 2026-10-25 系统审计：状态机（closing/wasOpen 快照/portal 重挂载/栈与滚动锁/退场动画）
 // 原为「整体拷贝 Modal.ts」的两份实现，现抽为 DialogStateController 单一来源。
 // See: wiki/reference/component-implementation-standard.md
-import { COPY, BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { COPY, BaseElement, html, property, escapeAttr, defineElement } from "../../core/index.js";
 import { DialogStateController, type DialogHost } from "../../primitives/index.js";
 import drawerCSS from "./drawer.css?raw";
 
@@ -183,4 +183,4 @@ export class ZDrawer extends BaseElement {
   }
 }
 
-customElements.define("z-drawer", ZDrawer);
+defineElement("z-drawer", ZDrawer);

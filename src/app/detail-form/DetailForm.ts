@@ -18,7 +18,7 @@ import "../../components/option/index.js";
 import "../../components/switch/index.js";
 import "../../components/datepicker/index.js";
 
-import { BaseElement, html, property, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeAttr, defineElement } from "../../core/index.js";
 import detailFormCSS from "./detail-form.css?raw";
 
 export type ZDetailFormFieldType =
@@ -339,4 +339,4 @@ export class ZDetailForm extends BaseElement {
   }
 }
 
-customElements.define("z-detail-form", ZDetailForm);
+defineElement("z-detail-form", ZDetailForm);

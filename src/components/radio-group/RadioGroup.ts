@@ -1,5 +1,5 @@
 // <z-radio-group> 单选组：统一收子级 z-radio 的选中，value 即选中值，orientation 定横排或竖排。
-import { BaseElement, escapeAttr, html, property } from "../../core/index.js";
+import { BaseElement, escapeAttr, html, property, defineElement } from "../../core/index.js";
 import { listIntent, resolveIndex } from "../../primitives/index.js";
 import { ZRadio } from "../radio/Radio.js";
 import radioGroupCSS from "./radio-group.css?raw";
@@ -117,4 +117,4 @@ export class ZRadioGroup extends BaseElement {
   };
 }
 
-customElements.define("z-radio-group", ZRadioGroup);
+defineElement("z-radio-group", ZRadioGroup);

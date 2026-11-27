@@ -8,7 +8,7 @@
 // 文件 id 计数器：不依赖 crypto.randomUUID（happy-dom 兼容）。
 // See: wiki/planning/TASKS/2026-08-11-W14-form/task_plan.md
 // [2026-08-11] night-hawk: 创建
-import { BaseElement, html, property, escapeHtml, escapeAttr } from "../../core/index.js";
+import { BaseElement, html, property, escapeHtml, escapeAttr, defineElement } from "../../core/index.js";
 import uploadCSS from "./upload.css?raw";
 
 export type ZUploadStatus = "idle" | "uploading" | "success" | "error";
@@ -284,4 +284,4 @@ export class ZUpload extends BaseElement {
   }
 }
 
-customElements.define("z-upload", ZUpload);
+defineElement("z-upload", ZUpload);

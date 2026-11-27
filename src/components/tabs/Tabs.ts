@@ -6,7 +6,7 @@ import {
   escapeAttr,
   observeLegacyAttribute,
   ariaBool,
-} from "../../core/index.js";
+ defineElement } from "../../core/index.js";
 import tabsCSS from "./tabs.css?raw";
 import type { ZTabPanel } from "../tab-panel/TabPanel.js";
 
@@ -225,4 +225,4 @@ export class ZTabs extends BaseElement {  static styles = tabsCSS;
 
 observeLegacyAttribute(ZTabs, "variant");
 
-customElements.define("z-tabs", ZTabs);
+defineElement("z-tabs", ZTabs);

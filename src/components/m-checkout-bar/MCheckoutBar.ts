@@ -6,7 +6,7 @@
 //
 // [WHY 全选框自己画] 与 m-goods-card 同一条理由：L1 控件之间不互相内嵌，否则一层手机界面
 // 会套出五六个 shadow root。样式与 m-checkbox 同源（都是 20px 方块 + 44px 命中区）。
-import { BaseElement, ariaBool, escapeAttr, html, priceParts, property } from "../../core/index.js";
+import { BaseElement, COPY, ariaBool, escapeAttr, escapeHtml, html, priceParts, property, t, defineElement } from "../../core/index.js";
 import mCheckoutBarCSS from "./m-checkout-bar.css?raw";
 
 export class MCheckoutBar extends BaseElement {
@@ -21,8 +21,8 @@ export class MCheckoutBar extends BaseElement {
   @property({ type: String }) total: string | number = "";
   @property({ type: Number }) decimals = 2;
   @property({ type: Boolean }) disabled = false;
-  @property({ type: String, attribute: "submit-text" }) submitText = "去结算";
-  @property({ type: String, attribute: "check-text" }) checkText = "全选";
+  @property({ type: String, attribute: "submit-text" }) submitText = COPY.checkout;
+  @property({ type: String, attribute: "check-text" }) checkText = COPY.selectAll;
   /** 由贴底改为行内（嵌在弹层或卡片里时用）。 */
   @property({ type: Boolean }) inline = false;
   /** 隐藏全选框（详情页的「立即购买」不需要全选）。 */
@@ -45,7 +45,7 @@ export class MCheckoutBar extends BaseElement {
         ? '<svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true"><path d="M3 7.2l2.6 2.6L11 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>'
         : "";
     return html`
-      <div class="${cls}" part="root" role="group" aria-label="结算">
+      <div class="${cls}" part="root" role="group" aria-label="${escapeAttr(t("checkoutBar"))}">
         ${this.noCheck
           ? ""
           : `<button
@@ -60,13 +60,13 @@ export class MCheckoutBar extends BaseElement {
                <span class="m-checkout-bar__check-text">${escapeAttr(this.checkText)}</span>
              </button>`}
         <div class="m-checkout-bar__sum" part="sum">
-          <span class="m-checkout-bar__label">合计</span>
+          <span class="m-checkout-bar__label">${escapeHtml(t("total"))}</span>
           ${hasTotal
             ? `<span class="m-checkout-bar__amount" aria-label="${escapeAttr(`${p.negative ? "-" : ""}¥${p.int}${p.dec ? "." + p.dec : ""}`)}">
                  <span aria-hidden="true">${p.negative ? "-" : ""}<span class="sym">¥</span><span class="int">${p.int}</span>${p.dec ? `<span class="dec">.${p.dec}</span>` : ""}</span>
                </span>`
             : '<span class="m-checkout-bar__amount m-checkout-bar__amount--empty">--</span>'}
-          ${this.count > 0 ? `<span class="m-checkout-bar__count">共 ${this.count} 件</span>` : ""}
+          ${this.count > 0 ? `<span class="m-checkout-bar__count">${escapeHtml(t("itemCount", { count: this.count }))}</span>` : ""}
         </div>
         <button
           class="m-checkout-bar__submit"
@@ -107,4 +107,4 @@ export class MCheckoutBar extends BaseElement {
   };
 }
 
-customElements.define("m-checkout-bar", MCheckoutBar);
+defineElement("m-checkout-bar", MCheckoutBar);
