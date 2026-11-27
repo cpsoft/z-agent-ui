@@ -49,9 +49,11 @@ const PROMISED = [
   "onLocaleChange",
   "property",
   "registerMessages",
+  "safeHtml",
   "sanitizeHtml",
   "setLocale",
   "t",
+  "unsafeHTML",
 ] as const;
 
 /** 只在类型空间存在，运行时不可见。列在这里是为了让「承诺了什么」一眼看全。 */
@@ -64,6 +66,7 @@ const PROMISED_TYPES = [
   "MessageKey",
   "MessageParams",
   "Messages",
+  "RawHtml",
 ] as const;
 
 describe("L0 对外面：导出集合", () => {

@@ -28,3 +28,49 @@ export function html(strings: TemplateStringsArray, ...values: unknown[]): strin
   }
   return result;
 }
+
+const RAW_HTML = Symbol("zui.rawHtml");
+
+/** 已信任的 HTML 片段标记：由 `safeHtml` 或显式 `unsafeHTML()` 产出，嵌套时不再二次转义。 */
+export interface RawHtml {
+  readonly [RAW_HTML]: true;
+  readonly value: string;
+  toString(): string;
+}
+
+/** 显式声明一段已净化或静态受控的 HTML，供 `safeHtml` 原样输出。 */
+export function unsafeHTML(value: string): RawHtml {
+  const s = value == null ? "" : String(value);
+  return {
+    [RAW_HTML]: true,
+    value: s,
+    toString: () => s,
+  };
+}
+
+function isRawHtml(v: unknown): v is RawHtml {
+  return typeof v === "object" && v !== null && RAW_HTML in v;
+}
+
+function renderSafePart(val: unknown): string {
+  if (val === false || val === null || val === undefined) return "";
+  if (isRawHtml(val)) return val.value;
+  if (Array.isArray(val)) return val.map(renderSafePart).join("");
+  return escapeAttr(val);
+}
+
+/**
+ * 默认自动转义全部插值的模板标签（防 XSS）。
+ *
+ * - 普通字符串/数字/数组元素默认按 `escapeAttr` 转义（文本与属性位置均安全）；
+ * - 嵌套的 `safeHtml` 与显式 `unsafeHTML(...)` 保持原样，不会二次转义；
+ * - 可直接作为 `BaseElement.render()` 的返回值，也可经 `String(...)` 转为普通字符串。
+ */
+export function safeHtml(strings: TemplateStringsArray, ...values: unknown[]): RawHtml {
+  let result = strings[0];
+  for (let i = 0; i < values.length; i++) {
+    result += renderSafePart(values[i]);
+    result += strings[i + 1] ?? "";
+  }
+  return unsafeHTML(result);
+}

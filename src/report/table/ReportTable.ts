@@ -59,19 +59,8 @@ import {
   type RowRenderContext,
 } from "./table-render.js";
 import { mountTableCells } from "./table-cell-mount.js";
-import {
-  bindColumnReorder,
-  countSelected,
-  handleCellClick,
-  handleHeadClick,
-  handleHeadMouseDown,
-  handleResizeMouseMove,
-  handleResizeMouseUp,
-  handleRowClick,
-  handleTableChange,
-  type ResizeInfo,
-  type TableInteractionHost,
-} from "./table-interactions.js";
+import { handleVirtualScroll, renderTableBody, type VirtualState } from "./table-virtual.js";
+import { bindColumnReorder, countSelected, handleCellClick, handleHeadClick, handleHeadMouseDown, handleResizeMouseMove, handleResizeMouseUp, handleRowClick, handleTableChange, type ResizeInfo, type TableInteractionHost } from "./table-interactions.js";
 
 // [WHY] 公开类型仍从本文件转出: index.ts 与下游(React 包装/宿主页)按 "./ReportTable.js" 取类型
 export type { ReportColFormat, ReportColumn, SortEntry, TableConfig } from "./report-table-types.js";
@@ -138,6 +127,8 @@ export class ZReportTable extends BaseElement {
   @property({ type: Boolean }) showFooter = false;
   @property({ type: Boolean }) striped = false;
   @property({ type: Boolean }) bordered = false;
+  @property({ type: Boolean }) virtual = false;
+  @property({ type: Number, attribute: "row-height" }) rowHeight = 36;
   /**
    * 三线表：顶线 / 表头下 / 底线加粗，无竖线（中文报表习惯，见 [[2026-08-10-rpt-business-polish]]）。
    *
@@ -233,6 +224,7 @@ export class ZReportTable extends BaseElement {
 
   /** 已折叠的组 key。折叠是**纯 UI 态**，不写回配置（刷新后恢复全展开）。 */
   private _collapsed = new Set<string>();
+  private _vState: VirtualState = { scrollTop: 0, viewportH: 0, start: 0, end: 0 };
   /**
    * 单元格游标：重渲染后把 roving 停靠点放回这里。
    *
@@ -541,7 +533,7 @@ export class ZReportTable extends BaseElement {
           <tbody class="z-rpt__body" part="body">
             ${this._paged.rows.length === 0
               ? renderEmptyRow(totalCols, this.emptyText)
-              : renderBodyRows(this._paged.rows, rowCtx)}
+              : renderTableBody(this._paged.rows, rowCtx, totalCols, this.virtual, this.rowHeight, this.maxHeight, this._vState)}
             ${this._paged.total ? renderBodyRows([this._paged.total], rowCtx) : ""}
           </tbody>
           ${this.showFooter && vis.length > 0 ? renderFooter(footerCtx) : ""}
@@ -924,6 +916,7 @@ export class ZReportTable extends BaseElement {
     const wrapper = this.shadowRoot?.querySelector(".z-rpt__wrapper") as HTMLElement | null;
     if (!wrapper || wrapper === this._scrollWrapper) return;
     this._scrollWrapper = wrapper;
+    if (this.virtual && this._vState.scrollTop > 0) wrapper.scrollTop = this._vState.scrollTop;
     wrapper.addEventListener("scroll", this._refreshScrollState, { passive: true });
   }
 
@@ -934,6 +927,9 @@ export class ZReportTable extends BaseElement {
     const scrolledRight = wrapper.scrollLeft + wrapper.clientWidth < wrapper.scrollWidth - 1;
     wrapper.classList.toggle("z-rpt__wrapper--scrolled-left", scrolledLeft);
     wrapper.classList.toggle("z-rpt__wrapper--scrolled-right", scrolledRight);
+    if (this.virtual && handleVirtualScroll(wrapper, this._paged.rows.length, this.rowHeight, this.maxHeight, this._vState)) {
+      this.requestUpdate();
+    }
   };
 
   // [WHY] 整行点击逻辑见 table-interactions#handleRowClick(composedPath 排除交互元素)

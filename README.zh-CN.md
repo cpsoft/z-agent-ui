@@ -66,6 +66,22 @@ import "@cpsoft13/z-agent-ui/app";        // 应用外壳、登录、详情表�
 | `@cpsoft13/z-agent-ui/property` | 属性面板、分组、行 —— 检查器外壳 |
 | `@cpsoft13/z-agent-ui/app` | 应用外壳、导航、登录、详情表单、打印 |
 | `@cpsoft13/z-agent-ui/react` | 每个元素对应的类型化 React 包装器 |
+| `@cpsoft13/z-agent-ui/locales/<locale>` | 多语言包（默认内置 `zh-CN`，按需引入 `en-US` 等） |
+
+---
+
+## 国际化（i18n）
+
+默认语言为 `zh-CN`（中文宿主零配置开箱即用）。其他语言通过一行调用即可在运行时切换，已挂载组件自动刷新，宿主显式设置的属性不受影响：
+
+```js
+import { setLocale } from "@cpsoft13/z-agent-ui";
+import enUS from "@cpsoft13/z-agent-ui/locales/en-US";
+
+setLocale("en-US", enUS);
+```
+
+数字与日期格式化（`fmt.number`、`fmt.percent`、`fmt.date`）统一走 `Intl` 并跟随当前语言。
 
 ---
 

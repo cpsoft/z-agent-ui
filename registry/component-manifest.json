@@ -9,7 +9,7 @@
       "composite": 30,
       "foundation": 2
     },
-    "properties": 962,
+    "properties": 964,
     "events": 213,
     "componentsWithEvents": 95,
     "componentsWithNamedSlots": 28,
@@ -9247,6 +9247,26 @@
           ],
           "type": "Boolean",
           "default": false,
+          "values": null
+        },
+        {
+          "name": "virtual",
+          "attribute": "virtual",
+          "aliases": [
+            "virtual"
+          ],
+          "type": "Boolean",
+          "default": false,
+          "values": null
+        },
+        {
+          "name": "rowHeight",
+          "attribute": "row-height",
+          "aliases": [
+            "row-height"
+          ],
+          "type": "Number",
+          "default": 36,
           "values": null
         },
         {

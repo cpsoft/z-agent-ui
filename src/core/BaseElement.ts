@@ -1,6 +1,7 @@
 import { applyPropertyMeta, convertFromAttribute, metaAliases } from "./decorators.js";
 import { localeVersion, onLocaleChange, t } from "./i18n.js";
 import { morphChildren } from "./morph.js";
+import type { RawHtml } from "./template.js";
 import type { MessageKey } from "./locales/zh-CN.js";
 
 /** 按组件类缓存 Constructable Stylesheet，避免每次 performUpdate 重复解析整份 CSS。 */
@@ -230,7 +231,13 @@ export abstract class BaseElement extends HTMLElement {
     const ctx: UpdateContext = { isFirst: !this.__hasRendered, changed };
     (this as any).willUpdate?.(ctx);
 
-    const rendered = this.render();
+    const rawRendered = this.render();
+    const rendered =
+      typeof rawRendered === "string"
+        ? rawRendered
+        : rawRendered && typeof rawRendered.value === "string"
+          ? rawRendered.value
+          : null;
     const shadow = this.shadowRoot!;
     if (typeof rendered === "string") {
       const ctor = this.constructor as typeof BaseElement;
@@ -372,8 +379,8 @@ export abstract class BaseElement extends HTMLElement {
     }
   }
 
-  /** Override to return the component template (<code>html`...`</code>). */
-  render(): string | null {
+  /** Override to return the component template (<code>html`...`</code> or <code>safeHtml`...`</code>). */
+  render(): string | RawHtml | null {
     return null;
   }
 

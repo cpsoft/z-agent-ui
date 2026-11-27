@@ -1,18 +1,14 @@
 {
   "note": "硬编码自然语言文案欠债表（只减不增）。清完一个文件就跑 `node bin/text-guard.mjs --update` 划掉它。",
   "files": {
-    "src/app/app-nav/AppNav.ts": 25,
-    "src/app/app-switcher/AppSwitcher.ts": 37,
     "src/app/print/Print.ts": 2,
     "src/components/embed/Embed.ts": 1,
     "src/components/m-index-bar/MIndexBar.ts": 2,
     "src/content/code-editor/highlight.ts": 3,
     "src/content/rich-text/RichText.ts": 4,
     "src/core/date/presets.ts": 5,
-    "src/core/sanitize.ts": 14,
     "src/doc/DocTemplateManager.ts": 3,
     "src/doc/editor-html.ts": 3,
-    "src/doc/render.ts": 11,
     "src/doc/types.ts": 16,
     "src/report/chart/geometry/build-cartesian.ts": 1,
     "src/report/chart/geometry/build-radar.ts": 1,
@@ -36,7 +32,6 @@
     "src/report/core/report-switch.ts": 4,
     "src/report/elements/card-export.ts": 1,
     "src/report/gantt/gantt-view.ts": 15,
-    "src/report/gantt/left-cell-mount.ts": 4,
     "src/report/table/column-config-panel.ts": 1,
     "src/report/table/ReportTable.ts": 2,
     "src/report/table/table-render.ts": 1

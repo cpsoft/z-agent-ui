@@ -67,6 +67,22 @@ import "@cpsoft13/z-agent-ui/app";        // app shell, login, detail form, prin
 | `@cpsoft13/z-agent-ui/property` | property panel, group, row — the inspector shell |
 | `@cpsoft13/z-agent-ui/app` | app shell, nav, login, detail form, print |
 | `@cpsoft13/z-agent-ui/react` | typed React wrappers over every element |
+| `@cpsoft13/z-agent-ui/locales/<locale>` | language packs (`zh-CN` default built-in, `en-US`, …) |
+
+---
+
+## Internationalization (i18n)
+
+Default locale is `zh-CN` (zero configuration for Chinese apps). Switch languages at runtime with one call — connected components update automatically while preserving any host-overridden attributes:
+
+```js
+import { setLocale } from "@cpsoft13/z-agent-ui";
+import enUS from "@cpsoft13/z-agent-ui/locales/en-US";
+
+setLocale("en-US", enUS);
+```
+
+Number and date formatters (`fmt.number`, `fmt.percent`, `fmt.date`) follow the active locale via `Intl`.
 
 ---
 

@@ -21,7 +21,7 @@ export { BaseElement, type UpdateContext } from "./BaseElement.js";
 export { property } from "./decorators.js";
 
 // 模板与转义：组件拼 HTML 的唯一入口（自写转义会绕过这里的引号处理）
-export { html, escapeHtml, escapeAttr } from "./template.js";
+export { html, safeHtml, unsafeHTML, escapeHtml, escapeAttr, type RawHtml } from "./template.js";
 
 // 净化：markdown 与富文本回填
 export { sanitizeHtml, type SanitizeOptions } from "./sanitize.js";

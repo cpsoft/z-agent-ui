@@ -62,6 +62,13 @@ function countHardcodedCjkLines(source) {
         i += 2;
         continue;
       }
+      // JS/TS 中单/双引号字符串不可跨行，遇换行复位可防正则字面量 /"/g 跨行泄漏到注释
+      if (ch === "\n" && (inStr === '"' || inStr === "'")) {
+        inStr = null;
+        out += ch;
+        i++;
+        continue;
+      }
       // 模板字符串内嵌 CSS 的 /* 注释 */ 不属于用户可见文案
       if (inStr === "`" && ch === "/" && next === "*") {
         i += 2;

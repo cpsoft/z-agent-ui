@@ -4,7 +4,7 @@
 // Date: 2026-07-16
 
 import { describe, it, expect } from "vitest";
-import { html, escapeHtml, escapeAttr } from "../../../src/core/template";
+import { html, safeHtml, unsafeHTML, escapeHtml, escapeAttr } from "../../../src/core/template";
 
 describe("html template tag", () => {
   it("returns a string", () => {
@@ -93,5 +93,23 @@ describe("escapeHtml / escapeAttr", () => {
     expect(escapeAttr(`<img src=x onerror="1">`)).toBe(
       "&lt;img src=x onerror=&quot;1&quot;&gt;",
     );
+  });
+});
+
+describe("safeHtml / unsafeHTML", () => {
+  it("默认转义文本与属性插值，防止 XSS", () => {
+    const xss = `<img src=x onerror="alert(1)">`;
+    const out = String(safeHtml`<div title="${xss}">${xss}</div>`);
+    expect(out).toBe(
+      `<div title="&lt;img src=x onerror=&quot;alert(1)&quot;&gt;">&lt;img src=x onerror=&quot;alert(1)&quot;&gt;</div>`,
+    );
+  });
+
+  it("嵌套 safeHtml 与显式 unsafeHTML 不二次转义，数组自动展平", () => {
+    const items = ["a", "<b>"];
+    const list = items.map((x) => safeHtml`<li>${x}</li>`);
+    const badge = unsafeHTML(`<span class="ok">OK</span>`);
+    const out = String(safeHtml`<ul>${list}</ul>${badge}${false}${null}${undefined}`);
+    expect(out).toBe(`<ul><li>a</li><li>&lt;b&gt;</li></ul><span class="ok">OK</span>`);
   });
 });

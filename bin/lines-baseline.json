@@ -10,7 +10,7 @@
     "src/report/gantt/gantt.css": 515,
     "src/report/gantt/Gantt.ts": 707,
     "src/report/table/report-table.css": 496,
-    "src/report/table/ReportTable.ts": 1022,
+    "src/report/table/ReportTable.ts": 1017,
     "src/theme/tokens.css": 872,
     "tests/unit/chart/extra-geometry.test.ts": 713,
     "tests/unit/components/datepicker.test.ts": 664,
